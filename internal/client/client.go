@@ -22,10 +22,12 @@ import (
 	"fmt"
 	"io"
 	"sync"
+	"sync/atomic"
 
 	"github.com/felipeleal/wa-go/internal/control"
 	"github.com/felipeleal/wa-go/internal/keys"
 	"github.com/felipeleal/wa-go/internal/store"
+	"github.com/felipeleal/wa-go/internal/waproto"
 	"github.com/felipeleal/wa-go/internal/wire"
 	"github.com/felipeleal/wa-go/internal/ws"
 )
@@ -109,6 +111,27 @@ type Client struct {
 	// reader. Guarded by pendingMu.
 	pendingMu sync.Mutex
 	pending   map[string]chan wire.Node
+
+	// retry holds the reliability state for retry receipts:
+	//   - msgRetry counts how many retry receipts we have asked for per inbound
+	//     msgId (capped at maxMsgRetryCount), mirroring Baileys' msgRetryCache.
+	//   - sentCache remembers the messages WE sent (msgId -> payload + recipient)
+	//     so we can re-encrypt and resend when a device asks us for a retry.
+	// Both are in-memory (Baileys keeps them in caches too) and guarded by retryMu.
+	retryMu     sync.Mutex
+	msgRetry    map[string]int
+	sentCache   map[string]*sentMessage
+	sentOrder   []string // FIFO insertion order for eviction
+	sentCap     int      // max entries in sentCache (0 => default)
+	retryPreKey atomic.Uint32
+}
+
+// sentMessage is one entry of the outbound message cache: the original plaintext
+// WAProto.Message and the recipient JID it was sent to, kept so a retry receipt
+// can be answered by re-encrypting the same content for the requesting device.
+type sentMessage struct {
+	msg   *waproto.Message
+	toJID string
 }
 
 // session is the live login state SendText needs: the serialized send function
@@ -132,14 +155,21 @@ func NewWithDialer(s store.Store, dial func(ctx context.Context) (io.ReadWriteCl
 	if dial == nil {
 		dial = dialWebSocket
 	}
-	return &Client{
+	c := &Client{
 		store:        s,
 		events:       make(chan Event, 16),
 		dial:         dial,
 		newEphemeral: keys.GenKeyPair,
 		profile:      control.DefaultProfile(),
 		pending:      make(map[string]chan wire.Node),
+		msgRetry:     make(map[string]int),
+		sentCache:    make(map[string]*sentMessage),
+		sentCap:      defaultSentCacheCap,
 	}
+	// Retry pre-keys are minted from a high id range so they never collide with
+	// the initial 1..initialPreKeyCount batch uploaded at login.
+	c.retryPreKey.Store(retryPreKeyBase)
+	return c
 }
 
 // Option configures a Client at construction time.

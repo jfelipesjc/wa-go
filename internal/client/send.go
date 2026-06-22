@@ -114,6 +114,9 @@ func (c *Client) sendMessage(ctx context.Context, toJID string, msg *waproto.Mes
 	if err := sess.send(stanza); err != nil {
 		return "", fmt.Errorf("client: send message: %w", err)
 	}
+	// Remember what we sent so a later <receipt type=retry> for this msgID can be
+	// answered by re-encrypting the same content for the requesting device.
+	c.rememberSent(msgID, toJID, msg)
 	return msgID, nil
 }
 

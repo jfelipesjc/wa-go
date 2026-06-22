@@ -189,6 +189,7 @@ func (c *Client) handleMessage(send func(wire.Node) error, node wire.Node, creds
 	}
 
 	var firstErr error
+	decryptFailed := false
 	noteErr := func(e error) {
 		if firstErr == nil {
 			firstErr = e
@@ -209,6 +210,7 @@ func (c *Client) handleMessage(send func(wire.Node) error, node wire.Node, creds
 			pm, err := c.decryptGroup(from, senderJID, ciphertext)
 			if err != nil {
 				noteErr(err)
+				decryptFailed = true
 				if debugPairing {
 					fmt.Fprintf(debugOut, "[wa-go] decrypt skmsg from %s in %s: %v\n", senderJID, from, err)
 				}
@@ -219,6 +221,7 @@ func (c *Client) handleMessage(send func(wire.Node) error, node wire.Node, creds
 			padded, err := c.decryptEnc(addr, creds, encType, ciphertext)
 			if err != nil {
 				noteErr(err)
+				decryptFailed = true
 				if debugPairing {
 					fmt.Fprintf(debugOut, "[wa-go] decrypt %s from %s: %v\n", encType, senderJID, err)
 				}
@@ -268,6 +271,21 @@ func (c *Client) handleMessage(send func(wire.Node) error, node wire.Node, creds
 		ev.Timestamp = parseTimestamp(node.Attrs["t"])
 		ev.PushName = node.Attrs["notify"]
 		c.emit(ev)
+	}
+
+	// On a decryption failure, ask the sender to resend (retry receipt) instead of
+	// silently dropping the message. We still send the message <ack> so the server
+	// stops queuing this delivery, but we do NOT send the plain delivery <receipt>
+	// (that would tell the sender we received it fine). Mirrors Baileys, which
+	// sends a retry receipt on a failed decrypt.
+	if decryptFailed {
+		if err := c.sendRetryReceipt(send, node, creds); err != nil && debugPairing {
+			fmt.Fprintf(debugOut, "[wa-go] send retry receipt: %v\n", err)
+		}
+		if err := send(messageAckNode(node, creds.Me)); err != nil {
+			return err
+		}
+		return firstErr
 	}
 
 	// Acknowledge the message regardless so the server does not redeliver.

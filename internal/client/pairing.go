@@ -728,6 +728,20 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 				ID:          node.Attrs["id"],
 				Type:        node.Attrs["type"],
 			})
+			// A <receipt type=retry> means a device could not decrypt a message WE
+			// sent: re-encrypt and resend it (Baileys' sendMessagesAgain). The
+			// resend may issue blocking iq fetches (prekey bundle), so run it off
+			// the read loop. assertSessions/sendIQ need the live session; capture it.
+			if isRetryReceipt(node) {
+				if sess, ok := c.activeSession(); ok {
+					rn := node
+					go func() {
+						if err := c.handleRetryReceipt(loopCtx, sess, rn); err != nil && debugPairing {
+							fmt.Fprintf(debugOut, "[wa-go] handle retry receipt: %v\n", err)
+						}
+					}()
+				}
+			}
 			_ = send(stanzaAckNode(node, creds.Me))
 		case "call":
 			// Surface the call to the app and ack it (class="call"). We do NOT

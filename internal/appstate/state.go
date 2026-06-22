@@ -32,6 +32,10 @@ func NewHashState() *HashState {
 	}
 }
 
+// Clone returns a deep copy of the HashState (exported wrapper over clone) so
+// callers outside the package can snapshot the live state without aliasing it.
+func (s *HashState) Clone() *HashState { return s.clone() }
+
 // clone returns a deep copy so a failed patch application can be discarded.
 func (s *HashState) clone() *HashState {
 	h := make([]byte, len(s.Hash))

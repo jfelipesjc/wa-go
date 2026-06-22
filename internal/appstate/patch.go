@@ -5,9 +5,11 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/hmac"
+	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 
 	waproto "github.com/felipeleal/wa-go/internal/waproto"
 	"google.golang.org/protobuf/proto"
@@ -159,6 +161,142 @@ func DecodePatch(name string, patch *waproto.SyncdPatch, prev *HashState, resolv
 	}
 
 	return &DecodeResult{State: next, Mutations: muts}, nil
+}
+
+// DecodeSnapshot decodes and integrity-checks a SyncdSnapshot for the named
+// collection. A snapshot is the server's full materialization of a collection:
+// every live record as an (always-SET) mutation. It mirrors Baileys'
+// decodeSyncdSnapshot — fold every record's valueMac into a fresh LTHash, verify
+// each record's value+index MAC, decode each SyncActionData, and finally check
+// the snapshot MAC over the resulting LTHash.
+//
+// The returned HashState has Version = snapshot.version and an indexValueMap
+// seeded from every record, so a subsequent DecodePatch chains correctly on top.
+// On any integrity failure it returns an error and no state.
+func DecodeSnapshot(name string, snap *waproto.SyncdSnapshot, resolve KeyResolver) (*DecodeResult, error) {
+	if snap.GetKeyId() == nil {
+		return nil, fmt.Errorf("appstate: snapshot missing keyId")
+	}
+	keyIDB64 := b64(snap.GetKeyId().GetId())
+	rawKey, ok := resolve(keyIDB64)
+	if !ok {
+		return nil, fmt.Errorf("%w: %s", ErrMissingKey, keyIDB64)
+	}
+	mk := DeriveMutationKeys(rawKey)
+	version := snap.GetVersion().GetVersion()
+
+	next := NewHashState()
+	next.Version = version
+
+	addBuffs := make([][]byte, 0, len(snap.GetRecords()))
+	muts := make([]Mutation, 0, len(snap.GetRecords()))
+
+	// Snapshot records are always SET (the live materialized value).
+	const op = waproto.SyncdMutation_SET
+	for _, rec := range snap.GetRecords() {
+		blob := rec.GetValue().GetBlob()
+		if len(blob) < 32 {
+			return nil, fmt.Errorf("appstate: snapshot value blob too short")
+		}
+		encContent := blob[:len(blob)-32]
+		valueMac := blob[len(blob)-32:]
+
+		wantValueMac := generateContentMac(op, encContent, rec.GetKeyId().GetId(), mk.ValueMacKey)
+		if !hmac.Equal(wantValueMac, valueMac) {
+			return nil, ErrValueMac
+		}
+
+		plaintext, err := aesCBCDecrypt(mk.ValueEncryptionKey, encContent)
+		if err != nil {
+			return nil, fmt.Errorf("appstate: snapshot decrypt: %w", err)
+		}
+		var sad waproto.SyncActionData
+		if err := proto.Unmarshal(plaintext, &sad); err != nil {
+			return nil, fmt.Errorf("appstate: snapshot unmarshal SyncActionData: %w", err)
+		}
+		wantIndexMac := generateIndexMac(sad.GetIndex(), mk.IndexKey)
+		if !hmac.Equal(wantIndexMac, rec.GetIndex().GetBlob()) {
+			return nil, ErrIndexMac
+		}
+		var idx []string
+		if err := json.Unmarshal(sad.GetIndex(), &idx); err != nil {
+			return nil, fmt.Errorf("appstate: snapshot parse index json: %w", err)
+		}
+		muts = append(muts, Mutation{Operation: op, Index: idx, Action: sad.GetValue()})
+
+		indexMacB64 := b64(rec.GetIndex().GetBlob())
+		addBuffs = append(addBuffs, valueMac)
+		vm := make([]byte, len(valueMac))
+		copy(vm, valueMac)
+		next.indexValueMap[indexMacB64] = vm
+	}
+
+	next.Hash = subtractThenAdd(next.Hash, nil, addBuffs)
+
+	wantSnapshotMac := generateSnapshotMac(next.Hash, version, name, mk.SnapshotMacKey)
+	if !hmac.Equal(wantSnapshotMac, snap.GetMac()) {
+		return nil, ErrSnapshotMac
+	}
+	return &DecodeResult{State: next, Mutations: muts}, nil
+}
+
+// EncodeSnapshot is the inverse of DecodeSnapshot: it builds a SyncdSnapshot for
+// the named collection from a set of mutations, computing every MAC the decoder
+// verifies. It is provided so tests (and a future full-sync sender) can produce
+// a valid snapshot blob; production only ever decodes server snapshots.
+//
+// randReader supplies the per-value IV (nil = crypto/rand).
+func EncodeSnapshot(name string, version uint64, keyIDB64 string, keys MutationKeys, mutations []MutationToEncode, randReader io.Reader) (*waproto.SyncdSnapshot, error) {
+	if randReader == nil {
+		randReader = rand.Reader
+	}
+	encKeyID, err := decodeB64(keyIDB64)
+	if err != nil {
+		return nil, fmt.Errorf("appstate: bad keyId base64: %w", err)
+	}
+	hash := make([]byte, ltHashLen)
+	addBuffs := make([][]byte, 0, len(mutations))
+	records := make([]*waproto.SyncdRecord, 0, len(mutations))
+	const op = waproto.SyncdMutation_SET
+	for _, m := range mutations {
+		indexBytes, err := json.Marshal(m.Index)
+		if err != nil {
+			return nil, fmt.Errorf("appstate: marshal index: %w", err)
+		}
+		sad := &waproto.SyncActionData{
+			Index:   indexBytes,
+			Value:   m.Action,
+			Padding: []byte{},
+			Version: proto.Int32(m.APIVersion),
+		}
+		plaintext, err := proto.Marshal(sad)
+		if err != nil {
+			return nil, fmt.Errorf("appstate: marshal SyncActionData: %w", err)
+		}
+		encValue, err := aesCBCEncrypt(keys.ValueEncryptionKey, plaintext, randReader)
+		if err != nil {
+			return nil, fmt.Errorf("appstate: encrypt: %w", err)
+		}
+		valueMac := generateContentMac(op, encValue, encKeyID, keys.ValueMacKey)
+		indexMac := generateIndexMac(indexBytes, keys.IndexKey)
+		blob := make([]byte, 0, len(encValue)+len(valueMac))
+		blob = append(blob, encValue...)
+		blob = append(blob, valueMac...)
+		records = append(records, &waproto.SyncdRecord{
+			Index: &waproto.SyncdIndex{Blob: indexMac},
+			Value: &waproto.SyncdValue{Blob: blob},
+			KeyId: &waproto.KeyId{Id: encKeyID},
+		})
+		addBuffs = append(addBuffs, valueMac)
+	}
+	hash = subtractThenAdd(hash, nil, addBuffs)
+	snapshotMac := generateSnapshotMac(hash, version, name, keys.SnapshotMacKey)
+	return &waproto.SyncdSnapshot{
+		Version: &waproto.SyncdVersion{Version: proto.Uint64(version)},
+		Records: records,
+		Mac:     snapshotMac,
+		KeyId:   &waproto.KeyId{Id: encKeyID},
+	}, nil
 }
 
 // aesCBCDecrypt decrypts an IV-prefixed AES-256-CBC blob (IV is the first 16

@@ -161,6 +161,30 @@ func rejectCallNode(me, callID, callFrom string) wire.Node {
 	}
 }
 
+// callAckNode builds the <ack> for an inbound <call> stanza. WhatsApp expects an
+// ack for each call stanza (class="call"), echoing its id and the info child's
+// tag/call-id, addressed back to the originator. Mirrors Baileys' handleCall ack
+// (sendMessageAck with the call's offer/terminate child). Without it the server
+// re-sends the offer and may treat the device as unresponsive.
+//
+// Shape: <ack from=<me> to=<call.from> id=<call.id> class=call [type=<stage>]>.
+func callAckNode(node wire.Node, me string) wire.Node {
+	attrs := map[string]string{
+		"id":    node.Attrs["id"],
+		"to":    node.Attrs["from"],
+		"class": "call",
+	}
+	if me != "" {
+		attrs["from"] = me
+	}
+	// The info child's tag (offer/terminate/reject) is carried as the ack type so
+	// the server can correlate the ack with the call lifecycle stage.
+	if kids := children(node); len(kids) > 0 {
+		attrs["type"] = kids[0].Tag
+	}
+	return wire.Node{Tag: "ack", Attrs: attrs}
+}
+
 // RejectCall rejects an incoming call identified by callID originating from
 // callFrom (both taken from a parsed CallInfo). It sends the <call><reject>
 // stanza on the live session. Unlike Baileys it does not await an iq result:

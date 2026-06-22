@@ -195,3 +195,40 @@ type HistorySyncEvent struct {
 }
 
 func (HistorySyncEvent) isEvent() {}
+
+// --- app-state (resync) events ---
+
+// ContactEvent reports a contactAction mutation surfaced by an app-state resync:
+// the contact's JID plus its full name / first name as set on the account.
+type ContactEvent struct {
+	JID       string
+	FullName  string
+	FirstName string
+}
+
+func (ContactEvent) isEvent() {}
+
+// AppStateMutationEvent is the generic catch-all for an app-state mutation that
+// does not have a dedicated typed event (mute/pin/archive/star/...). Collection
+// names the source collection; Index is the decoded JSON index array; Action is
+// the decoded SyncActionValue; Operation is SET or REMOVE.
+type AppStateMutationEvent struct {
+	Collection string
+	Index      []string
+	Action     *waproto.SyncActionValue
+	Operation  waproto.SyncdMutation_SyncdOperation
+}
+
+func (AppStateMutationEvent) isEvent() {}
+
+// PresenceEvent reports a presence/chatstate update for a contact: From is the
+// peer JID, State is one of available/unavailable/composing/paused, and LastSeen
+// is the optional "last" attribute (unix seconds) the server attaches to an
+// unavailable presence (0 when absent).
+type PresenceEvent struct {
+	From     string
+	State    string
+	LastSeen int64
+}
+
+func (PresenceEvent) isEvent() {}

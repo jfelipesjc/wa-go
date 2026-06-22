@@ -729,6 +729,18 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 				Type:        node.Attrs["type"],
 			})
 			_ = send(stanzaAckNode(node, creds.Me))
+		case "call":
+			// Surface the call to the app and ack it (class="call"). We do NOT
+			// auto-reject — the app decides via RejectCall.
+			if info, perr := parseCallNode(node); perr == nil {
+				c.emit(CallEvent{Info: *info})
+			}
+			_ = send(callAckNode(node, creds.Me))
+		case "presence", "chatstate":
+			// Forwarded presence / typing state for a subscribed contact.
+			if ev, ok := parsePresenceNode(node); ok {
+				c.emit(ev)
+			}
 		case "iq":
 			// Server pings / queries: ack pings so the stream stays healthy.
 			if node.Attrs["type"] == "get" {

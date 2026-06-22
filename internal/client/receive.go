@@ -331,6 +331,9 @@ func (c *Client) storeAppStateSyncKeys(share *waproto.AppStateSyncKeyShare) erro
 		if err := c.store.StoreAppStateSyncKey(keyID, keyData); err != nil && firstErr == nil {
 			firstErr = err
 		}
+		// Bridge: remember the keyId so chatmod/resync can auto-load the material
+		// from the store without a manual ConfigureAppState call.
+		c.noteAppStateKeyID(keyID)
 	}
 	return firstErr
 }

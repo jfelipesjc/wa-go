@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"sync"
@@ -44,11 +45,22 @@ type MsgKey struct {
 //
 // It is attached to a Client out-of-band (a package-level map keyed by *Client)
 // because the Client struct itself is defined in another file we do not edit.
+//
+// This is the SINGLE source of truth for the app-state machinery: both ChatModify
+// (outgoing patches) and ResyncAppState (incoming snapshots/patches) read and
+// write the same keyIDB64 / rawKey / states here, so a resync advances the very
+// version+hash a later ChatModify chains from.
 type appStateStore struct {
 	mu       sync.Mutex
 	keyIDB64 string
 	rawKey   []byte
 	states   map[string]*appstate.HashState
+
+	// lastKeyID is the binary keyId of the most recently received
+	// APP_STATE_SYNC_KEY_SHARE. When the key was not set manually via
+	// ConfigureAppState, ensureKey loads its material from the store on demand,
+	// so the chatmod/resync layers work automatically once pairing delivers a key.
+	lastKeyID []byte
 }
 
 var (
@@ -87,6 +99,67 @@ func (c *Client) SetAppStateCollectionState(collection string, state *appstate.H
 	st.mu.Lock()
 	defer st.mu.Unlock()
 	st.states[collection] = state
+}
+
+// AppStateCollectionState returns the current HashState for a collection (a
+// clone so callers cannot mutate the live state), or the zero state if none is
+// known yet. Exposed so the resync layer and tests can read the unified version.
+func (c *Client) AppStateCollectionState(collection string) *appstate.HashState {
+	st := c.appState()
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	s := st.states[collection]
+	if s == nil {
+		return appstate.NewHashState()
+	}
+	return s.Clone()
+}
+
+// noteAppStateKeyID records the keyId of a freshly received
+// APP_STATE_SYNC_KEY_SHARE so ensureKey can later load it from the store without
+// a manual ConfigureAppState. The raw material itself lives in the store.
+func (c *Client) noteAppStateKeyID(keyID []byte) {
+	st := c.appState()
+	st.mu.Lock()
+	defer st.mu.Unlock()
+	st.lastKeyID = append([]byte(nil), keyID...)
+}
+
+// ensureKey returns the app-state sync key (raw 32 bytes) and its base64 keyId,
+// loading from the store when it was not configured manually. It is the bridge
+// that lets ChatModify/ResyncAppState work automatically once pairing has
+// persisted an APP_STATE_SYNC_KEY_SHARE: the key need not be wired in by hand.
+//
+// The store lookup is performed without holding st.mu (store access may block);
+// the loaded material is cached back under the lock on success.
+func (c *Client) ensureKey() (rawKey []byte, keyIDB64 string, err error) {
+	st := c.appState()
+	st.mu.Lock()
+	if len(st.rawKey) > 0 && st.keyIDB64 != "" {
+		rawKey = append([]byte(nil), st.rawKey...)
+		keyIDB64 = st.keyIDB64
+		st.mu.Unlock()
+		return rawKey, keyIDB64, nil
+	}
+	keyID := append([]byte(nil), st.lastKeyID...)
+	st.mu.Unlock()
+
+	if len(keyID) == 0 || c.store == nil {
+		return nil, "", errors.New("client: app state sync key not configured (call ConfigureAppState or pair to receive APP_STATE_SYNC_KEY_SHARE)")
+	}
+	data, ok, lerr := c.store.LoadAppStateSyncKey(keyID)
+	if lerr != nil {
+		return nil, "", fmt.Errorf("client: load app state sync key: %w", lerr)
+	}
+	if !ok || len(data) == 0 {
+		return nil, "", errors.New("client: app state sync key not found in store")
+	}
+	keyIDB64 = base64.StdEncoding.EncodeToString(keyID)
+	st.mu.Lock()
+	st.rawKey = append([]byte(nil), data...)
+	st.keyIDB64 = keyIDB64
+	st.mu.Unlock()
+	return append([]byte(nil), data...), keyIDB64, nil
 }
 
 // --- public chat actions ---
@@ -202,14 +275,13 @@ func (c *Client) ChatModify(ctx context.Context, jid string, action ChatAction) 
 	if !ok {
 		return errors.New("client: not logged in (no active session)")
 	}
+	rawKey, keyIDB64, err := c.ensureKey()
+	if err != nil {
+		return err
+	}
 	st := c.appState()
 	st.mu.Lock()
-	if len(st.rawKey) == 0 || st.keyIDB64 == "" {
-		st.mu.Unlock()
-		return errors.New("client: app state sync key not configured (call ConfigureAppState)")
-	}
-	keyIDB64 := st.keyIDB64
-	mk := appstate.DeriveMutationKeys(st.rawKey)
+	mk := appstate.DeriveMutationKeys(rawKey)
 	prev := st.states[action.collection]
 	if prev == nil {
 		prev = appstate.NewHashState()

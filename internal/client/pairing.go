@@ -661,6 +661,11 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 			if err := send(passiveIqNode("active")); err != nil {
 				return err
 			}
+			// Announce availability so the server fans incoming messages to this
+			// companion device (without it, only the link-time history syncs).
+			if err := send(presenceAvailableNode()); err != nil {
+				return err
+			}
 		case "failure":
 			reason := node.Attrs["reason"]
 			if reason == "" {
@@ -672,6 +677,12 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 			if err := c.handleMessage(send, node, creds); err != nil && debugPairing {
 				fmt.Fprintf(debugOut, "[wa-go] handleMessage: %v\n", err)
 			}
+		case "notification":
+			// Ack notifications (device-list/account_sync/server_sync); the server
+			// expects acks and may withhold delivery otherwise.
+			_ = send(stanzaAckNode(node, creds.Me))
+		case "receipt":
+			_ = send(stanzaAckNode(node, creds.Me))
 		case "iq":
 			// Server pings / queries: ack pings so the stream stays healthy.
 			if node.Attrs["type"] == "get" {

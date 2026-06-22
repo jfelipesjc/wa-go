@@ -271,6 +271,33 @@ func messageAckNode(msg wire.Node, meID string) wire.Node {
 	return wire.Node{Tag: "ack", Attrs: attrs}
 }
 
+// stanzaAckNode builds a generic <ack> for a notification/receipt stanza,
+// mirroring Baileys' sendMessageAck: class = the stanza's tag, echoing id and
+// addressing it back to the stanza's `from`.
+func stanzaAckNode(n wire.Node, meID string) wire.Node {
+	attrs := map[string]string{
+		"id":    n.Attrs["id"],
+		"to":    n.Attrs["from"],
+		"class": n.Tag,
+	}
+	if t := n.Attrs["type"]; t != "" {
+		attrs["type"] = t
+	}
+	if p := n.Attrs["participant"]; p != "" {
+		attrs["participant"] = p
+	}
+	if meID != "" {
+		attrs["from"] = meID
+	}
+	return wire.Node{Tag: "ack", Attrs: attrs}
+}
+
+// presenceAvailableNode announces availability so the server includes this device
+// in message delivery, mirroring Baileys' sendPresenceUpdate('available').
+func presenceAvailableNode() wire.Node {
+	return wire.Node{Tag: "presence", Attrs: map[string]string{"type": "available"}}
+}
+
 // --- keypair adapters ---
 
 func keyPairFromCreds(cp store.CredKeyPair) keys.KeyPair {

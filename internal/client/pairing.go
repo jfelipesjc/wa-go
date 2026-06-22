@@ -9,6 +9,9 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
+	"time"
 
 	"github.com/felipeleal/wa-go/internal/keys"
 	"github.com/felipeleal/wa-go/internal/store"
@@ -167,11 +170,71 @@ func (c *Client) runPairing(ctx context.Context, creds *store.Creds) (bool, erro
 	return c.pairingLoop(ctx, conn, creds)
 }
 
+// qrRotateInterval is how long each pairing ref's QR is displayed before
+// rotating to the next ref the server provided (mirrors Baileys' ~20s cycle).
+var qrRotateInterval = 20 * time.Second
+
+// keepAliveInterval is how often we ping the server during pairing so it does
+// not close the idle connection while the user is scanning. WhatsApp drops the
+// stream within ~20s without a keep-alive ping.
+var keepAliveInterval = 20 * time.Second
+
 // pairingLoop reads nodes from conn and drives the pairing state machine. It is
 // separated from runPairing so tests can drive it over a fake nodeConn without a
 // real handshake.
+//
+// All writes to conn go through sendMu: the Noise transport cipher uses a
+// sequential nonce counter, so concurrent SendNode calls (read-loop replies vs.
+// the keep-alive goroutine) would corrupt the stream.
 func (c *Client) pairingLoop(ctx context.Context, conn nodeConn, creds *store.Creds) (bool, error) {
 	id := identityFromCreds(creds)
+
+	var sendMu sync.Mutex
+	send := func(n wire.Node) error {
+		sendMu.Lock()
+		defer sendMu.Unlock()
+		return conn.SendNode(n)
+	}
+
+	loopCtx, cancel := context.WithCancel(ctx)
+
+	// All background goroutines (keep-alive, QR rotation) exit when loopCtx is
+	// cancelled. We wait for them before returning so none can emit on the
+	// events channel after Connect closes it (emit on a closed channel panics).
+	var wg sync.WaitGroup
+	defer func() {
+		cancel()
+		wg.Wait()
+	}()
+
+	// Keep-alive: ping the server periodically so it keeps the stream open
+	// while the QR is displayed and scanned.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		t := time.NewTicker(keepAliveInterval)
+		defer t.Stop()
+		for {
+			select {
+			case <-loopCtx.Done():
+				return
+			case <-t.C:
+				_ = send(pingNode())
+			}
+		}
+	}()
+
+	// rotateStop, when closed, stops the active QR-rotation goroutine. A new
+	// pair-device iq closes the previous one and installs a fresh channel. Using
+	// a channel (not a context.CancelFunc) keeps go vet's lostcancel analyzer
+	// happy across the reassign-in-loop; loopCtx still bounds the goroutine's life.
+	var rotateStop chan struct{}
+	stopRotation := func() {
+		if rotateStop != nil {
+			close(rotateStop)
+			rotateStop = nil
+		}
+	}
 
 	for {
 		if ctx.Err() != nil {
@@ -187,10 +250,22 @@ func (c *Client) pairingLoop(ctx context.Context, conn nodeConn, creds *store.Cr
 
 		switch {
 		case isIQSet(node, "pair-device"):
-			if err := c.handlePairDevice(conn, node, creds); err != nil {
+			// Reply to the pair-device iq, then (re)start QR rotation over the
+			// refs it carries. A fresh pair-device iq replaces the previous refs.
+			refs, err := c.replyPairDevice(send, node)
+			if err != nil {
 				return false, err
 			}
+			stopRotation()
+			stop := make(chan struct{})
+			rotateStop = stop
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				c.rotateQR(loopCtx, stop, refs, creds)
+			}()
 		case isPairSuccess(node):
+			stopRotation()
 			reply, updated, err := handlePairSuccess(node, id, creds.AdvSecret)
 			if err != nil {
 				c.emit(DisconnectedEvent{Reason: "pair-success: " + err.Error()})
@@ -205,7 +280,7 @@ func (c *Client) pairingLoop(ctx context.Context, conn nodeConn, creds *store.Cr
 			if err := c.store.SaveCreds(creds); err != nil {
 				return false, fmt.Errorf("client: save creds after pairing: %w", err)
 			}
-			if err := conn.SendNode(reply); err != nil {
+			if err := send(reply); err != nil {
 				return false, fmt.Errorf("client: send pair-device-sign: %w", err)
 			}
 			c.emit(PairSuccessEvent{JID: creds.Me})
@@ -213,27 +288,63 @@ func (c *Client) pairingLoop(ctx context.Context, conn nodeConn, creds *store.Cr
 	}
 }
 
-// handlePairDevice replies to the pair-device iq and emits a QR for each ref.
-// Baileys sends the empty <iq result> first, then emits the QR per ref.
-func (c *Client) handlePairDevice(conn nodeConn, node wire.Node, creds *store.Creds) error {
-	id, _ := node.Attrs["id"]
-	if err := conn.SendNode(iqResult(id, nil)); err != nil {
-		return fmt.Errorf("client: reply pair-device iq: %w", err)
+// replyPairDevice sends the empty <iq result> ack for a pair-device iq and
+// returns the list of ref strings it carries (in order). QR emission is handled
+// separately by rotateQR so refs can be displayed one at a time.
+func (c *Client) replyPairDevice(send func(wire.Node) error, node wire.Node) ([]string, error) {
+	id := node.Attrs["id"]
+	if err := send(iqResult(id, nil)); err != nil {
+		return nil, fmt.Errorf("client: reply pair-device iq: %w", err)
 	}
 	pd, ok := childByTag(node, "pair-device")
 	if !ok {
-		return errors.New("client: pair-device node missing pair-device child")
+		return nil, errors.New("client: pair-device node missing pair-device child")
 	}
-	refs := childrenByTag(pd, "ref")
-	if len(refs) == 0 {
-		return errors.New("client: pair-device has no ref")
+	refNodes := childrenByTag(pd, "ref")
+	if len(refNodes) == 0 {
+		return nil, errors.New("client: pair-device has no ref")
 	}
-	for _, refNode := range refs {
-		ref := string(nodeBytes(refNode))
+	refs := make([]string, len(refNodes))
+	for i, rn := range refNodes {
+		refs[i] = string(nodeBytes(rn))
+	}
+	return refs, nil
+}
+
+// rotateQR emits the QR for each ref in turn, advancing every qrRotateInterval,
+// until the refs are exhausted, ctx is cancelled (stream end), or stop is closed
+// (a newer pair-device or pair-success). The first QR is emitted immediately so
+// the user has something to scan at once.
+func (c *Client) rotateQR(ctx context.Context, stop <-chan struct{}, refs []string, creds *store.Creds) {
+	for _, ref := range refs {
 		qr := buildQRString(ref, creds.NoiseKey.Pub, creds.IdentityKey.Pub, creds.AdvSecret, platformID())
 		c.emit(QREvent{Code: qr})
+		select {
+		case <-ctx.Done():
+			return
+		case <-stop:
+			return
+		case <-time.After(qrRotateInterval):
+		}
 	}
-	return nil
+}
+
+// iqIDCounter backs unique iq ids for client-originated stanzas (keep-alive).
+var iqIDCounter atomic.Uint64
+
+// pingNode builds the keep-alive ping: <iq to=s.whatsapp.net type=get xmlns=w:p><ping/></iq>.
+func pingNode() wire.Node {
+	id := strconv.FormatUint(iqIDCounter.Add(1), 10)
+	return wire.Node{
+		Tag: "iq",
+		Attrs: map[string]string{
+			"to":    sWhatsAppNet,
+			"type":  "get",
+			"xmlns": "w:p",
+			"id":    "wa-go-ka-" + id,
+		},
+		Content: []wire.Node{{Tag: "ping", Attrs: map[string]string{}}},
+	}
 }
 
 // pairSuccessCreds carries the post-pairing fields handlePairSuccess extracts.

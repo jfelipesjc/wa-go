@@ -20,20 +20,35 @@ import (
 	"github.com/felipeleal/wa-go/internal/client"
 	"github.com/felipeleal/wa-go/internal/store"
 	"github.com/mdp/qrterminal/v3"
+	"rsc.io/qr"
 )
 
 func main() {
 	dbPath := flag.String("db", "./wa-pair.creds.db", "path to the SQLite creds database")
 	timeout := flag.Duration("timeout", 120*time.Second, "overall timeout for the pairing/login flow")
+	pngPath := flag.String("png", "", "if set, also write each QR to this PNG file for scanning")
 	flag.Parse()
 
-	if err := run(*dbPath, *timeout); err != nil {
+	if err := run(*dbPath, *timeout, *pngPath); err != nil {
 		fmt.Fprintf(os.Stderr, "wa-pair: %v\n", err)
 		os.Exit(1)
 	}
 }
 
-func run(dbPath string, timeout time.Duration) error {
+func writeQRPNG(path, code string) {
+	c, err := qr.Encode(code, qr.M)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "wa-pair: qr encode: %v\n", err)
+		return
+	}
+	if err := os.WriteFile(path, c.PNG(), 0o644); err != nil {
+		fmt.Fprintf(os.Stderr, "wa-pair: write png: %v\n", err)
+		return
+	}
+	fmt.Printf("[QR written to %s]\n", path)
+}
+
+func run(dbPath string, timeout time.Duration, pngPath string) error {
 	st, err := store.OpenSQLite(dbPath)
 	if err != nil {
 		return fmt.Errorf("open store %q: %w", dbPath, err)
@@ -70,6 +85,9 @@ func run(dbPath string, timeout time.Duration) error {
 					WhiteChar: qrterminal.WHITE,
 					QuietZone: 1,
 				})
+				if pngPath != "" {
+					writeQRPNG(pngPath, ev.Code)
+				}
 			case client.PairSuccessEvent:
 				fmt.Printf("\nPaired! JID: %s\n", ev.JID)
 				fmt.Println("Reconnecting to log in...")

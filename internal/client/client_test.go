@@ -348,9 +348,11 @@ func TestPairingLoop_PairDeviceEmitsQRAndReplies(t *testing.T) {
 		t.Fatal("paired should be false (no pair-success)")
 	}
 
-	// Two refs → two QR events.
-	if len(qrs) != 2 {
-		t.Fatalf("got %d QR events, want 2", len(qrs))
+	// Refs are now rotated one at a time (qrRotateInterval apart), so on a fast
+	// stream-end only the first ref's QR is emitted before the loop returns and
+	// cancels the rotation goroutine.
+	if len(qrs) < 1 {
+		t.Fatalf("got %d QR events, want at least 1", len(qrs))
 	}
 	wantFirst := buildQRString("REF_ALPHA", creds.NoiseKey.Pub, creds.IdentityKey.Pub, creds.AdvSecret, platformID())
 	if qrs[0] != wantFirst {

@@ -2,12 +2,16 @@ package client
 
 import (
 	"context"
+	"encoding/base64"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/felipeleal/wa-go/internal/appstate"
+	waproto "github.com/felipeleal/wa-go/internal/waproto"
 	"github.com/felipeleal/wa-go/internal/wire"
+	"google.golang.org/protobuf/proto"
 )
 
 // fakeRunnerSession is a runnerSession that "drops" on each Connect, mirroring
@@ -290,18 +294,96 @@ func TestParseLabels_Empty(t *testing.T) {
 	}
 }
 
-func TestLabelAssociation_ReportsProtoGap(t *testing.T) {
-	// With an active session, the write path should surface errLabelProtoMissing
-	// (the actionable, documented gap) rather than a generic "not logged in".
-	c := New(nil)
-	c.setActive(&session{send: func(wire.Node) error { return nil }})
-	err := c.AddChatLabel(context.Background(), "5511@s.whatsapp.net", "L1")
-	if err != errLabelProtoMissing {
-		t.Fatalf("AddChatLabel err = %v; want errLabelProtoMissing", err)
+// TestAddChatLabelRoundTripDecode proves AddChatLabel now emits a real,
+// decodable app-state patch in the "regular" collection whose mutation carries a
+// labelAssociationAction{labeled:true} at the chat-label index.
+func TestAddChatLabelRoundTripDecode(t *testing.T) {
+	c, exec := testClientWithAppState(t)
+	n := exec(func() error {
+		return c.AddChatLabel(context.Background(), "5511@s.whatsapp.net", "L1")
+	})
+
+	if got := collectionOf(t, n); got != collRegular {
+		t.Fatalf("collection = %q, want %q", got, collRegular)
 	}
-	err = c.RemoveMessageLabel(context.Background(), "5511@s.whatsapp.net", "L1", "MID")
-	if err != errLabelProtoMissing {
-		t.Fatalf("RemoveMessageLabel err = %v; want errLabelProtoMissing", err)
+
+	sync, _ := childByTag(n, "sync")
+	coll, _ := childByTag(sync, "collection")
+	patchNode, _ := childByTag(coll, "patch")
+	patchBytes := patchNode.Content.([]byte)
+
+	var patch waproto.SyncdPatch
+	if err := proto.Unmarshal(patchBytes, &patch); err != nil {
+		t.Fatalf("unmarshal patch: %v", err)
+	}
+
+	rawKey := make([]byte, 32)
+	for i := range rawKey {
+		rawKey[i] = byte(i + 1)
+	}
+	keyID := base64.StdEncoding.EncodeToString([]byte("appstatekeyid01"))
+	resolve := func(id string) ([]byte, bool) {
+		if id == keyID {
+			return rawKey, true
+		}
+		return nil, false
+	}
+	res, err := appstate.DecodePatch(collRegular, &patch, appstate.NewHashState(), resolve)
+	if err != nil {
+		t.Fatalf("DecodePatch: %v", err)
+	}
+	if len(res.Mutations) != 1 {
+		t.Fatalf("mutations = %d", len(res.Mutations))
+	}
+	m := res.Mutations[0]
+	want := []string{"label_jid", "L1", "5511@s.whatsapp.net"}
+	if !eqStrs(m.Index, want) {
+		t.Fatalf("index = %v, want %v", m.Index, want)
+	}
+	if la := m.Action.GetLabelAssociationAction(); la == nil || !la.GetLabeled() {
+		t.Fatalf("labelAssociationAction wrong: %v", m.Action)
+	}
+}
+
+// TestEditLabelRoundTripDecode proves EditLabel emits a labelEditAction patch.
+func TestEditLabelRoundTripDecode(t *testing.T) {
+	c, exec := testClientWithAppState(t)
+	n := exec(func() error {
+		return c.EditLabel(context.Background(), "L7", "VIP", 3, 0, false)
+	})
+
+	sync, _ := childByTag(n, "sync")
+	coll, _ := childByTag(sync, "collection")
+	patchNode, _ := childByTag(coll, "patch")
+	patchBytes := patchNode.Content.([]byte)
+
+	var patch waproto.SyncdPatch
+	if err := proto.Unmarshal(patchBytes, &patch); err != nil {
+		t.Fatalf("unmarshal patch: %v", err)
+	}
+	rawKey := make([]byte, 32)
+	for i := range rawKey {
+		rawKey[i] = byte(i + 1)
+	}
+	keyID := base64.StdEncoding.EncodeToString([]byte("appstatekeyid01"))
+	resolve := func(id string) ([]byte, bool) {
+		if id == keyID {
+			return rawKey, true
+		}
+		return nil, false
+	}
+	res, err := appstate.DecodePatch(collRegular, &patch, appstate.NewHashState(), resolve)
+	if err != nil {
+		t.Fatalf("DecodePatch: %v", err)
+	}
+	m := res.Mutations[0]
+	want := []string{"label_edit", "L7"}
+	if !eqStrs(m.Index, want) {
+		t.Fatalf("index = %v, want %v", m.Index, want)
+	}
+	le := m.Action.GetLabelEditAction()
+	if le == nil || le.GetName() != "VIP" || le.GetColor() != 3 || le.GetDeleted() {
+		t.Fatalf("labelEditAction wrong: %v", m.Action)
 	}
 }
 

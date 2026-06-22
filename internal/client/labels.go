@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 
+	waproto "github.com/felipeleal/wa-go/internal/waproto"
 	"github.com/felipeleal/wa-go/internal/wire"
+	"google.golang.org/protobuf/proto"
 )
 
 // Labels (WhatsApp Business chat/message labels).
@@ -22,20 +24,11 @@ import (
 // where LabelAssociationType.Chat == "label_jid" and
 // LabelAssociationType.Message == "label_message".
 //
-// CAVEAT — waproto gap: the generated waproto.SyncActionValue in this build does
-// NOT yet expose LabelEditAction or LabelAssociationAction (only star/contact/
-// mute/pin/archive/markRead/clear/delete actions are present). Regenerating
-// waproto is owned by another flow, so we cannot construct the SyncActionValue
-// the app-state encoder (appstate.EncodePatch) requires for these mutations.
-//
-// To keep this layer useful and fully testable today, we:
-//   - expose the exact index arrays Baileys uses, as pure functions
-//     (labelEditIndex / chatLabelIndex / messageLabelIndex), so the only missing
-//     piece once the proto lands is wiring the SyncActionValue;
-//   - expose AddChatLabel/RemoveChatLabel/AddMessageLabel as methods that build
-//     the patch via the shared chatmod path and return errLabelProtoMissing until
-//     the value type exists, rather than silently no-op;
-//   - implement GetLabels via the read-only w:biz iq, which needs no app-state.
+// The write path is implemented on top of the shared chatmod app-state machinery
+// (Client.ChatModify): each mutation builds a SyncActionValue carrying a
+// LabelAssociationAction (chat/message labels) or LabelEditAction (label CRUD)
+// and is encoded into a "regular" collection patch. The read path (GetLabels)
+// uses the read-only w:biz iq, which needs no app-state.
 
 // LabelAssociationType prefixes, copied verbatim from Baileys' Types/Label.
 const (
@@ -50,10 +43,6 @@ const (
 	collLabel       = collRegular
 	labelAPIVersion = 3
 )
-
-// errLabelProtoMissing reports that label app-state mutations cannot be encoded
-// because the generated waproto.SyncActionValue lacks the label action fields.
-var errLabelProtoMissing = errors.New("client: label app-state actions require waproto.SyncActionValue.{LabelEditAction,LabelAssociationAction}, which are not present in this waproto build; regenerate waproto to enable AddChatLabel/RemoveChatLabel/AddMessageLabel")
 
 // --- pure index builders (Baileys-compatible) ---
 
@@ -155,10 +144,9 @@ func findChild(n wire.Node, tag string) *wire.Node {
 
 // --- write path: label associations via app-state ---
 //
-// These build the correct index but cannot complete encoding until waproto
-// carries the label SyncActionValue fields (see errLabelProtoMissing). They are
-// kept as public methods so the API surface is stable: once the proto lands the
-// only change is constructing the SyncActionValue inside ChatAction.
+// Each method builds the Baileys-compatible index and a SyncActionValue carrying
+// a LabelAssociationAction{labeled}, then sends it as a "regular" collection
+// patch through the shared Client.ChatModify path.
 
 // AddChatLabel attaches the given label to a chat.
 func (c *Client) AddChatLabel(ctx context.Context, chatJID, labelID string) error {
@@ -181,17 +169,8 @@ func (c *Client) RemoveMessageLabel(ctx context.Context, chatJID, labelID, messa
 }
 
 // labelAssociation is the shared write core. It validates the session and the
-// index, then reports errLabelProtoMissing because the SyncActionValue the
-// app-state encoder needs is not available in this waproto build. The index is
-// fully resolved (and validated by tests) so the wiring is a one-liner once the
-// proto is regenerated:
-//
-//	value := &waproto.SyncActionValue{
-//	    LabelAssociationAction: &waproto.SyncActionValue_LabelAssociationAction{Labeled: proto.Bool(labeled)},
-//	}
-//	return c.ChatModify(ctx, chatJID, ChatAction{
-//	    collection: collLabel, apiVersion: labelAPIVersion, index: index, value: value,
-//	})
+// index, then encodes a labelAssociationAction{labeled} patch in the "regular"
+// collection and sends it via the shared chatmod app-state path.
 func (c *Client) labelAssociation(ctx context.Context, chatJID string, index []string, labeled bool) error {
 	if _, ok := c.activeSession(); !ok {
 		return errors.New("client: not logged in (no active session)")
@@ -199,8 +178,41 @@ func (c *Client) labelAssociation(ctx context.Context, chatJID string, index []s
 	if len(index) == 0 || chatJID == "" {
 		return errors.New("client: label association requires a chat jid and label id")
 	}
-	_ = labeled
-	_ = collLabel
-	_ = labelAPIVersion
-	return errLabelProtoMissing
+	return c.ChatModify(ctx, chatJID, ChatAction{
+		collection: collLabel,
+		apiVersion: labelAPIVersion,
+		index:      index,
+		value: &waproto.SyncActionValue{
+			LabelAssociationAction: &waproto.SyncActionValue_LabelAssociationAction{
+				Labeled: proto.Bool(labeled),
+			},
+		},
+	})
+}
+
+// EditLabel creates, renames, recolors or deletes a label. It encodes a
+// labelEditAction in the "regular" collection at index ["label_edit", labelID].
+// A deleted=true edit removes the label. color and predefinedId may be zero when
+// unused.
+func (c *Client) EditLabel(ctx context.Context, labelID, name string, color, predefinedID int32, deleted bool) error {
+	if _, ok := c.activeSession(); !ok {
+		return errors.New("client: not logged in (no active session)")
+	}
+	if labelID == "" {
+		return errors.New("client: label edit requires a label id")
+	}
+	edit := &waproto.SyncActionValue_LabelEditAction{
+		Name:    proto.String(name),
+		Color:   proto.Int32(color),
+		Deleted: proto.Bool(deleted),
+	}
+	if predefinedID != 0 {
+		edit.PredefinedId = proto.Int32(predefinedID)
+	}
+	return c.ChatModify(ctx, labelID, ChatAction{
+		collection: collLabel,
+		apiVersion: labelAPIVersion,
+		index:      labelEditIndex(labelID),
+		value:      &waproto.SyncActionValue{LabelEditAction: edit},
+	})
 }

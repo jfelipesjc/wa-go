@@ -8,6 +8,9 @@ import (
 	"crypto/sha256"
 	"errors"
 	"fmt"
+
+	waproto "github.com/felipeleal/wa-go/internal/waproto"
+	"google.golang.org/protobuf/proto"
 )
 
 // Poll vote decryption.
@@ -179,108 +182,26 @@ func HashPollOption(option string) []byte {
 	return sum[:]
 }
 
-// --- minimal PollVoteMessage wire codec ---
+// --- PollVoteMessage wire codec (waproto-backed) ---
 //
-// PollVoteMessage is `message { repeated bytes selectedOptions = 1; }`. It is not
-// part of the generated waproto set (it only ever appears as decrypted poll-vote
-// plaintext), so we encode/decode field 1 by hand.
-
-const pollVoteSelectedOptionsTag = 0x0A // field 1, wire type 2 (length-delimited)
+// PollVoteMessage is `message { repeated bytes selectedOptions = 1; }`. It only
+// ever appears as decrypted poll-vote plaintext, so we (un)marshal it via the
+// generated waproto.PollVoteMessage rather than a hand-rolled codec.
 
 func encodePollVoteMessage(selectedOptions [][]byte) []byte {
-	var b bytes.Buffer
-	for _, opt := range selectedOptions {
-		b.WriteByte(pollVoteSelectedOptionsTag)
-		writeUvarint(&b, uint64(len(opt)))
-		b.Write(opt)
+	out, err := proto.Marshal(&waproto.PollVoteMessage{SelectedOptions: selectedOptions})
+	if err != nil {
+		// PollVoteMessage has only a repeated bytes field, so marshaling cannot
+		// fail in practice; return empty rather than panicking.
+		return nil
 	}
-	return b.Bytes()
+	return out
 }
 
 func decodePollVoteMessage(data []byte) ([][]byte, error) {
-	var out [][]byte
-	i := 0
-	for i < len(data) {
-		tag := data[i]
-		i++
-		fieldNum := tag >> 3
-		wireType := tag & 0x07
-		switch {
-		case fieldNum == 1 && wireType == 2:
-			n, adv, err := readUvarint(data[i:])
-			if err != nil {
-				return nil, fmt.Errorf("poll: decode length: %w", err)
-			}
-			i += adv
-			if i+int(n) > len(data) {
-				return nil, errors.New("poll: selectedOption length overruns buffer")
-			}
-			opt := make([]byte, n)
-			copy(opt, data[i:i+int(n)])
-			out = append(out, opt)
-			i += int(n)
-		default:
-			// Skip unknown fields defensively so a future schema addition does
-			// not break vote parsing.
-			adv, err := skipField(data[i:], wireType)
-			if err != nil {
-				return nil, err
-			}
-			i += adv
-		}
+	var msg waproto.PollVoteMessage
+	if err := proto.Unmarshal(data, &msg); err != nil {
+		return nil, fmt.Errorf("poll: decode PollVoteMessage: %w", err)
 	}
-	return out, nil
-}
-
-func skipField(data []byte, wireType byte) (int, error) {
-	switch wireType {
-	case 0: // varint
-		_, adv, err := readUvarint(data)
-		return adv, err
-	case 1: // 64-bit
-		if len(data) < 8 {
-			return 0, errors.New("poll: truncated 64-bit field")
-		}
-		return 8, nil
-	case 2: // length-delimited
-		n, adv, err := readUvarint(data)
-		if err != nil {
-			return 0, err
-		}
-		if adv+int(n) > len(data) {
-			return 0, errors.New("poll: length-delimited field overruns buffer")
-		}
-		return adv + int(n), nil
-	case 5: // 32-bit
-		if len(data) < 4 {
-			return 0, errors.New("poll: truncated 32-bit field")
-		}
-		return 4, nil
-	default:
-		return 0, fmt.Errorf("poll: unsupported wire type %d", wireType)
-	}
-}
-
-func writeUvarint(b *bytes.Buffer, v uint64) {
-	for v >= 0x80 {
-		b.WriteByte(byte(v) | 0x80)
-		v >>= 7
-	}
-	b.WriteByte(byte(v))
-}
-
-func readUvarint(data []byte) (uint64, int, error) {
-	var x uint64
-	var s uint
-	for i, by := range data {
-		if i >= 10 {
-			return 0, 0, errors.New("poll: varint overflow")
-		}
-		if by < 0x80 {
-			return x | uint64(by)<<s, i + 1, nil
-		}
-		x |= uint64(by&0x7f) << s
-		s += 7
-	}
-	return 0, 0, errors.New("poll: truncated varint")
+	return msg.GetSelectedOptions(), nil
 }

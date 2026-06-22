@@ -960,6 +960,11 @@ message SyncActionValue {
     optional MuteAction muteAction = 4;
     optional PinAction pinAction = 5;
     optional PushNameSetting pushNameSetting = 7;
+    // NOTE: field numbers 8/9 are local to this trimmed subset (upstream uses
+    // 14/15). The app-state encoder only cares that the value decodes back to
+    // the same label action, so any free number works here.
+    optional LabelEditAction labelEditAction = 8;
+    optional LabelAssociationAction labelAssociationAction = 9;
     optional ArchiveChatAction archiveChatAction = 17;
     optional DeleteMessageForMeAction deleteMessageForMeAction = 18;
     optional MarkChatAsReadAction markChatAsReadAction = 20;
@@ -1028,6 +1033,28 @@ message SyncActionValue {
     message ArchiveChatAction {
         optional bool archived = 1;
     }
+
+    // LabelEditAction creates/renames/recolors/deletes a label (index
+    // ["label_edit", labelID]).
+    message LabelEditAction {
+        optional string name = 1;
+        optional int32 color = 2;
+        optional int32 predefinedId = 3;
+        optional bool deleted = 4;
+    }
+
+    // LabelAssociationAction attaches/detaches a label to a chat or message.
+    message LabelAssociationAction {
+        optional bool labeled = 1;
+    }
+}
+
+// PollVoteMessage is the decrypted plaintext of an encrypted poll vote
+// (PollUpdateMessage.vote). It carries the SHA-256 hashes of the option names
+// the voter selected. Upstream nests this under Message.PollVoteMessage; here it
+// is top-level since it only ever appears as standalone decrypted plaintext.
+message PollVoteMessage {
+    repeated bytes selectedOptions = 1;
 }
 
 // ---------------------------------------------------------------------------

@@ -316,6 +316,71 @@ func TestConnHandshakeWritesWAHeader(t *testing.T) {
 	t.Logf("WA header + ClientHello frame: OK (%d bytes written total)", len(written))
 }
 
+// boundaryRW records each Write as a separate message (like a WebSocket, where
+// one Write == one binary frame), and serves preloaded inbound frames on Read.
+type boundaryRW struct {
+	writes [][]byte
+	r      *bytes.Buffer
+}
+
+func newBoundaryRW(rawFrames [][]byte) *boundaryRW {
+	var buf bytes.Buffer
+	for _, f := range rawFrames {
+		buf.Write(f)
+	}
+	return &boundaryRW{r: &buf}
+}
+
+func (b *boundaryRW) Read(p []byte) (int, error) { return b.r.Read(p) }
+func (b *boundaryRW) Write(p []byte) (int, error) {
+	cp := make([]byte, len(p))
+	copy(cp, p)
+	b.writes = append(b.writes, cp)
+	return len(p), nil
+}
+func (b *boundaryRW) Close() error { return nil }
+
+// TestConnHandshakeFirstWriteIsSingleMessage is the regression test for the
+// WebSocket-transport bug: the WA routing header and the ClientHello frame MUST
+// go out in a SINGLE Write (one WS message), because the server expects the
+// header prefixed to the first frame. An in-memory byte stream tolerates two
+// writes, but a real WebSocket does not.
+func TestConnHandshakeFirstWriteIsSingleMessage(t *testing.T) {
+	f := loadNoiseFixture(t)
+	ephPriv := mustHex(t, f.EphemeralKeyPriv)
+	ephPub := mustHex(t, f.EphemeralKeyPub)
+	staticPriv := mustHex(t, f.AuthStaticKeyPriv)
+	staticPub := mustHex(t, f.AuthStaticKeyPub)
+
+	frames := loadFramesRawForConn(t)
+	rw := newBoundaryRW([][]byte{mustHex(t, frames[1].Hex), mustHex(t, frames[3].Hex)})
+	conn := NewConn(rw)
+
+	if _, err := conn.Handshake(ephPriv, ephPub, staticPriv, staticPub, []byte("x")); err != nil {
+		t.Fatalf("Handshake: %v", err)
+	}
+
+	if len(rw.writes) == 0 {
+		t.Fatal("no writes recorded")
+	}
+	first := rw.writes[0]
+	// The first message must START with the WA header...
+	if !bytes.HasPrefix(first, noiseWAHeader) {
+		t.Fatalf("first write must start with WA header, got %x", first[:min(8, len(first))])
+	}
+	// ...and must ALSO contain the framed ClientHello in the same message,
+	// i.e. it must be longer than the bare 4-byte header.
+	if len(first) <= len(noiseWAHeader) {
+		t.Fatalf("first write contains only the WA header (%d bytes) — header and "+
+			"ClientHello were split across messages, which breaks WebSocket transport", len(first))
+	}
+	// Concretely: header(4) + length(3) + clientHello(36) = 43 bytes for this trace.
+	wantFirst := mustHex(t, f.ClientHelloFrameHex) // already header + len + hello
+	if !bytes.Equal(first, wantFirst) {
+		t.Fatalf("first write mismatch:\n got=%x\nwant=%x", first, wantFirst)
+	}
+}
+
 // Ensure loadInNode resolves to the pair-device 'in' node (same helper used in
 // noise_test.go, shared within the package test binary).
 func TestConnLoadInNodeSanity(t *testing.T) {

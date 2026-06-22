@@ -50,19 +50,24 @@ func (c *Conn) Handshake(
 	staticPriv, staticPub,
 	clientPayload []byte,
 ) (*HandshakeResult, error) {
-	// 1. Write the WA routing header once (not framed).
-	if _, err := c.rw.Write(noiseWAHeader); err != nil {
-		return nil, fmt.Errorf("conn: write WA header: %w", err)
-	}
-
-	// 2. Build handshake state (mixes in WA header + ephemeral pub).
+	// 1. Build handshake state (mixes in WA header + ephemeral pub).
 	n := newNoise(ephemeralPub)
 	c.noise = n
 
-	// 3. Build ClientHello and send it as a framed payload.
+	// 2. Send the WA routing header + the framed ClientHello as a SINGLE write.
+	// Over a WebSocket transport each Write becomes one binary message, and the
+	// WhatsApp server expects the routing header prefixed to the first frame in
+	// the same message (this mirrors Baileys' encodeFrame, which concatenates
+	// NOISE_WA_HEADER with the first frame). Splitting them into two writes
+	// breaks the real handshake even though an in-memory byte stream tolerates it.
 	clientHello := encodeClientHello(ephemeralPub)
-	if err := writeFrame(c.rw, clientHello); err != nil {
-		return nil, fmt.Errorf("conn: write ClientHello: %w", err)
+	var intro bytes.Buffer
+	intro.Write(noiseWAHeader)
+	if err := writeFrame(&intro, clientHello); err != nil {
+		return nil, fmt.Errorf("conn: build intro frame: %w", err)
+	}
+	if _, err := c.rw.Write(intro.Bytes()); err != nil {
+		return nil, fmt.Errorf("conn: write intro: %w", err)
 	}
 
 	// 4. Read the ServerHello frame.

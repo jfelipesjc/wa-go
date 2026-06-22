@@ -136,8 +136,10 @@ wa-go/
 - **Token dictionary:** portar a tabela de tokens single-byte e os blocos double-byte
   do WA Web (constantes públicas). Validar via round-trip nos `nodes.jsonl`.
 - **Codec:** decodificar todo node de `nodes.jsonl` e exigir igualdade estrutural;
-  re-encodar e exigir bytes idênticos (round-trip). Tipos de conteúdo: lista de nodes,
-  string, bytes, e atributos com valores tokenizados ou JID.
+  re-encodar e exigir bytes idênticos (round-trip) **exceto pela ordem dos atributos**
+  (ver ADR-001 em `docs/superpowers/decisions.md` — o WhatsApp aceita qualquer ordem;
+  emitimos alfabético determinístico). Tipos de conteúdo: lista de nodes, string, bytes,
+  e atributos com valores tokenizados ou JID.
 
 ### 4.4 Stack/deps
 - `golang.org/x/crypto/curve25519`, `.../hkdf`, `crypto/aes`+`cipher` (GCM).
@@ -148,7 +150,8 @@ wa-go/
 ### 4.5 Critério de pronto (#1)
 - `go test ./internal/wire/...` verde, incluindo:
   - handshake reproduz `connect_pair` byte-a-byte (com ephemeral injetado);
-  - round-trip de **100%** dos nodes em `nodes.jsonl` (decode→encode idêntico);
+  - round-trip de **100% estrutural** dos nodes (decode→encode→decode) e byte-a-byte
+    exceto ordem de attr (ADR-001);
   - decode de todos os frames `in` do trace sem erro.
 - Um exemplo executável `cmd/wiredump/` que conecta a um endpoint de loopback que
   reproduz o trace e imprime os nodes decodificados (não conecta ao WA real ainda).

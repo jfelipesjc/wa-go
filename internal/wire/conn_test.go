@@ -19,9 +19,9 @@ import (
 // ──────────────────────────────────────────────────────────────────────────────
 
 type loopbackRW struct {
-	r       io.Reader
+	r        io.Reader
 	writeBuf *bytes.Buffer
-	closed  bool
+	closed   bool
 }
 
 // newLoopbackRW constructs a loopbackRW that will serve rawFrames (already
@@ -293,7 +293,7 @@ func TestConnHandshakeWritesWAHeader(t *testing.T) {
 
 	// The full output should match: WA header + clientHelloFrame + clientFinishFrame.
 	wantClientHelloFrame := mustHex(t, f.ClientHelloFrameHex)[4:] // strip WA header prefix
-	wantClientHelloPayload := wantClientHelloFrame[3:]             // strip 3-byte length prefix
+	wantClientHelloPayload := wantClientHelloFrame[3:]            // strip 3-byte length prefix
 
 	// Reconstruct what clientHello frame bytes look like (WA header + framed hello).
 	var wantBuf bytes.Buffer

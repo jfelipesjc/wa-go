@@ -55,7 +55,7 @@ func encodeClientHello(ephemeral []byte) []byte {
 
 // encodeClientFinish builds HandshakeMessage{ clientFinish: { static, payload } }.
 func encodeClientFinish(static, payload []byte) []byte {
-	inner := pbField(nil, 1, static)  // ClientFinish.static = 1
+	inner := pbField(nil, 1, static)   // ClientFinish.static = 1
 	inner = pbField(inner, 2, payload) // ClientFinish.payload = 2
 	return pbField(nil, 4, inner)      // HandshakeMessage.clientFinish = 4
 }

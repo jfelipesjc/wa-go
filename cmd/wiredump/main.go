@@ -41,11 +41,11 @@ type frameLine struct {
 
 // noiseFixture mirrors testdata/traces/connect_pair/noise.json.
 type noiseFixture struct {
-	EphemeralKeyPriv     string `json:"ephemeralKeyPriv"`
-	EphemeralKeyPub      string `json:"ephemeralKeyPub"`
-	AuthStaticKeyPriv    string `json:"authStaticKeyPriv"`
-	AuthStaticKeyPub     string `json:"authStaticKeyPub"`
-	ServerHelloFrameHex  string `json:"serverHelloFrameHex"`
+	EphemeralKeyPriv    string `json:"ephemeralKeyPriv"`
+	EphemeralKeyPub     string `json:"ephemeralKeyPub"`
+	AuthStaticKeyPriv   string `json:"authStaticKeyPriv"`
+	AuthStaticKeyPub    string `json:"authStaticKeyPub"`
+	ServerHelloFrameHex string `json:"serverHelloFrameHex"`
 }
 
 func run(traceDir string) error {

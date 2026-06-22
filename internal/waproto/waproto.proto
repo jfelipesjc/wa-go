@@ -359,3 +359,121 @@ message DeviceSentMessage {
     optional string destinationJid = 1;
     optional Message message = 2;
 }
+
+// ---------------------------------------------------------------------------
+// App-State Sync (#5): SyncdPatch decoding + LTHash integrity. Field numbers
+// match the upstream WAProto so wire bytes captured from Baileys round-trip.
+// Extracted from harness/node_modules/@whiskeysockets/baileys/WAProto/WAProto.proto.
+// Only the SyncActionValue sub-actions actually decoded by internal/appstate
+// are included (contact, mute, pin, star, archive, pushName); the field numbers
+// are preserved so unknown actions in real traffic are simply skipped.
+// ---------------------------------------------------------------------------
+
+message KeyId {
+    optional bytes id = 1;
+}
+
+message ExternalBlobReference {
+    optional bytes mediaKey = 1;
+    optional string directPath = 2;
+    optional string handle = 3;
+    optional uint64 fileSizeBytes = 4;
+    optional bytes fileSha256 = 5;
+    optional bytes fileEncSha256 = 6;
+}
+
+message SyncdVersion {
+    optional uint64 version = 1;
+}
+
+message SyncdIndex {
+    optional bytes blob = 1;
+}
+
+message SyncdValue {
+    optional bytes blob = 1;
+}
+
+message SyncdRecord {
+    optional SyncdIndex index = 1;
+    optional SyncdValue value = 2;
+    optional KeyId keyId = 3;
+}
+
+message SyncdMutation {
+    optional SyncdOperation operation = 1;
+    optional SyncdRecord record = 2;
+    enum SyncdOperation {
+        SET = 0;
+        REMOVE = 1;
+    }
+}
+
+message SyncdMutations {
+    repeated SyncdMutation mutations = 1;
+}
+
+message SyncdPatch {
+    optional SyncdVersion version = 1;
+    repeated SyncdMutation mutations = 2;
+    optional ExternalBlobReference externalMutations = 3;
+    optional bytes snapshotMac = 4;
+    optional bytes patchMac = 5;
+    optional KeyId keyId = 6;
+    optional uint32 deviceIndex = 8;
+}
+
+message SyncdSnapshot {
+    optional SyncdVersion version = 1;
+    repeated SyncdRecord records = 2;
+    optional bytes mac = 3;
+    optional KeyId keyId = 4;
+}
+
+message SyncActionData {
+    optional bytes index = 1;
+    optional SyncActionValue value = 2;
+    optional bytes padding = 3;
+    optional int32 version = 4;
+}
+
+message SyncActionValue {
+    optional int64 timestamp = 1;
+    optional StarAction starAction = 2;
+    optional ContactAction contactAction = 3;
+    optional MuteAction muteAction = 4;
+    optional PinAction pinAction = 5;
+    optional PushNameSetting pushNameSetting = 7;
+    optional ArchiveChatAction archiveChatAction = 17;
+
+    message StarAction {
+        optional bool starred = 1;
+    }
+
+    message ContactAction {
+        optional string fullName = 1;
+        optional string firstName = 2;
+        optional string lidJid = 3;
+        optional bool saveOnPrimaryAddressbook = 4;
+        optional string pnJid = 5;
+        optional string username = 6;
+    }
+
+    message MuteAction {
+        optional bool muted = 1;
+        optional int64 muteEndTimestamp = 2;
+        optional bool autoMuted = 3;
+    }
+
+    message PinAction {
+        optional bool pinned = 1;
+    }
+
+    message PushNameSetting {
+        optional string name = 1;
+    }
+
+    message ArchiveChatAction {
+        optional bool archived = 1;
+    }
+}

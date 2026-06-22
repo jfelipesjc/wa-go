@@ -4,8 +4,8 @@ package wire
 // Control tag constants from constants.js TAGS object.
 // These are the special byte values used by the binary codec.
 const (
-	LIST_EMPTY  byte = 0
-	STREAM_END  byte = 2   // not in TAGS but used by the codec
+	LIST_EMPTY   byte = 0
+	STREAM_END   byte = 2 // not in TAGS but used by the codec
 	DICTIONARY_0 byte = 236
 	DICTIONARY_1 byte = 237
 	DICTIONARY_2 byte = 238

@@ -6,13 +6,14 @@ import "testing"
 // expected number of entries and that specific indices match the constants.js.
 //
 // From constants.js (0-indexed):
-//   index 0  = ""
-//   index 1  = "xmlstreamstart"
-//   index 2  = "xmlstreamend"
-//   index 3  = "s.whatsapp.net"
-//   index 4  = "type"
-//   index 17 = "to"
-//   index 25 = "iq"
+//
+//	index 0  = ""
+//	index 1  = "xmlstreamstart"
+//	index 2  = "xmlstreamend"
+//	index 3  = "s.whatsapp.net"
+//	index 4  = "type"
+//	index 17 = "to"
+//	index 25 = "iq"
 func TestSingleByteTokensSize(t *testing.T) {
 	// Count from the constants.js file: 236 entries (indices 0..235).
 	const wantLen = 236

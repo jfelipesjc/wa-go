@@ -1,0 +1,73 @@
+{
+  "note": "Golden app-state / LTHash vectors. Generated OFFLINE via whatsapp-rust-bridge (the WASM crypto used by @whiskeysockets/baileys v7) + Baileys WAProto. See gen_appstate_vectors.mjs header for exact functions used.",
+  "appStateSyncKey": "030a11181f262d343b424950575e656c737a81888f969da4abb2b9c0c7ced5dc",
+  "keyId": "0000000001",
+  "keyIdBase64": "AAAAAAE=",
+  "mutationKeys": {
+    "info": "WhatsApp Mutation Keys",
+    "derivation": "HKDF-SHA256(ikm=appStateSyncKey, salt=empty, info) -> 160 bytes split 5x32 in order: indexKey, valueEncryptionKey, valueMacKey, snapshotMacKey, patchMacKey",
+    "indexKey": "6a87c24749d94aaea859d2514d10da23a66f8106dccfeb98716b2d1d2c9b2ad1",
+    "valueEncryptionKey": "54668cbd0905e8563ca3df4ab779e1f3493e2cbd5fc425239d22bc54969612e8",
+    "valueMacKey": "d48414e8810fd617cc4b01b6a0576f407e023cf99173c09b3ca56c8822a0b691",
+    "snapshotMacKey": "a62d3076405b657d26dba19ef3d420537c8e208722861cf097283510eb70ce79",
+    "patchMacKey": "8ddc02e66c95e6eae6eaf309d34207c7d271b896c09d84299ecba573cf59fa27"
+  },
+  "ltHashExpandKAT": {
+    "description": "HKDF-SHA256(key=valueMac, salt=empty, info=\"WhatsApp Patch Integrity\") -> 128 bytes, interpreted as 64 little-endian u16; LTHash add = component-wise (mod 2^16) sum.",
+    "valueMac": "0d6bd5f6919186ae503fbce91abdd426567f62758ec0587c8138a373e0f09f61",
+    "expanded128": "2df4fbe2aa417a84604585fb261ae75d1b18201fae5d2ff92120a1676e6232d79536751ac7727ae674381427e59dc45b02fa09ba9566c168ddab1b3809d58758b1dee2214e7b9c4fad06adb0574c0a14acb5c10620d1bf5e7826623d00337795ea29c34aa53504e7d59a77f3470eec749958821e1d9df7558309477a2f25da88"
+  },
+  "patch": {
+    "name": "critical_unblock_low",
+    "version": 1,
+    "patchHex": "0a02080112c801080012c3010a220a2090fdce590cab914a0d66affaf8a2f9617a6653fd090ae59c0d7993d070d7c9a21293010a9001a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a108a41627cb182a743d2e63e4ad4e2c20d4acd03ad9b6aa8f4c82182af76853cf1cd7a059540b666f8400538eaccc920519129914eb9e055640ee76049a8fa4e39c82a4375b1ad09eb9c3d6de76b79b35a17e919fb1f8f754afe81480d139c2560d6bd5f6919186ae503fbce91abdd426567f62758ec0587c8138a373e0f09f611a070a05000000000112b801080012b3010a220a20d7b8983735d51e860325d501623e1fb1af1dfbbab0327d806580d21e736add9b1283010a8001b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2cfaf89e776d413fb6b8a46a74b7802294bfdf046a87a208498a3e153e1ceb9ef267923e8fe9c32c3ba754f8fdffcca8d86366b4c7a787b63e9ece707ce5bbf2ea781012b489974466ad1e791cdfef14618af3cd3734e5e1ad6320e2af54425d73b75f50413996c55c5dc9e66e09480151a070a05000000000122201dd78cf535db92531a3680b0f54b34efa72205d325057de68d98326b4a4d82f92a209e40ef7f96ec4ab1ddd2444bc340887f109d51ec69f3bafd0127b8b72fbf707e32070a050000000001",
+    "snapshotMac": "1dd78cf535db92531a3680b0f54b34efa72205d325057de68d98326b4a4d82f9",
+    "patchMac": "9e40ef7f96ec4ab1ddd2444bc340887f109d51ec69f3bafd0127b8b72fbf707e",
+    "finalHash": "ae1c25bf60efe2c696aebdda0c9c2a33315a12c80392648b64fa5e8b89094d658005ac9d0475fc4b8a9cc9e07bf1e5e5dc90abba7aef13ce7239421faa9b618d25fdd867dfa46663f96826d37a970dc9b461182da85a642ef6c6f07b43c53dce5f50fb90aa73ea4d08741f3d2520ac43ef2517773f1678a827d78a770a993b63",
+    "initialHash": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "mutations": [
+    {
+      "label": "contact",
+      "operation": "SET",
+      "index": [
+        "contact",
+        "5512999999999@s.whatsapp.net"
+      ],
+      "iv": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "indexMac": "90fdce590cab914a0d66affaf8a2f9617a6653fd090ae59c0d7993d070d7c9a2",
+      "valueMac": "0d6bd5f6919186ae503fbce91abdd426567f62758ec0587c8138a373e0f09f61",
+      "encValueHex": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a108a41627cb182a743d2e63e4ad4e2c20d4acd03ad9b6aa8f4c82182af76853cf1cd7a059540b666f8400538eaccc920519129914eb9e055640ee76049a8fa4e39c82a4375b1ad09eb9c3d6de76b79b35a17e919fb1f8f754afe81480d139c256",
+      "valueBlobHex": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a108a41627cb182a743d2e63e4ad4e2c20d4acd03ad9b6aa8f4c82182af76853cf1cd7a059540b666f8400538eaccc920519129914eb9e055640ee76049a8fa4e39c82a4375b1ad09eb9c3d6de76b79b35a17e919fb1f8f754afe81480d139c2560d6bd5f6919186ae503fbce91abdd426567f62758ec0587c8138a373e0f09f61",
+      "decodedSyncActionDataHex": "0a2a5b22636f6e74616374222c223535313239393939393939393940732e77686174736170702e6e6574225d121e0880d095ffbc311a150a0c416c696365205465737465721205416c6963651a002001",
+      "expectedSyncActionValue": {
+        "timestamp": "1700000000000",
+        "contactAction": {
+          "fullName": "Alice Tester",
+          "firstName": "Alice"
+        }
+      }
+    },
+    {
+      "label": "mute",
+      "operation": "SET",
+      "index": [
+        "mute",
+        "5512888888888@s.whatsapp.net"
+      ],
+      "iv": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+      "indexMac": "d7b8983735d51e860325d501623e1fb1af1dfbbab0327d806580d21e736add9b",
+      "valueMac": "18af3cd3734e5e1ad6320e2af54425d73b75f50413996c55c5dc9e66e0948015",
+      "encValueHex": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2cfaf89e776d413fb6b8a46a74b7802294bfdf046a87a208498a3e153e1ceb9ef267923e8fe9c32c3ba754f8fdffcca8d86366b4c7a787b63e9ece707ce5bbf2ea781012b489974466ad1e791cdfef146",
+      "valueBlobHex": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2cfaf89e776d413fb6b8a46a74b7802294bfdf046a87a208498a3e153e1ceb9ef267923e8fe9c32c3ba754f8fdffcca8d86366b4c7a787b63e9ece707ce5bbf2ea781012b489974466ad1e791cdfef14618af3cd3734e5e1ad6320e2af54425d73b75f50413996c55c5dc9e66e0948015",
+      "decodedSyncActionDataHex": "0a275b226d757465222c223535313238383838383838383840732e77686174736170702e6e6574225d121108e8d795ffbc31220808011080b1ef86071a002001",
+      "expectedSyncActionValue": {
+        "timestamp": "1700000001000",
+        "muteAction": {
+          "muted": true,
+          "muteEndTimestamp": "1893456000"
+        }
+      }
+    }
+  ]
+}

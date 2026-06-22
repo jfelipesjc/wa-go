@@ -143,9 +143,9 @@ type managed struct {
 	name    string
 	factory func() Session
 
-	mu      sync.Mutex
-	state   State
-	live    Session // current connected session (for SendText), nil otherwise
+	mu    sync.Mutex
+	state State
+	live  Session // current connected session (for SendText), nil otherwise
 }
 
 func (mg *managed) setState(s State) {

@@ -1,0 +1,51 @@
+{
+  "_meta": {
+    "lib": "@whiskeysockets/baileys (lib/Signal/Group) + libsignal",
+    "baileysVersion": "7.0.0-rc13",
+    "libsignalVersion": "6.0.0",
+    "note": "Golden group Sender Key vectors. alice creates sender key, bob processes SKDM, alice encrypts, bob decrypts.",
+    "senderKeyMessageWire": "version_byte(0x33) || protobuf{id=1 uint32, iteration=2 uint32, ciphertext=3 bytes} || signature[64] (XEdDSA over version||protobuf, deterministic)",
+    "skdmWire": "version_byte(0x33) || protobuf{id=1 uint32, iteration=2 uint32, chainKey=3 bytes, signingKey=4 bytes(33b 0x05-prefixed)}",
+    "chainKeyDerivation": "next chainKey = HMAC-SHA256(chainKey, 0x02); messageKey seed = HMAC-SHA256(chainKey, 0x01)",
+    "messageKeyDerivation": "deriveSecrets(seed, salt=zeros[32], info='WhisperGroup') -> T1,T2; iv=T1[0:16]; cipherKey=T1[16:32]||T2[0:16] (AES-256-CBC)",
+    "signingKeyFormat": "Curve25519; public 33b 0x05-prefixed, private 32b raw; signature is non-randomized XEdDSA",
+    "capturedSigningPrivMatchesState": true
+  },
+  "group": {
+    "groupId": "g1",
+    "senderName": "g1::alice::1"
+  },
+  "senderKey": {
+    "keyId": 1776315390,
+    "iteration": 0,
+    "chainKey": "35f548170a10681334f42b142eee30642f6b33d06c8dc74c320b301470def883",
+    "signingKey": {
+      "priv": "e8db76f7b3cb4c61860082e54c2a4693d1b5b0b3d3f5eac823ba3e9ec2292d4e",
+      "pub": "055b4064daaa2fb4ddd67ee48d8efaeddb1cc1a6968fdf1092211eabe274cbc713"
+    }
+  },
+  "skdmBytesHex": "3308fed781cf0610001a2035f548170a10681334f42b142eee30642f6b33d06c8dc74c320b301470def8832221055b4064daaa2fb4ddd67ee48d8efaeddb1cc1a6968fdf1092211eabe274cbc713",
+  "messages": [
+    {
+      "n": 1,
+      "iteration": 0,
+      "plaintext": "grupo msg um",
+      "plaintextHex": "677275706f206d736720756d",
+      "ciphertextHex": "3308fed781cf0610001a105fbcabe9c6a8790cf8f79e9f0b2882223129df1665290324e26ffc47b2cf7599c17067459965fdedcc0f24c7478444c89b5d37dcc10267f1d108d5d2a03d45e18c55ba9d92f63e747568509851769602"
+    },
+    {
+      "n": 2,
+      "iteration": 2,
+      "plaintext": "segunda mensagem",
+      "plaintextHex": "736567756e6461206d656e736167656d",
+      "ciphertextHex": "3308fed781cf0610021a205c67b3ff8bda4b69d7043c9b69d90a546432e6b656f937989a371b4c718374ff2238082b8ff0c1912889f041e216357588eb14982b8613eeb1e1e4968c90895f73d012a5fb3ce048c3898641d186fc243a0f76a18b1471b71a45d1888c7ae102"
+    },
+    {
+      "n": 3,
+      "iteration": 4,
+      "plaintext": "terceira no grupo!",
+      "plaintextHex": "7465726365697261206e6f20677275706f21",
+      "ciphertextHex": "3308fed781cf0610041a20e81c0f4d423ac1852759fcdd5de0241e0c9b98948dff085cdd51f20491679329558f91cfc8b11d6066459469efc42ccf770df7f395a797b71260ba7d9b581877ee53c8b354d0cb0f87edfaa5eaa4f4d0aa05213b183f7ebb84e12f540c7a5a09"
+    }
+  ]
+}

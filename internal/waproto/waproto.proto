@@ -350,4 +350,12 @@ message ExtendedTextMessage {
 message Message {
     optional string conversation = 1;
     optional ExtendedTextMessage extendedTextMessage = 6;
+    optional DeviceSentMessage deviceSentMessage = 31;
+}
+
+// DeviceSentMessage wraps a message the account sent from another device (e.g.
+// the phone); linked devices receive the real message nested under .message.
+message DeviceSentMessage {
+    optional string destinationJid = 1;
+    optional Message message = 2;
 }

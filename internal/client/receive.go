@@ -46,6 +46,11 @@ func messageText(m *waproto.Message) string {
 	if et := m.GetExtendedTextMessage(); et != nil {
 		return et.GetText()
 	}
+	// deviceSentMessage: a message the account sent from another device (e.g. the
+	// phone). Linked devices receive a copy with the real content nested; unwrap.
+	if ds := m.GetDeviceSentMessage(); ds != nil {
+		return messageText(ds.GetMessage())
+	}
 	return ""
 }
 

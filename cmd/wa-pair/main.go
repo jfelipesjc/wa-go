@@ -28,13 +28,14 @@ func main() {
 	timeout := flag.Duration("timeout", 120*time.Second, "overall timeout for the pairing/login flow")
 	pngPath := flag.String("png", "", "if set, also write each QR to this PNG file for scanning")
 	debug := flag.Bool("debug", false, "verbose pairing diagnostics to stderr")
+	listen := flag.Bool("listen", false, "after login, keep running and print incoming messages")
 	flag.Parse()
 
 	if *debug {
 		client.EnableDebug(os.Stderr)
 	}
 
-	if err := run(*dbPath, *timeout, *pngPath); err != nil {
+	if err := run(*dbPath, *timeout, *pngPath, *listen); err != nil {
 		fmt.Fprintf(os.Stderr, "wa-pair: %v\n", err)
 		os.Exit(1)
 	}
@@ -53,7 +54,7 @@ func writeQRPNG(path, code string) {
 	fmt.Printf("[QR written to %s]\n", path)
 }
 
-func run(dbPath string, timeout time.Duration, pngPath string) error {
+func run(dbPath string, timeout time.Duration, pngPath string, listen bool) error {
 	st, err := store.OpenSQLite(dbPath)
 	if err != nil {
 		return fmt.Errorf("open store %q: %w", dbPath, err)
@@ -98,8 +99,14 @@ func run(dbPath string, timeout time.Duration, pngPath string) error {
 				fmt.Println("Reconnecting to log in...")
 			case client.LoggedInEvent:
 				fmt.Println("\nLogged in successfully. Credentials saved.")
+				if listen {
+					fmt.Println("Listening for incoming messages (Ctrl-C to stop)...")
+					continue
+				}
 				cancel()
 				return nil
+			case client.MessageEvent:
+				fmt.Printf("\n📩 Message from %s (id=%s):\n   %q\n", ev.From, ev.ID, ev.Text)
 			case client.DisconnectedEvent:
 				fmt.Printf("Disconnected: %s\n", ev.Reason)
 			}

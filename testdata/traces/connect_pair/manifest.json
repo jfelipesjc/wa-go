@@ -1,0 +1,25 @@
+{
+  "scenario": "connect_pair",
+  "baileysPackage": "@whiskeysockets/baileys",
+  "baileysVersion": "6.7.18",
+  "waVersion": [
+    2,
+    3000,
+    1035194821
+  ],
+  "waHeader": "57410603",
+  "noiseMode": "Noise_XX_25519_AESGCM_SHA256\u0000\u0000\u0000\u0000",
+  "capturedAt": "2026-06-22T09:54:24.781Z",
+  "patchStrategy": "global hooks injected into node_modules source files",
+  "patchedFiles": [
+    "node_modules/@whiskeysockets/baileys/lib/WABinary/encode.js",
+    "node_modules/@whiskeysockets/baileys/lib/WABinary/decode.js",
+    "node_modules/@whiskeysockets/baileys/lib/Utils/noise-handler.js"
+  ],
+  "notes": [
+    "connect_pair: run until QR generated, no pairing done",
+    "frames_raw.jsonl: raw bytes from encodeFrame/decodeFrame (outgoing=full WS message, incoming=raw WS chunks)",
+    "nodes.jsonl out: encoded_hex is the raw binary node bytes (no prefix); in: encoded_hex is 0x00/0x02-prefixed compressed buffer",
+    "qr received"
+  ]
+}

@@ -1,3 +1,4 @@
 /harness/node_modules/
+harness/.auth_capture/
 *.log
 /bin/

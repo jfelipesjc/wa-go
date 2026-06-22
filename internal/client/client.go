@@ -107,12 +107,24 @@ type session struct {
 	creds *store.Creds
 }
 
-// New constructs a Client backed by the given store.
+// New constructs a Client backed by the given store, using the real WebSocket
+// transport.
 func New(s store.Store) *Client {
+	return NewWithDialer(s, dialWebSocket)
+}
+
+// NewWithDialer constructs a Client backed by the given store but with an
+// injectable transport dialer. The production path (New) passes dialWebSocket;
+// tests can pass an in-memory loopback transport to drive the client offline.
+// A nil dial falls back to dialWebSocket.
+func NewWithDialer(s store.Store, dial func(ctx context.Context) (io.ReadWriteCloser, error)) *Client {
+	if dial == nil {
+		dial = dialWebSocket
+	}
 	return &Client{
 		store:        s,
 		events:       make(chan Event, 16),
-		dial:         dialWebSocket,
+		dial:         dial,
 		newEphemeral: keys.GenKeyPair,
 		pending:      make(map[string]chan wire.Node),
 	}

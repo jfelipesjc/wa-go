@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -366,6 +367,28 @@ func TestPairingLoop_PairDeviceEmitsQRAndReplies(t *testing.T) {
 	w := conn.written[0]
 	if w.Tag != "iq" || w.Attrs["type"] != "result" || w.Attrs["id"] != "iq-1" || w.Attrs["to"] != sWhatsAppNet {
 		t.Fatalf("iq result wrong: %+v", w.Attrs)
+	}
+}
+
+// --- Test 4: NewWithDialer injects the transport ---
+
+func TestNewWithDialer_UsesInjectedDial(t *testing.T) {
+	called := false
+	c := NewWithDialer(nil, func(ctx context.Context) (io.ReadWriteCloser, error) {
+		called = true
+		return nil, context.Canceled
+	})
+	if c.dial == nil {
+		t.Fatal("dial not set")
+	}
+	// Invoking the injected dialer should run our closure.
+	_, _ = c.dial(context.Background())
+	if !called {
+		t.Fatal("injected dialer was not used")
+	}
+	// nil dial must fall back to the real dialer (non-nil).
+	if NewWithDialer(nil, nil).dial == nil {
+		t.Fatal("nil dial should fall back to dialWebSocket")
 	}
 }
 

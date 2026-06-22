@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
 	"strconv"
 	"strings"
 	"sync"
@@ -170,6 +171,20 @@ func (c *Client) runPairing(ctx context.Context, creds *store.Creds) (bool, erro
 	return c.pairingLoop(ctx, conn, creds)
 }
 
+// debugPairing, when true, dumps each received node and the disconnect reason to
+// debugOut. Temporary diagnostic for live pairing; gated off by default.
+var (
+	debugPairing = false
+	debugOut     io.Writer = io.Discard
+)
+
+// EnableDebug turns on verbose pairing diagnostics (each received node + the
+// disconnect reason) written to w. Diagnostic use only.
+func EnableDebug(w io.Writer) {
+	debugPairing = true
+	debugOut = w
+}
+
 // qrRotateInterval is how long each pairing ref's QR is displayed before
 // rotating to the next ref the server provided (mirrors Baileys' ~20s cycle).
 var qrRotateInterval = 20 * time.Second
@@ -242,10 +257,17 @@ func (c *Client) pairingLoop(ctx context.Context, conn nodeConn, creds *store.Cr
 		}
 		node, err := conn.ReadNode()
 		if err != nil {
+			if debugPairing {
+				fmt.Fprintf(debugOut, "[wa-go] stream ended: %v\n", err)
+			}
 			// Stream ended. If we already paired this is the expected restart;
 			// the caller checks the store. Surface a disconnect either way.
 			c.emit(DisconnectedEvent{Reason: "stream ended: " + err.Error()})
 			return creds.Registered, nil
+		}
+		if debugPairing {
+			fmt.Fprintf(debugOut, "[wa-go] node: <%s type=%q id=%q> children=%d\n",
+				node.Tag, node.Attrs["type"], node.Attrs["id"], len(children(node)))
 		}
 
 		switch {

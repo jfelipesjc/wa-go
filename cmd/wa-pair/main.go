@@ -27,7 +27,12 @@ func main() {
 	dbPath := flag.String("db", "./wa-pair.creds.db", "path to the SQLite creds database")
 	timeout := flag.Duration("timeout", 120*time.Second, "overall timeout for the pairing/login flow")
 	pngPath := flag.String("png", "", "if set, also write each QR to this PNG file for scanning")
+	debug := flag.Bool("debug", false, "verbose pairing diagnostics to stderr")
 	flag.Parse()
+
+	if *debug {
+		client.EnableDebug(os.Stderr)
+	}
 
 	if err := run(*dbPath, *timeout, *pngPath); err != nil {
 		fmt.Fprintf(os.Stderr, "wa-pair: %v\n", err)

@@ -336,3 +336,18 @@ message ClientPayload {
         }
     }
 }
+
+// --- #3 (Signal/E2E receive): the WAProto.Message envelope ---
+//
+// Minimal extract of WAProto.Message and ExtendedTextMessage, keeping the
+// upstream field numbers (conversation=1, extendedTextMessage=6; text=1). This
+// is the plaintext produced after Signal decryption + unpad; only the text
+// fields are needed to surface a received 1:1 text message.
+message ExtendedTextMessage {
+    optional string text = 1;
+}
+
+message Message {
+    optional string conversation = 1;
+    optional ExtendedTextMessage extendedTextMessage = 6;
+}

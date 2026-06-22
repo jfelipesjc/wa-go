@@ -72,16 +72,38 @@ type Creds struct {
 	Registered bool     `json:"registered"`         // true once paired
 }
 
+// StoredKeyPair is the serializable form of a Curve25519 key pair as persisted
+// in the signal_kv table. Both halves are 32 bytes. It mirrors keys.KeyPair but
+// keeps the store package free of a dependency on internal/keys.
+type StoredKeyPair struct {
+	Priv keyBytes `json:"priv"`
+	Pub  keyBytes `json:"pub"`
+}
+
 // SignalStore declares the signal-protocol persistence the #3 (encryption) layer
-// will use. The current implementations are generic blob round-trips keyed by
-// (namespace, key) over the signal_kv table; the cryptographic refinement (real
-// session record encoding, identity trust, etc.) lands in #3. Returning
-// (nil, false, nil) means "not found".
+// uses. Implementations serialize signal.SessionRecord blobs and key material
+// into the (namespace, key) signal_kv table. Returning (nil/false, false, nil)
+// means "not found".
 type SignalStore interface {
 	// GetSignedPreKey returns the stored signed pre-key blob by id.
 	GetSignedPreKey(id uint32) ([]byte, bool, error)
 	// PutPreKeys stores one-time pre-key blobs keyed by id.
 	PutPreKeys(preKeys map[uint32][]byte) error
+
+	// StorePreKeys persists a batch of one-time pre-key pairs keyed by id. Each
+	// pair is JSON-encoded (StoredKeyPair) in the pre_key namespace.
+	StorePreKeys(preKeys map[uint32]StoredKeyPair) error
+	// LoadPreKey loads a one-time pre-key pair by id.
+	LoadPreKey(id uint32) (StoredKeyPair, bool, error)
+	// RemovePreKey deletes a one-time pre-key by id (called after a pkmsg
+	// consumes it, mirroring libsignal's removePreKey).
+	RemovePreKey(id uint32) error
+
+	// StoreSignedPreKey / LoadSignedPreKey persist the device's signed pre-key
+	// pair by id in the signed_pre_key namespace.
+	StoreSignedPreKey(id uint32, kp StoredKeyPair) error
+	LoadSignedPreKey(id uint32) (StoredKeyPair, bool, error)
+
 	// LoadSession / StoreSession persist a session record blob for an address
 	// (typically "<user>.<deviceID>").
 	LoadSession(addr string) ([]byte, bool, error)

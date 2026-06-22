@@ -158,6 +158,31 @@ func NewIdentity() (Identity, error) {
 	}, nil
 }
 
+// PreKey is a one-time pre-key: an id plus a Curve25519 key pair. WhatsApp/
+// Baileys generate a contiguous range of these (generateOrGetPreKeys) and upload
+// the public halves; the private halves stay in the store until a peer consumes
+// the matching id in a PreKeySignalMessage.
+type PreKey struct {
+	KeyID   uint32
+	KeyPair KeyPair
+}
+
+// GenPreKeys generates count one-time pre-keys with sequential ids starting at
+// start (inclusive), mirroring Baileys' generateOrGetPreKeys which assigns ids
+// firstUnuploadedPreKeyId .. +count. ids are 1-based in Baileys; the caller
+// chooses start.
+func GenPreKeys(start uint32, count int) ([]PreKey, error) {
+	out := make([]PreKey, 0, count)
+	for i := 0; i < count; i++ {
+		kp, err := GenKeyPair()
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, PreKey{KeyID: start + uint32(i), KeyPair: kp})
+	}
+	return out, nil
+}
+
 // Sign produces an XEdDSA signature of msg with the raw 32-byte Curve25519
 // private scalar, mirroring Baileys' Curve.sign(private, buf). It is the minimal
 // exported wrapper the pairing flow (pair-success deviceSignature) needs.

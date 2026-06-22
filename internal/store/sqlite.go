@@ -115,6 +115,14 @@ func (s *sqliteStore) kvPut(ns, key string, value []byte) error {
 	return nil
 }
 
+func (s *sqliteStore) kvDelete(ns, key string) error {
+	_, err := s.db.Exec(`DELETE FROM signal_kv WHERE namespace = ? AND key = ?`, ns, key)
+	if err != nil {
+		return fmt.Errorf("store: kv delete %s/%s: %w", ns, key, err)
+	}
+	return nil
+}
+
 // KVGet / KVPut expose the generic store for tests and for #3 namespaces not yet
 // enumerated. They are not part of the Store interface.
 func (s *sqliteStore) KVGet(ns, key string) ([]byte, bool, error) { return s.kvGet(ns, key) }
@@ -135,6 +143,52 @@ func (s *sqliteStore) PutPreKeys(preKeys map[uint32][]byte) error {
 		}
 	}
 	return nil
+}
+
+func (s *sqliteStore) StorePreKeys(preKeys map[uint32]StoredKeyPair) error {
+	for id, kp := range preKeys {
+		blob, err := json.Marshal(kp)
+		if err != nil {
+			return fmt.Errorf("store: marshal pre-key %d: %w", id, err)
+		}
+		if err := s.kvPut(nsPreKey, idKey(id), blob); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *sqliteStore) LoadPreKey(id uint32) (StoredKeyPair, bool, error) {
+	return s.loadKeyPair(nsPreKey, id)
+}
+
+func (s *sqliteStore) RemovePreKey(id uint32) error {
+	return s.kvDelete(nsPreKey, idKey(id))
+}
+
+func (s *sqliteStore) StoreSignedPreKey(id uint32, kp StoredKeyPair) error {
+	blob, err := json.Marshal(kp)
+	if err != nil {
+		return fmt.Errorf("store: marshal signed pre-key %d: %w", id, err)
+	}
+	return s.kvPut(nsSignedPreKey, idKey(id), blob)
+}
+
+func (s *sqliteStore) LoadSignedPreKey(id uint32) (StoredKeyPair, bool, error) {
+	return s.loadKeyPair(nsSignedPreKey, id)
+}
+
+// loadKeyPair fetches and JSON-decodes a StoredKeyPair from a namespace by id.
+func (s *sqliteStore) loadKeyPair(ns string, id uint32) (StoredKeyPair, bool, error) {
+	blob, ok, err := s.kvGet(ns, idKey(id))
+	if err != nil || !ok {
+		return StoredKeyPair{}, ok, err
+	}
+	var kp StoredKeyPair
+	if err := json.Unmarshal(blob, &kp); err != nil {
+		return StoredKeyPair{}, false, fmt.Errorf("store: unmarshal key pair %s/%d: %w", ns, id, err)
+	}
+	return kp, true, nil
 }
 
 func (s *sqliteStore) LoadSession(addr string) ([]byte, bool, error) {

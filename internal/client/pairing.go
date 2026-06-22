@@ -593,6 +593,47 @@ func (c *Client) runLogin(ctx context.Context, creds *store.Creds) error {
 		return err
 	}
 	defer conn.Close()
+	return c.loginLoop(ctx, conn, creds)
+}
+
+// loginLoop drives the post-login state machine: on <success> it uploads
+// pre-keys and goes active, then handles incoming <message> stanzas (decrypt +
+// emit + receipt/ack). It is separated from runLogin so tests can drive it over
+// a fake nodeConn without a real handshake.
+//
+// As in pairingLoop, all writes go through sendMu because the Noise transport's
+// nonce counter is not concurrency-safe (the keep-alive goroutine and the read
+// loop both send).
+func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Creds) error {
+	var sendMu sync.Mutex
+	send := func(n wire.Node) error {
+		sendMu.Lock()
+		defer sendMu.Unlock()
+		return conn.SendNode(n)
+	}
+
+	loopCtx, cancel := context.WithCancel(ctx)
+	var wg sync.WaitGroup
+	defer func() {
+		cancel()
+		wg.Wait()
+	}()
+
+	// Keep-alive so the server keeps the stream open while we wait for messages.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		t := time.NewTicker(keepAliveInterval)
+		defer t.Stop()
+		for {
+			select {
+			case <-loopCtx.Done():
+				return
+			case <-t.C:
+				_ = send(pingNode())
+			}
+		}
+	}()
 
 	for {
 		if ctx.Err() != nil {
@@ -603,10 +644,23 @@ func (c *Client) runLogin(ctx context.Context, creds *store.Creds) error {
 			c.emit(DisconnectedEvent{Reason: "stream ended: " + err.Error()})
 			return nil
 		}
+		if debugPairing {
+			fmt.Fprintf(debugOut, "[wa-go] node: <%s type=%q id=%q from=%q> children=%d\n",
+				node.Tag, node.Attrs["type"], node.Attrs["id"], node.Attrs["from"], len(children(node)))
+		}
 		switch node.Tag {
 		case "success":
 			c.emit(LoggedInEvent{})
-			return nil
+			// Post-login: upload pre-keys, then announce active presence so the
+			// server delivers queued/incoming messages. Mirrors socket.js's
+			// CB:success handler (uploadPreKeys + sendPassiveIq('active')).
+			if err := c.uploadPreKeys(send, creds); err != nil {
+				c.emit(DisconnectedEvent{Reason: "upload pre-keys: " + err.Error()})
+				return err
+			}
+			if err := send(passiveIqNode("active")); err != nil {
+				return err
+			}
 		case "failure":
 			reason := node.Attrs["reason"]
 			if reason == "" {
@@ -614,6 +668,33 @@ func (c *Client) runLogin(ctx context.Context, creds *store.Creds) error {
 			}
 			c.emit(DisconnectedEvent{Reason: "login failure: " + reason})
 			return nil
+		case "message":
+			if err := c.handleMessage(send, node, creds); err != nil && debugPairing {
+				fmt.Fprintf(debugOut, "[wa-go] handleMessage: %v\n", err)
+			}
+		case "iq":
+			// Server pings / queries: ack pings so the stream stays healthy.
+			if node.Attrs["type"] == "get" {
+				if _, ok := childByTag(node, "ping"); ok {
+					_ = send(iqResult(node.Attrs["id"], nil))
+				}
+			}
 		}
+	}
+}
+
+// passiveIqNode builds the <iq xmlns=passive type=set> with a single child tag
+// (e.g. "active"), mirroring Baileys' sendPassiveIq.
+func passiveIqNode(tag string) wire.Node {
+	id := "wa-go-passive-" + strconv.FormatUint(iqIDCounter.Add(1), 10)
+	return wire.Node{
+		Tag: "iq",
+		Attrs: map[string]string{
+			"to":    sWhatsAppNet,
+			"xmlns": "passive",
+			"type":  "set",
+			"id":    id,
+		},
+		Content: []wire.Node{{Tag: tag, Attrs: map[string]string{}}},
 	}
 }

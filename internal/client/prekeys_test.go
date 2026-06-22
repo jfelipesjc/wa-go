@@ -91,9 +91,9 @@ func TestBuildPreKeyUploadNode(t *testing.T) {
 	if len(idBytes) != 32 {
 		t.Fatalf("identity length = %d, want 32 (raw, no 0x05 prefix)", len(idBytes))
 	}
-	if idBytes[0] == 0x05 && bytes.Equal(idBytes, append([]byte{0x05}, creds.IdentityKey.Pub[1:]...)) {
-		t.Fatal("identity appears 0x05-prefixed; Baileys uploads the raw public key")
-	}
+	// Note: a raw 32-byte key legitimately starts with 0x05 ~1/256 of the time,
+	// so we don't heuristically "detect a 0x05 prefix" — the exact-equality check
+	// below fully validates that identity is the raw public key with no prefix.
 	if !bytes.Equal(idBytes, creds.IdentityKey.Pub) {
 		t.Fatalf("identity bytes = %x, want %x", idBytes, creds.IdentityKey.Pub)
 	}

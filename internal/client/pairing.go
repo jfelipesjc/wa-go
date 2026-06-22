@@ -718,8 +718,10 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 				fmt.Fprintf(debugOut, "[wa-go] handleMessage: %v\n", err)
 			}
 		case "notification":
-			// Ack notifications (device-list/account_sync/server_sync); the server
-			// expects acks and may withhold delivery otherwise.
+			// Emit granular typed events (w:gp2/encrypt/picture/app-state/...) for
+			// the API layer, then ack: the server expects acks and may withhold
+			// delivery otherwise.
+			c.handleNotification(node)
 			_ = send(stanzaAckNode(node, creds.Me))
 		case "receipt":
 			c.emit(ReceiptEvent{
@@ -728,6 +730,11 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 				ID:          node.Attrs["id"],
 				Type:        node.Attrs["type"],
 			})
+			// Emit the richer ReceiptUpdateEvent for delivery/read/played receipts
+			// (retry receipts are excluded; the resend path below handles those).
+			if !isRetryReceipt(node) {
+				c.handleReceiptUpdate(node)
+			}
 			// A <receipt type=retry> means a device could not decrypt a message WE
 			// sent: re-encrypt and resend it (Baileys' sendMessagesAgain). The
 			// resend may issue blocking iq fetches (prekey bundle), so run it off

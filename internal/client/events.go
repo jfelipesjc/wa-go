@@ -1,6 +1,9 @@
 package client
 
-import "github.com/felipeleal/wa-go/internal/waproto"
+import (
+	"github.com/felipeleal/wa-go/internal/waproto"
+	"github.com/felipeleal/wa-go/internal/wire"
+)
 
 // This file defines the rich incoming-message event surface produced by the
 // receive path (receive.go + receive_parse.go). The pairing/connection events
@@ -333,3 +336,133 @@ type PresenceEvent struct {
 }
 
 func (PresenceEvent) isEvent() {}
+
+// --- granular notification / receipt events ---
+//
+// These mirror Baileys' ev.emit surface for <notification> and <receipt>
+// stanzas (Socket/messages-recv.js: processNotification / handleGroupNotification
+// / handleReceipt). They let the API layer (#8) turn raw stanzas into rich
+// typed webhooks without re-parsing the wire format.
+
+// GroupParticipantAction names the kind of participant change carried by a
+// w:gp2 notification (the child tag of the <notification type=w:gp2>).
+type GroupParticipantAction string
+
+const (
+	// GroupParticipantAdd / Remove / Promote / Demote / Leave map directly to the
+	// w:gp2 child tags <add>/<remove>/<promote>/<demote>/<leave>. Modify is the
+	// participant-number-change (<modify>).
+	GroupParticipantAdd     GroupParticipantAction = "add"
+	GroupParticipantRemove  GroupParticipantAction = "remove"
+	GroupParticipantPromote GroupParticipantAction = "promote"
+	GroupParticipantDemote  GroupParticipantAction = "demote"
+	GroupParticipantLeave   GroupParticipantAction = "leave"
+	GroupParticipantModify  GroupParticipantAction = "modify"
+)
+
+// GroupParticipantsUpdateEvent reports a membership/role change in a group,
+// parsed from a <notification type=w:gp2> with an add/remove/promote/demote/
+// leave/modify child. GroupJID is the group; By is the acting participant (the
+// notification's `participant` attr, may be empty); Participants are the affected
+// JIDs (the <participant jid=.../> children).
+type GroupParticipantsUpdateEvent struct {
+	GroupJID     string
+	Action       GroupParticipantAction
+	Participants []string
+	By           string
+}
+
+func (GroupParticipantsUpdateEvent) isEvent() {}
+
+// GroupUpdateEvent reports a non-membership change to a group's settings, parsed
+// from a <notification type=w:gp2> with a subject/announce/ephemeral/... child.
+// Only the pointer field(s) relevant to the change are non-nil.
+type GroupUpdateEvent struct {
+	GroupJID string
+	By       string
+	// Subject is set for a <subject> child (the new group name).
+	Subject *string
+	// Announce is set for an <announcement>/<not_announcement> child (true =
+	// announce-only / admins-only messaging).
+	Announce *bool
+	// Locked is set for a <locked>/<unlocked> child (true = only admins can edit
+	// group info).
+	Locked *bool
+	// Ephemeral is set for an <ephemeral>/<not_ephemeral> child: the disappearing-
+	// message expiration in seconds (0 = turned off).
+	Ephemeral *uint32
+	// Description is set for a <description> child (the new group description text).
+	Description *string
+}
+
+func (GroupUpdateEvent) isEvent() {}
+
+// PictureUpdateEvent reports a profile/group picture change, parsed from a
+// <notification type=picture> with a <set>/<delete> child. JID is the subject
+// (contact or group); Author is the acting JID; Removed is true for a delete.
+type PictureUpdateEvent struct {
+	JID     string
+	Author  string
+	Removed bool
+}
+
+func (PictureUpdateEvent) isEvent() {}
+
+// AppStateSyncDirtyEvent signals that one or more app-state collections are dirty
+// and should be resynced, parsed from a <notification type=account_sync|server_sync>.
+// Collections names the dirty collections (the <collection name=.../> children, or
+// the child tag for an account_sync). It is advisory: the loop does NOT force a
+// resync, leaving that policy to the consumer.
+type AppStateSyncDirtyEvent struct {
+	Collections []string
+}
+
+func (AppStateSyncDirtyEvent) isEvent() {}
+
+// ContactUpdateEvent reports a contact/devices notification (a
+// <notification type=contacts|devices>): a lightweight signal that the contact's
+// devices or details changed. JID is the contact; Type is the notification type.
+type ContactUpdateEvent struct {
+	JID  string
+	Type string
+}
+
+func (ContactUpdateEvent) isEvent() {}
+
+// ReceiptType classifies a delivery/read receipt update.
+type ReceiptType string
+
+const (
+	// ReceiptDelivery is a plain delivery receipt (no `type` attr on the <receipt>).
+	ReceiptDelivery ReceiptType = "delivery"
+	// ReceiptRead is a read receipt (type=read or read-self).
+	ReceiptRead ReceiptType = "read"
+	// ReceiptPlayed is a played receipt for a voice note (type=played).
+	ReceiptPlayed ReceiptType = "played"
+)
+
+// ReceiptUpdateEvent reports a delivery/read/played receipt the server forwarded
+// for one or more of our outgoing messages. For is the set of message IDs the
+// receipt covers (the stanza id plus any batched <list><item id=.../> children).
+// From is the peer JID; Participant is the group member (empty for 1:1); Type
+// classifies the receipt; Timestamp is the stanza `t` (unix seconds, 0 if absent).
+type ReceiptUpdateEvent struct {
+	For         []string
+	From        string
+	Participant string
+	Type        ReceiptType
+	Timestamp   int64
+}
+
+func (ReceiptUpdateEvent) isEvent() {}
+
+// NotificationEvent is the generic catch-all for a <notification> the granular
+// handlers did not classify, so no stanza is silently dropped. Type/From mirror
+// the stanza attrs; Raw is the full decoded node for inspection.
+type NotificationEvent struct {
+	Type string
+	From string
+	Raw  wire.Node
+}
+
+func (NotificationEvent) isEvent() {}

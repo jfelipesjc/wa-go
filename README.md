@@ -14,7 +14,8 @@ Decomposto em 9 sub-projetos. Specs e planos em `docs/superpowers/`.
 | 1 | Wire layer (framing + Noise XX + binary-node codec) | ✅ feito |
 | 2 | Pairing/Auth (multi-device, QR + código, storage) | ✅ feito (pareamento real validado) |
 | 3 | Signal/E2E (X3DH, Double Ratchet) — cripto 1:1 do zero | ✅ cripto provada (golden vectors byte-a-byte + 7 msgs reais decifradas live) |
-| 4 | Messaging (presença, device-list/fanout, enviar, sender keys, mídia) | ⬜ próximo |
+| 4 | Messaging 1:1 (receber+enviar) | ✅ bidirecional provado (ADM↔wa-go via Evolution) |
+| 4+ | Grupos (sender keys) + mídia | ⬜ |
 | 5 | App-state sync (LTHash) | ⬜ |
 | 6 | Control layer (fingerprint, SendPacer, hooks) | ⬜ |
 | 7 | Instance manager (multi-sessão) | ⬜ |

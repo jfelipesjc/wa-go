@@ -15,11 +15,17 @@ Decomposto em 9 sub-projetos. Specs e planos em `docs/superpowers/`.
 | 2 | Pairing/Auth (multi-device, QR + código, storage) | ✅ feito (pareamento real validado) |
 | 3 | Signal/E2E (X3DH, Double Ratchet) — cripto 1:1 do zero | ✅ cripto provada (golden vectors byte-a-byte + 7 msgs reais decifradas live) |
 | 4 | Messaging 1:1 (receber+enviar) | ✅ bidirecional provado (ADM↔wa-go via Evolution) |
-| 4+ | Grupos (sender keys) + mídia | ⬜ |
-| 5 | App-state sync (LTHash) | ⬜ |
+| 4+ | Grupos (sender keys), mídia (cripto+transfer), todos os tipos de msg | ✅ feito (offline) |
+| 5 | App-state sync (LTHash) — decode+encode+resync | ✅ feito (offline) |
 | 6 | Control layer (fingerprint, SendPacer, hooks de frame) | ✅ feito (offline; default reproduz fixture) |
 | 7 | Instance manager (multi-sessão) | ✅ feito (offline; -race 50 instâncias) |
-| 8 | Evolution-compat (HTTP/WS) | ⬜ |
+| 8 | Evolution-compat (HTTP/WS) | ⬜ (deixado por último, a pedido) |
+
+## Cobertura de features (offline, 279 testes, suite -race verde)
+
+**Mensagens:** texto, reply, menção, imagem/vídeo/áudio/documento/sticker (cripto + upload/download HTTP), localização, contato, reação, editar, apagar, enquete; recebimento parseia todos os tipos (eventos ricos). **Grupos:** sender keys (E2E), enviar/receber, metadata, criar, add/remover/promover/rebaixar, assunto/descrição, sair, convite, settings, comunidades/sub-grupos. **App-state:** LTHash decode+encode, arquivar/fixar/mutar/marcar lido/favoritar/limpar/apagar chat, resync. **Perfil/privacidade:** nome/status/foto, fetch status/foto, privacy settings, bloquear/desbloquear, blocklist. **Outros:** presença/digitando/recibo de leitura/subscribe, chamadas (parse+reject+evento), status/stories, business (perfil/catálogo/pedido), onWhatsApp, newsletters (criar/seguir/mute/metadata), history sync (download+decode). **Infra:** multi-sessão (instance manager), fingerprint por instância, cadência humana (pacer), hooks de frame bruto.
+
+> ⚠️ **Live pendente:** o código de rede (envio real, upload/download de mídia, resync, grupos) está completo e testado **offline** (golden vectors byte-a-byte + round-trips). A validação **ao vivo** contra o WhatsApp real foi deixada para um lote gentil posterior (1:1 texto já foi provado ponta a ponta).
 
 ### #0 + #1 entregues
 

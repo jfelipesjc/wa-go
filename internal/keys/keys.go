@@ -158,6 +158,21 @@ func NewIdentity() (Identity, error) {
 	}, nil
 }
 
+// Sign produces an XEdDSA signature of msg with the raw 32-byte Curve25519
+// private scalar, mirroring Baileys' Curve.sign(private, buf). It is the minimal
+// exported wrapper the pairing flow (pair-success deviceSignature) needs.
+func Sign(priv [32]byte, msg []byte) ([64]byte, error) {
+	return xeddsaSign(priv, msg)
+}
+
+// Verify checks an XEdDSA signature of msg against the raw 32-byte Curve25519
+// public key, mirroring Baileys' Curve.verify(pubKey, message, signature)
+// (which internally prepends the 0x05 type byte). pub here is the raw 32-byte
+// public key; verification handles the signal pub-key form internally.
+func Verify(pub [32]byte, msg []byte, sig [64]byte) bool {
+	return xeddsaVerify(pub, msg, sig)
+}
+
 // xeddsaSign produces a Curve25519 (XEdDSA) signature of msg using the
 // Curve25519 private scalar montPriv, byte-for-byte compatible with
 // curve25519-js's deterministic sign (the construction libsignal/Baileys use via

@@ -36,8 +36,19 @@ Decomposto em 9 sub-projetos. Specs e planos em `docs/superpowers/`.
 
 ```sh
 export PATH=$PATH:/usr/local/go/bin
-go test ./...            # 26 testes
+go test ./...            # suíte offline (unit + #1 + #2)
 go run ./cmd/wiredump    # replay do trace, decodifica o pair-device (sem rede)
+```
+
+### Pareamento (#2)
+
+```sh
+# Teste ao vivo (conecta ao WhatsApp REAL, emite QR, NÃO pareia / NÃO usa número):
+go test -tags live ./internal/client/ -run TestLive_EmitsQR -v
+
+# Pareamento interativo real (só com chip sacrificial isolado):
+go run ./cmd/wa-pair -db ./wa-pair.creds.db -timeout 120s
+# renderiza o QR no terminal; escaneie em WhatsApp > Aparelhos conectados.
 ```
 
 ## Recapturar traces (opcional)

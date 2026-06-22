@@ -111,9 +111,11 @@ type SignalStore interface {
 	// LoadIdentity / SaveIdentity persist a peer's identity key blob.
 	LoadIdentity(addr string) ([]byte, bool, error)
 	SaveIdentity(addr string, key []byte) error
-	// LoadSenderKey / StoreSenderKey persist a group sender-key blob.
-	LoadSenderKey(group string) ([]byte, bool, error)
-	StoreSenderKey(group string, record []byte) error
+	// LoadSenderKey / StoreSenderKey persist a group sender-key record blob,
+	// namespaced by (group JID, sender JID): each member of a group has its own
+	// sender key, so the pair identifies one SenderKeyRecord.
+	LoadSenderKey(group, sender string) ([]byte, bool, error)
+	StoreSenderKey(group, sender string, record []byte) error
 }
 
 // Store is the full persistence surface: device credentials plus the signal

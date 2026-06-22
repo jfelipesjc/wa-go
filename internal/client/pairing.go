@@ -722,6 +722,12 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 			// expects acks and may withhold delivery otherwise.
 			_ = send(stanzaAckNode(node, creds.Me))
 		case "receipt":
+			c.emit(ReceiptEvent{
+				From:        node.Attrs["from"],
+				Participant: node.Attrs["participant"],
+				ID:          node.Attrs["id"],
+				Type:        node.Attrs["type"],
+			})
 			_ = send(stanzaAckNode(node, creds.Me))
 		case "iq":
 			// Server pings / queries: ack pings so the stream stays healthy.

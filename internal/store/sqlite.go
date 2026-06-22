@@ -207,10 +207,16 @@ func (s *sqliteStore) SaveIdentity(addr string, key []byte) error {
 	return s.kvPut(nsIdentity, addr, key)
 }
 
-func (s *sqliteStore) LoadSenderKey(group string) ([]byte, bool, error) {
-	return s.kvGet(nsSenderKey, group)
+// senderKeyName composes the (group, sender) pair into a single namespace key.
+// The "::" separator cannot appear inside a JID, so the join is unambiguous.
+func senderKeyName(group, sender string) string {
+	return group + "::" + sender
 }
 
-func (s *sqliteStore) StoreSenderKey(group string, record []byte) error {
-	return s.kvPut(nsSenderKey, group, record)
+func (s *sqliteStore) LoadSenderKey(group, sender string) ([]byte, bool, error) {
+	return s.kvGet(nsSenderKey, senderKeyName(group, sender))
+}
+
+func (s *sqliteStore) StoreSenderKey(group, sender string, record []byte) error {
+	return s.kvPut(nsSenderKey, senderKeyName(group, sender), record)
 }

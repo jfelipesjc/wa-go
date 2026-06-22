@@ -137,7 +137,11 @@ func run(cfg runConfig) error {
 				cancel()
 				return nil
 			case client.MessageEvent:
-				fmt.Printf("\n📩 Message from %s (id=%s):\n   %q\n", ev.From, ev.ID, ev.Text)
+				who := ev.From
+				if ev.IsGroup && ev.Sender != "" {
+					who = fmt.Sprintf("%s in %s", ev.Sender, ev.From)
+				}
+				fmt.Printf("\n📩 [%s] Message from %s (id=%s):\n   %q\n", ev.Type, who, ev.ID, ev.Text)
 			case client.DisconnectedEvent:
 				fmt.Printf("Disconnected: %s\n", ev.Reason)
 			}

@@ -138,3 +138,55 @@ func TestSignalStoreIdentityRoundTrip(t *testing.T) {
 		t.Fatalf("LoadIdentity(missing): ok=%v err=%v", ok, err)
 	}
 }
+
+// TestSignalStoreSenderKeyRoundTrip covers the group sender-key namespace keyed
+// by (group, sender): distinct pairs are independent, and a missing pair reports
+// not-found.
+func TestSignalStoreSenderKeyRoundTrip(t *testing.T) {
+	st := openTestStore(t)
+
+	group := "120363000000000000@g.us"
+	alice := "5551111111@s.whatsapp.net"
+	bob := "5552222222@s.whatsapp.net"
+
+	aliceRec := []byte(`{"states":[{"keyId":1}]}`)
+	bobRec := []byte(`{"states":[{"keyId":2}]}`)
+
+	if err := st.StoreSenderKey(group, alice, aliceRec); err != nil {
+		t.Fatalf("StoreSenderKey(alice): %v", err)
+	}
+	if err := st.StoreSenderKey(group, bob, bobRec); err != nil {
+		t.Fatalf("StoreSenderKey(bob): %v", err)
+	}
+
+	got, ok, err := st.LoadSenderKey(group, alice)
+	if err != nil || !ok {
+		t.Fatalf("LoadSenderKey(alice): ok=%v err=%v", ok, err)
+	}
+	if !bytes.Equal(got, aliceRec) {
+		t.Fatalf("alice record = %q, want %q", got, aliceRec)
+	}
+
+	got, ok, _ = st.LoadSenderKey(group, bob)
+	if !ok || !bytes.Equal(got, bobRec) {
+		t.Fatalf("bob record = %q (ok=%v), want %q", got, ok, bobRec)
+	}
+
+	// Different sender in same group, and same sender in different group: not found.
+	if _, ok, _ := st.LoadSenderKey(group, "5559999999@s.whatsapp.net"); ok {
+		t.Fatal("unexpected sender key for unknown sender")
+	}
+	if _, ok, _ := st.LoadSenderKey("other@g.us", alice); ok {
+		t.Fatal("unexpected sender key for different group")
+	}
+
+	// Overwrite updates in place.
+	updated := []byte(`{"states":[{"keyId":1,"iteration":5}]}`)
+	if err := st.StoreSenderKey(group, alice, updated); err != nil {
+		t.Fatal(err)
+	}
+	got, _, _ = st.LoadSenderKey(group, alice)
+	if !bytes.Equal(got, updated) {
+		t.Fatalf("after overwrite = %q, want %q", got, updated)
+	}
+}

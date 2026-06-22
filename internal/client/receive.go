@@ -3,6 +3,8 @@ package client
 import (
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/felipeleal/wa-go/internal/keys"
 	"github.com/felipeleal/wa-go/internal/signal"
@@ -35,23 +37,6 @@ func unpadMessage(b []byte) ([]byte, error) {
 		return nil, fmt.Errorf("client: bad pad %d for %d bytes", pad, len(b))
 	}
 	return b[:len(b)-pad], nil
-}
-
-// messageText extracts the displayable text from a decoded WAProto.Message,
-// preferring `conversation` (field 1) then `extendedTextMessage.text` (6.1).
-func messageText(m *waproto.Message) string {
-	if c := m.GetConversation(); c != "" {
-		return c
-	}
-	if et := m.GetExtendedTextMessage(); et != nil {
-		return et.GetText()
-	}
-	// deviceSentMessage: a message the account sent from another device (e.g. the
-	// phone). Linked devices receive a copy with the real content nested; unwrap.
-	if ds := m.GetDeviceSentMessage(); ds != nil {
-		return messageText(ds.GetMessage())
-	}
-	return ""
 }
 
 // decryptEnc decrypts one <enc> payload for the given sender, handling both
@@ -187,43 +172,92 @@ func (c *Client) handleMessage(send func(wire.Node) error, node wire.Node, creds
 		return errors.New("client: message missing from/id")
 	}
 
-	addr, err := signalAddress(from)
+	isGroup := isGroupJID(from)
+	// participant is the actual human sender for group messages; for 1:1 it is
+	// empty and `from` is the sender. The signal session (pkmsg/msg) is keyed by
+	// the sender's device address.
+	participant := node.Attrs["participant"]
+	senderJID := from
+	if isGroup && participant != "" {
+		senderJID = participant
+	}
+
+	addr, err := signalAddress(senderJID)
 	if err != nil {
 		return err
 	}
 
 	var firstErr error
+	noteErr := func(e error) {
+		if firstErr == nil {
+			firstErr = e
+		}
+	}
+
 	for _, enc := range childrenByTag(node, "enc") {
 		encType := enc.Attrs["type"]
 		ciphertext := nodeBytes(enc)
 		if len(ciphertext) == 0 {
 			continue
 		}
-		padded, err := c.decryptEnc(addr, creds, encType, ciphertext)
-		if err != nil {
-			if firstErr == nil {
-				firstErr = err
+
+		var m *waproto.Message
+		if encType == "skmsg" {
+			// Group sender-key message: decrypt with the sender's installed
+			// SenderKeyRecord for this group. No unpad/parse-as-pkmsg here.
+			pm, err := c.decryptGroup(from, senderJID, ciphertext)
+			if err != nil {
+				noteErr(err)
+				if debugPairing {
+					fmt.Fprintf(debugOut, "[wa-go] decrypt skmsg from %s in %s: %v\n", senderJID, from, err)
+				}
+				continue
 			}
-			if debugPairing {
-				fmt.Fprintf(debugOut, "[wa-go] decrypt %s from %s: %v\n", encType, from, err)
+			m = pm
+		} else {
+			padded, err := c.decryptEnc(addr, creds, encType, ciphertext)
+			if err != nil {
+				noteErr(err)
+				if debugPairing {
+					fmt.Fprintf(debugOut, "[wa-go] decrypt %s from %s: %v\n", encType, senderJID, err)
+				}
+				continue
 			}
-			continue
+			plaintext, err := unpadMessage(padded)
+			if err != nil {
+				noteErr(err)
+				continue
+			}
+			var msg waproto.Message
+			if err := proto.Unmarshal(plaintext, &msg); err != nil {
+				noteErr(fmt.Errorf("client: unmarshal message: %w", err))
+				continue
+			}
+			m = &msg
 		}
-		plaintext, err := unpadMessage(padded)
-		if err != nil {
-			if firstErr == nil {
-				firstErr = err
+
+		// A pkmsg/msg in a group often carries only the SenderKeyDistributionMessage
+		// (no user-visible content): install the sender key so subsequent skmsg can
+		// be decrypted, then skip emitting an empty event.
+		if skdm := senderKeyDistribution(m); skdm != nil {
+			if err := c.processSenderKeyDistribution(from, senderJID, skdm); err != nil {
+				noteErr(err)
 			}
-			continue
-		}
-		var m waproto.Message
-		if err := proto.Unmarshal(plaintext, &m); err != nil {
-			if firstErr == nil {
-				firstErr = fmt.Errorf("client: unmarshal message: %w", err)
+			if isOnlySenderKeyDistribution(m) {
+				continue
 			}
-			continue
 		}
-		c.emit(MessageEvent{From: from, Text: messageText(&m), ID: msgID})
+
+		ev := parseMessage(m)
+		ev.From = from
+		ev.ID = msgID
+		ev.IsGroup = isGroup
+		if isGroup {
+			ev.Sender = senderJID
+		}
+		ev.Timestamp = parseTimestamp(node.Attrs["t"])
+		ev.PushName = node.Attrs["notify"]
+		c.emit(ev)
 	}
 
 	// Acknowledge the message regardless so the server does not redeliver.
@@ -234,6 +268,135 @@ func (c *Client) handleMessage(send func(wire.Node) error, node wire.Node, creds
 		return err
 	}
 	return firstErr
+}
+
+// isGroupJID reports whether a JID addresses a group (@g.us).
+func isGroupJID(jid string) bool {
+	return strings.HasSuffix(jid, "@g.us")
+}
+
+// parseTimestamp parses the stanza `t` attribute (unix seconds) into int64, or 0.
+func parseTimestamp(s string) int64 {
+	if s == "" {
+		return 0
+	}
+	v, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return 0
+	}
+	return v
+}
+
+// senderKeyDistribution returns the inner SenderKeyDistributionMessage carried in
+// a decoded Message (after unwrapping device/ephemeral wrappers), parsed from the
+// embedded axolotl SKDM bytes, or nil if none/parse fails.
+func senderKeyDistribution(m *waproto.Message) *signal.SenderKeyDistributionMessage {
+	m = unwrapMessage(m)
+	if m == nil {
+		return nil
+	}
+	wrap := m.GetSenderKeyDistributionMessage()
+	if wrap == nil {
+		return nil
+	}
+	raw := wrap.GetAxolotlSenderKeyDistributionMessage()
+	if len(raw) == 0 {
+		return nil
+	}
+	skdm, err := signal.ParseSenderKeyDistributionMessage(raw)
+	if err != nil {
+		return nil
+	}
+	return skdm
+}
+
+// isOnlySenderKeyDistribution reports whether the message carries nothing but the
+// sender-key distribution (no user-visible content to emit).
+func isOnlySenderKeyDistribution(m *waproto.Message) bool {
+	m = unwrapMessage(m)
+	if m == nil {
+		return true
+	}
+	return m.GetConversation() == "" &&
+		m.GetExtendedTextMessage() == nil &&
+		m.GetImageMessage() == nil &&
+		m.GetVideoMessage() == nil &&
+		m.GetAudioMessage() == nil &&
+		m.GetDocumentMessage() == nil &&
+		m.GetStickerMessage() == nil &&
+		m.GetLocationMessage() == nil &&
+		m.GetLiveLocationMessage() == nil &&
+		m.GetContactMessage() == nil &&
+		m.GetReactionMessage() == nil &&
+		m.GetPollCreationMessage() == nil &&
+		m.GetProtocolMessage() == nil
+}
+
+// processSenderKeyDistribution installs a peer's sender key for a group into the
+// store, so subsequent skmsg from that sender can be decrypted. It loads the
+// existing record (if any), applies the SKDM via the GroupCipher, and persists.
+func (c *Client) processSenderKeyDistribution(group, sender string, skdm *signal.SenderKeyDistributionMessage) error {
+	rec, err := c.loadSenderKeyRecord(group, sender)
+	if err != nil {
+		return err
+	}
+	cipher := signal.NewGroupCipher(rec)
+	cipher.ProcessSenderKeyDistribution(skdm)
+	return c.storeSenderKeyRecord(group, sender, cipher.Record())
+}
+
+// decryptGroup decrypts a group sender-key (skmsg) ciphertext for (group,
+// sender), advancing and persisting the sender key chain. It returns the parsed
+// WAProto.Message.
+func (c *Client) decryptGroup(group, sender string, ciphertext []byte) (*waproto.Message, error) {
+	rec, err := c.loadSenderKeyRecord(group, sender)
+	if err != nil {
+		return nil, err
+	}
+	if rec.IsEmpty() {
+		return nil, fmt.Errorf("client: no sender key for %s in %s (SKDM not yet received)", sender, group)
+	}
+	cipher := signal.NewGroupCipher(rec)
+	padded, err := cipher.DecryptGroup(ciphertext)
+	if err != nil {
+		return nil, err
+	}
+	// Persist the advanced chain so the next skmsg decrypts.
+	if err := c.storeSenderKeyRecord(group, sender, cipher.Record()); err != nil {
+		return nil, err
+	}
+	plaintext, err := unpadMessage(padded)
+	if err != nil {
+		return nil, err
+	}
+	var m waproto.Message
+	if err := proto.Unmarshal(plaintext, &m); err != nil {
+		return nil, fmt.Errorf("client: unmarshal group message: %w", err)
+	}
+	return &m, nil
+}
+
+// loadSenderKeyRecord loads (or creates empty) the SenderKeyRecord for (group,
+// sender) from the store.
+func (c *Client) loadSenderKeyRecord(group, sender string) (*signal.SenderKeyRecord, error) {
+	blob, ok, err := c.store.LoadSenderKey(group, sender)
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return &signal.SenderKeyRecord{}, nil
+	}
+	return signal.UnmarshalSenderKeyRecord(blob)
+}
+
+// storeSenderKeyRecord serializes and persists a SenderKeyRecord for (group,
+// sender).
+func (c *Client) storeSenderKeyRecord(group, sender string, rec *signal.SenderKeyRecord) error {
+	blob, err := signal.MarshalSenderKeyRecord(rec)
+	if err != nil {
+		return err
+	}
+	return c.store.StoreSenderKey(group, sender, blob)
 }
 
 // receiptNode builds the <receipt> for a received message, mirroring Baileys'

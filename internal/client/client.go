@@ -52,20 +52,13 @@ type LoggedInEvent struct{}
 // DisconnectedEvent signals the connection ended. Reason carries a short cause.
 type DisconnectedEvent struct{ Reason string }
 
-// MessageEvent carries a decrypted incoming 1:1 text message. From is the
-// sender's JID, Text the decoded body (conversation or extendedTextMessage.text)
-// and ID the message id (used for the receipt).
-type MessageEvent struct {
-	From string
-	Text string
-	ID   string
-}
+// MessageEvent (the rich incoming-message event) and ReceiptEvent are defined in
+// events.go.
 
 func (QREvent) isEvent()           {}
 func (PairSuccessEvent) isEvent()  {}
 func (LoggedInEvent) isEvent()     {}
 func (DisconnectedEvent) isEvent() {}
-func (MessageEvent) isEvent()      {}
 
 // Client orchestrates the pairing/auth flow against one device's store.
 type Client struct {

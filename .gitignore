@@ -4,3 +4,10 @@ harness/.auth_capture_pair/
 harness/.auth_*/
 *.log
 /bin/
+
+# device credential databases (chip-paired, sensitive) — never commit
+creds.json
+*.creds.db
+*.creds.db-journal
+*.creds.db-wal
+*.creds.db-shm

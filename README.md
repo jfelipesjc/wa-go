@@ -12,8 +12,8 @@ Decomposto em 9 sub-projetos. Specs e planos em `docs/superpowers/`.
 |---|---|---|
 | 0 | Capture harness (golden traces da Baileys real) | ✅ feito |
 | 1 | Wire layer (framing + Noise XX + binary-node codec) | ✅ feito |
-| 2 | Pairing/Auth (multi-device, QR + código, storage) | ⬜ próximo |
-| 3 | Signal/E2E (X3DH, Double Ratchet, sender keys) | ⬜ |
+| 2 | Pairing/Auth (multi-device, QR + código, storage) | ✅ feito (pareamento real validado) |
+| 3 | Signal/E2E (X3DH, Double Ratchet, sender keys) | ⬜ próximo |
 | 4 | Messaging (texto, recibos, presença, mídia) | ⬜ |
 | 5 | App-state sync (LTHash) | ⬜ |
 | 6 | Control layer (fingerprint, SendPacer, hooks) | ⬜ |

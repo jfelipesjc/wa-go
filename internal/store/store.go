@@ -123,6 +123,16 @@ type SignalStore interface {
 	// (chatmod) encoder/decoder needs to (de)cipher mutations.
 	StoreAppStateSyncKey(keyID, keyData []byte) error
 	LoadAppStateSyncKey(keyID []byte) ([]byte, bool, error)
+
+	// StoreLIDMapping persists a LID<->PN user mapping. Both directions are
+	// stored (pnUser -> lidUser and lidUser_reverse -> pnUser), mirroring
+	// Baileys' LIDMappingStore which keeps the bare numeric users (no device,
+	// no server). lidUser/pnUser are the numeric user strings.
+	StoreLIDMapping(lidUser, pnUser string) error
+	// LoadPNForLID returns the PN user mapped to a LID user, if known.
+	LoadPNForLID(lidUser string) (pnUser string, ok bool, err error)
+	// LoadLIDForPN returns the LID user mapped to a PN user, if known.
+	LoadLIDForPN(pnUser string) (lidUser string, ok bool, err error)
 }
 
 // Store is the full persistence surface: device credentials plus the signal

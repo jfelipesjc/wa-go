@@ -18,6 +18,7 @@ const (
 	nsIdentity     = "identity"
 	nsSenderKey    = "sender_key"
 	nsAppStateKey  = "app_state_key"
+	nsLIDMap       = "lid_map"
 )
 
 const schema = `
@@ -234,4 +235,39 @@ func (s *sqliteStore) StoreAppStateSyncKey(keyID, keyData []byte) error {
 
 func (s *sqliteStore) LoadAppStateSyncKey(keyID []byte) ([]byte, bool, error) {
 	return s.kvGet(nsAppStateKey, appStateKeyName(keyID))
+}
+
+// --- LID <-> PN mapping ---
+//
+// Mirrors Baileys' LIDMappingStore: each mapping is persisted in both directions
+// under the lid_map namespace. The forward key is the bare PN user, the reverse
+// key is "<lidUser>_reverse". Keys and values are the numeric user strings (no
+// device, no server).
+
+func lidReverseKey(lidUser string) string { return lidUser + "_reverse" }
+
+func (s *sqliteStore) StoreLIDMapping(lidUser, pnUser string) error {
+	if lidUser == "" || pnUser == "" {
+		return errors.New("store: StoreLIDMapping requires non-empty users")
+	}
+	if err := s.kvPut(nsLIDMap, pnUser, []byte(lidUser)); err != nil {
+		return err
+	}
+	return s.kvPut(nsLIDMap, lidReverseKey(lidUser), []byte(pnUser))
+}
+
+func (s *sqliteStore) LoadPNForLID(lidUser string) (string, bool, error) {
+	v, ok, err := s.kvGet(nsLIDMap, lidReverseKey(lidUser))
+	if err != nil || !ok {
+		return "", ok, err
+	}
+	return string(v), true, nil
+}
+
+func (s *sqliteStore) LoadLIDForPN(pnUser string) (string, bool, error) {
+	v, ok, err := s.kvGet(nsLIDMap, pnUser)
+	if err != nil || !ok {
+		return "", ok, err
+	}
+	return string(v), true, nil
 }

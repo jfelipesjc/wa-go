@@ -24,6 +24,33 @@ func openTestStore(t *testing.T) Store {
 	return st
 }
 
+func TestLIDMappingRoundTrip(t *testing.T) {
+	st := openTestStore(t)
+
+	if err := st.StoreLIDMapping("123456789", "551199990000"); err != nil {
+		t.Fatalf("StoreLIDMapping: %v", err)
+	}
+	if got, ok, err := st.LoadPNForLID("123456789"); err != nil || !ok || got != "551199990000" {
+		t.Errorf("LoadPNForLID = %q,%v,%v", got, ok, err)
+	}
+	if got, ok, err := st.LoadLIDForPN("551199990000"); err != nil || !ok || got != "123456789" {
+		t.Errorf("LoadLIDForPN = %q,%v,%v", got, ok, err)
+	}
+
+	// Misses return ok=false, no error.
+	if _, ok, err := st.LoadPNForLID("000"); err != nil || ok {
+		t.Errorf("LoadPNForLID miss = %v,%v", ok, err)
+	}
+	if _, ok, err := st.LoadLIDForPN("000"); err != nil || ok {
+		t.Errorf("LoadLIDForPN miss = %v,%v", ok, err)
+	}
+
+	// Empty users rejected.
+	if err := st.StoreLIDMapping("", "551199990000"); err == nil {
+		t.Error("expected error on empty lid user")
+	}
+}
+
 func TestSignalStorePreKeyRoundTrip(t *testing.T) {
 	st := openTestStore(t)
 

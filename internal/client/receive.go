@@ -18,6 +18,13 @@ import (
 // signalAddress derives the libsignal protocol address ("<user>.<device>") for a
 // JID, mirroring Baileys' jidToSignalProtocolAddress: the numeric user, a dot,
 // and the device (0 for the phone). The session store is keyed by this string.
+//
+// This works uniformly for phone-number JIDs ("<num>@s.whatsapp.net") and LID
+// JIDs ("<num>@lid"): both carry a numeric user, and parseJID extracts it
+// regardless of the server. A LID-addressed message therefore keys its own
+// signal session under the LID user, kept distinct from the PN session — exactly
+// as Baileys does (a @lid conversation uses the LID identity). The 1:1 PN flow is
+// unaffected because PN senders still resolve to their PN user here.
 func signalAddress(jid string) (string, error) {
 	user, device, err := parseJID(jid)
 	if err != nil {
@@ -182,6 +189,11 @@ func (c *Client) handleMessage(send func(wire.Node) error, node wire.Node, creds
 	if isGroup && participant != "" {
 		senderJID = participant
 	}
+
+	// Newer stanzas carry the LID<->PN counterpart of the sender (participant_pn/
+	// sender_pn when LID-addressed, the inverse *_lid attrs when PN-addressed).
+	// Record any pairing they reveal so future addressing can resolve either side.
+	c.registerAddressingMapping(node.Attrs)
 
 	addr, err := signalAddress(senderJID)
 	if err != nil {

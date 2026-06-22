@@ -43,6 +43,18 @@ func (c *Client) SendText(ctx context.Context, toJID, text string) (string, erro
 		return "", errors.New("client: not logged in (no active session)")
 	}
 
+	// Control Layer (B): consult the pacer before sending. Allow enforces the
+	// rate limit; Wait sleeps a human-like delay proportional to the text length.
+	// No pacer = original zero-delay behavior.
+	if c.pacer != nil {
+		if !c.pacer.Allow() {
+			return "", errors.New("client: send rate limit exceeded")
+		}
+		if _, err := c.pacer.Wait(ctx, len(text)); err != nil {
+			return "", fmt.Errorf("client: pacer wait: %w", err)
+		}
+	}
+
 	msgID := generateMessageID()
 
 	msg := &waproto.Message{Conversation: proto.String(text)}

@@ -23,22 +23,17 @@ import (
 	"io"
 	"sync"
 
+	"github.com/felipeleal/wa-go/internal/control"
 	"github.com/felipeleal/wa-go/internal/keys"
 	"github.com/felipeleal/wa-go/internal/store"
-	"github.com/felipeleal/wa-go/internal/waproto"
 	"github.com/felipeleal/wa-go/internal/wire"
 	"github.com/felipeleal/wa-go/internal/ws"
 )
 
-// waVersion is the WhatsApp Web client version the registration payload
-// advertises. Kept in one place so it is easy to bump when WA updates.
-var waVersion = waproto.WAVersion{2, 3000, 1035194821}
-
-// browser mirrors Baileys' Browsers.ubuntu('Chrome'): {os, browser, osVersion}.
-var browser = waproto.Browser{"Ubuntu", "Chrome", "22.04.4"}
-
-// countryCode is the locale country reported in the UserAgent.
-const countryCode = "US"
+// The device fingerprint (client version, browser tuple, locale) the
+// registration/login ClientPayload advertises now lives in the per-Client
+// control.DeviceProfile (default control.DefaultProfile()), overridable via
+// WithDeviceProfile. See internal/control/device_profile.go.
 
 // Event is the sum type emitted on the Client's event channel. Exactly one of
 // the concrete event types is sent per channel value.
@@ -86,6 +81,23 @@ type Client struct {
 	// Overridable for deterministic tests.
 	newEphemeral func() (keys.KeyPair, error)
 
+	// profile is the device fingerprint advertised in the registration/login
+	// ClientPayload. Defaults to control.DefaultProfile() (the historical
+	// hardcoded values), overridable via WithDeviceProfile.
+	profile control.DeviceProfile
+
+	// pacer, when non-nil, throttles SendText with a human-like delay before each
+	// message goes out. nil = no pacing (the original zero-delay behavior).
+	pacer control.Pacer
+
+	// onOutgoing / onIncoming are raw frame hooks invoked with each node just
+	// before encryption (outgoing) and just after decode (incoming). They are
+	// optional and run under recover so a panicking hook cannot derail the
+	// send/read loops. Guarded by hooksMu.
+	hooksMu    sync.RWMutex
+	onOutgoing []func(*wire.Node)
+	onIncoming []func(wire.Node)
+
 	// active holds the live login session's send function and creds, set while
 	// loginLoop is running so SendText can use the established connection. It is
 	// nil before login / after disconnect. Guarded by mu.
@@ -126,8 +138,92 @@ func NewWithDialer(s store.Store, dial func(ctx context.Context) (io.ReadWriteCl
 		events:       make(chan Event, 16),
 		dial:         dial,
 		newEphemeral: keys.GenKeyPair,
+		profile:      control.DefaultProfile(),
 		pending:      make(map[string]chan wire.Node),
 	}
+}
+
+// Option configures a Client at construction time.
+type Option func(*Client)
+
+// NewWithOptions constructs a Client backed by the given store and transport
+// dialer, applying the supplied options. A nil dial falls back to dialWebSocket.
+// This is the extension point for the Control Layer (device profile, pacer,
+// frame hooks); New / NewWithDialer remain the zero-config constructors.
+func NewWithOptions(s store.Store, dial func(ctx context.Context) (io.ReadWriteCloser, error), opts ...Option) *Client {
+	c := NewWithDialer(s, dial)
+	for _, o := range opts {
+		o(c)
+	}
+	return c
+}
+
+// WithDeviceProfile sets the device fingerprint advertised in the
+// registration/login ClientPayload. The default is control.DefaultProfile().
+func WithDeviceProfile(p control.DeviceProfile) Option {
+	return func(c *Client) { c.profile = p }
+}
+
+// WithPacer installs a send-cadence pacer. SendText calls Wait before each
+// message. nil leaves the default (no pacing).
+func WithPacer(p control.Pacer) Option {
+	return func(c *Client) { c.pacer = p }
+}
+
+// OnOutgoingNode registers a callback invoked with each outgoing node just
+// before it is encoded/encrypted. The pointer lets a hook inspect or mutate the
+// node in place. Hooks run under recover; a panic is swallowed (and dropped) so
+// it cannot break the send path. Safe to call concurrently.
+func (c *Client) OnOutgoingNode(fn func(*wire.Node)) {
+	if fn == nil {
+		return
+	}
+	c.hooksMu.Lock()
+	c.onOutgoing = append(c.onOutgoing, fn)
+	c.hooksMu.Unlock()
+}
+
+// OnIncomingNode registers a callback invoked with each decoded incoming node
+// (post-decrypt, post-decode). Hooks run under recover. Safe to call
+// concurrently.
+func (c *Client) OnIncomingNode(fn func(wire.Node)) {
+	if fn == nil {
+		return
+	}
+	c.hooksMu.Lock()
+	c.onIncoming = append(c.onIncoming, fn)
+	c.hooksMu.Unlock()
+}
+
+// runOutgoingHooks invokes each outgoing hook with n, recovering from panics so
+// a misbehaving hook never derails the send loop.
+func (c *Client) runOutgoingHooks(n *wire.Node) {
+	c.hooksMu.RLock()
+	hooks := c.onOutgoing
+	c.hooksMu.RUnlock()
+	for _, fn := range hooks {
+		safeNodePtrHook(fn, n)
+	}
+}
+
+// runIncomingHooks invokes each incoming hook with n, recovering from panics.
+func (c *Client) runIncomingHooks(n wire.Node) {
+	c.hooksMu.RLock()
+	hooks := c.onIncoming
+	c.hooksMu.RUnlock()
+	for _, fn := range hooks {
+		safeNodeHook(fn, n)
+	}
+}
+
+func safeNodePtrHook(fn func(*wire.Node), n *wire.Node) {
+	defer func() { _ = recover() }()
+	fn(n)
+}
+
+func safeNodeHook(fn func(wire.Node), n wire.Node) {
+	defer func() { _ = recover() }()
+	fn(n)
 }
 
 // Events returns the channel on which pairing/login events are delivered. It is

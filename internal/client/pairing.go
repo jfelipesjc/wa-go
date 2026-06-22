@@ -14,6 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/felipeleal/wa-go/internal/control"
 	"github.com/felipeleal/wa-go/internal/keys"
 	"github.com/felipeleal/wa-go/internal/store"
 	"github.com/felipeleal/wa-go/internal/waproto"
@@ -79,24 +80,24 @@ func credsFromIdentity(id keys.Identity) *store.Creds {
 	}
 }
 
-// registrationInput builds the waproto.RegInput from stored creds.
-func registrationInput(c *store.Creds) waproto.RegInput {
+// registrationInput builds the waproto.RegInput from stored creds, applying the
+// given device profile's fingerprint (browser/version/locale/UA fields). The
+// key material comes from creds; the fingerprint comes from the profile.
+func registrationInput(c *store.Creds, profile control.DeviceProfile) waproto.RegInput {
 	var idPub, skPub [32]byte
 	var skSig [64]byte
 	copy(idPub[:], c.IdentityKey.Pub)
 	copy(skPub[:], c.SignedPreKey.KeyPair.Pub)
 	copy(skSig[:], c.SignedPreKey.Signature)
-	return waproto.RegInput{
+	base := waproto.RegInput{
 		RegistrationID:  c.RegistrationID,
 		IdentityPub:     idPub,
 		SignedPreKeyID:  c.SignedPreKey.KeyID,
 		SignedPreKeyPub: skPub,
 		SignedPreKeySig: skSig,
-		Version:         waVersion,
-		Browser:         browser,
-		CountryCode:     countryCode,
 		SyncFull:        false,
 	}
+	return profile.RegInput(base)
 }
 
 // buildQRString builds the pairing QR URL exactly as Baileys'
@@ -163,7 +164,7 @@ func nodeBytes(n wire.Node) []byte {
 // server then ends the stream). paired=false means the context ended or the
 // stream closed without success.
 func (c *Client) runPairing(ctx context.Context, creds *store.Creds) (bool, error) {
-	conn, hsErr := c.handshake(ctx, creds, registrationPayloadBytes)
+	conn, hsErr := c.handshake(ctx, creds, c.registrationPayloadBytes)
 	if hsErr != nil {
 		return false, hsErr
 	}
@@ -206,6 +207,9 @@ func (c *Client) pairingLoop(ctx context.Context, conn nodeConn, creds *store.Cr
 
 	var sendMu sync.Mutex
 	send := func(n wire.Node) error {
+		// Control Layer (C): outgoing frame hooks run pre-encrypt; a hook may
+		// inspect or mutate the node in place before it hits the wire.
+		c.runOutgoingHooks(&n)
 		sendMu.Lock()
 		defer sendMu.Unlock()
 		return conn.SendNode(n)
@@ -256,6 +260,10 @@ func (c *Client) pairingLoop(ctx context.Context, conn nodeConn, creds *store.Cr
 			return false, nil
 		}
 		node, err := conn.ReadNode()
+		if err == nil {
+			// Control Layer (C): incoming frame hooks run post-decode.
+			c.runIncomingHooks(node)
+		}
 		if err != nil {
 			if debugPairing {
 				fmt.Fprintf(debugOut, "[wa-go] stream ended: %v\n", err)
@@ -572,33 +580,34 @@ type nodeConn interface {
 	Close() error
 }
 
-// registrationPayloadBytes marshals the registration ClientPayload for creds.
-func registrationPayloadBytes(c *store.Creds) ([]byte, error) {
-	pl, err := waproto.RegistrationPayload(registrationInput(c))
+// registrationPayloadBytes marshals the registration ClientPayload for creds,
+// using the client's device profile fingerprint.
+func (c *Client) registrationPayloadBytes(creds *store.Creds) ([]byte, error) {
+	pl, err := waproto.RegistrationPayload(registrationInput(creds, c.profile))
 	if err != nil {
 		return nil, err
 	}
 	return proto.Marshal(pl)
 }
 
-// loginPayloadBytes marshals the login/resume ClientPayload from registered creds.
-func loginPayloadBytes(c *store.Creds) ([]byte, error) {
-	user, device, err := parseJID(c.Me)
+// loginPayloadBytes marshals the login/resume ClientPayload from registered
+// creds, using the client's device profile fingerprint.
+func (c *Client) loginPayloadBytes(creds *store.Creds) ([]byte, error) {
+	user, device, err := parseJID(creds.Me)
 	if err != nil {
 		return nil, err
 	}
-	pl := waproto.LoginPayload(waproto.LoginInput{
-		Username:    user,
-		Device:      device,
-		Version:     waVersion,
-		CountryCode: countryCode,
-	})
+	base := waproto.LoginInput{
+		Username: user,
+		Device:   device,
+	}
+	pl := waproto.LoginPayload(c.profile.LoginInput(base))
 	return proto.Marshal(pl)
 }
 
 // runLogin reconnects with the login payload and handles <success>/<failure>.
 func (c *Client) runLogin(ctx context.Context, creds *store.Creds) error {
-	conn, err := c.handshake(ctx, creds, loginPayloadBytes)
+	conn, err := c.handshake(ctx, creds, c.loginPayloadBytes)
 	if err != nil {
 		return err
 	}
@@ -617,6 +626,8 @@ func (c *Client) runLogin(ctx context.Context, creds *store.Creds) error {
 func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Creds) error {
 	var sendMu sync.Mutex
 	send := func(n wire.Node) error {
+		// Control Layer (C): outgoing frame hooks run pre-encrypt.
+		c.runOutgoingHooks(&n)
 		sendMu.Lock()
 		defer sendMu.Unlock()
 		return conn.SendNode(n)
@@ -655,6 +666,10 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 			return nil
 		}
 		node, err := conn.ReadNode()
+		if err == nil {
+			// Control Layer (C): incoming frame hooks run post-decode.
+			c.runIncomingHooks(node)
+		}
 		if err != nil {
 			c.emit(DisconnectedEvent{Reason: "stream ended: " + err.Error()})
 			return nil

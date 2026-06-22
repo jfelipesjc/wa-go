@@ -17,8 +17,8 @@ Decomposto em 9 sub-projetos. Specs e planos em `docs/superpowers/`.
 | 4 | Messaging 1:1 (receber+enviar) | ✅ bidirecional provado (ADM↔wa-go via Evolution) |
 | 4+ | Grupos (sender keys) + mídia | ⬜ |
 | 5 | App-state sync (LTHash) | ⬜ |
-| 6 | Control layer (fingerprint, SendPacer, hooks) | ⬜ |
-| 7 | Instance manager (multi-sessão) | ⬜ |
+| 6 | Control layer (fingerprint, SendPacer, hooks de frame) | ✅ feito (offline; default reproduz fixture) |
+| 7 | Instance manager (multi-sessão) | ✅ feito (offline; -race 50 instâncias) |
 | 8 | Evolution-compat (HTTP/WS) | ⬜ |
 
 ### #0 + #1 entregues

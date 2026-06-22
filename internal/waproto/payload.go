@@ -45,6 +45,18 @@ type RegInput struct {
 	Browser     Browser
 	CountryCode string // localeCountryIso31661Alpha2, e.g. "US"
 	SyncFull    bool   // requireFullSync / config.syncFullHistory
+
+	// Device fingerprint fields that flow into the UserAgent submessage. When a
+	// field is the zero value the builder substitutes the historical Baileys
+	// default (see uaOrDefault) so an empty RegInput reproduces the original
+	// hardcoded payload byte-for-byte. internal/control.DeviceProfile fills these
+	// to vary the fingerprint per instance.
+	OSVersion     string // UserAgent.osVersion (default "0.1")
+	Device        string // UserAgent.device (default "Desktop")
+	OSBuildNumber string // UserAgent.osBuildNumber (default "0.1")
+	LocaleLang    string // UserAgent.localeLanguageIso6391 (default "en")
+	MCC           string // UserAgent.mcc (default "000")
+	MNC           string // UserAgent.mnc (default "000")
 }
 
 // keyBundleType is Baileys' KEY_BUNDLE_TYPE = Buffer.from([5]).
@@ -124,8 +136,20 @@ func deviceProps(in RegInput) ([]byte, error) {
 	return proto.Marshal(dp)
 }
 
+// uaOrDefault returns v unless it is empty, in which case it returns def. This
+// keeps a zero-valued RegInput (or one lacking device fingerprint fields)
+// producing the original hardcoded UserAgent, preserving the captured fixture.
+func uaOrDefault(v, def string) string {
+	if v == "" {
+		return def
+	}
+	return v
+}
+
 // userAgent builds the UserAgent submessage shared by registration and login
-// payloads (Baileys' getUserAgent).
+// payloads (Baileys' getUserAgent). The device fingerprint fields fall back to
+// the historical Baileys defaults when unset (see uaOrDefault), so an unmodified
+// RegInput reproduces the original payload exactly.
 func userAgent(in RegInput) *ClientPayload_UserAgent {
 	return &ClientPayload_UserAgent{
 		AppVersion: &ClientPayload_UserAgent_AppVersion{
@@ -135,12 +159,12 @@ func userAgent(in RegInput) *ClientPayload_UserAgent {
 		},
 		Platform:                    ClientPayload_UserAgent_WEB.Enum(),
 		ReleaseChannel:              ClientPayload_UserAgent_RELEASE.Enum(),
-		OsVersion:                   proto.String("0.1"),
-		Device:                      proto.String("Desktop"),
-		OsBuildNumber:               proto.String("0.1"),
-		LocaleLanguageIso6391:       proto.String("en"),
-		Mnc:                         proto.String("000"),
-		Mcc:                         proto.String("000"),
+		OsVersion:                   proto.String(uaOrDefault(in.OSVersion, "0.1")),
+		Device:                      proto.String(uaOrDefault(in.Device, "Desktop")),
+		OsBuildNumber:               proto.String(uaOrDefault(in.OSBuildNumber, "0.1")),
+		LocaleLanguageIso6391:       proto.String(uaOrDefault(in.LocaleLang, "en")),
+		Mnc:                         proto.String(uaOrDefault(in.MNC, "000")),
+		Mcc:                         proto.String(uaOrDefault(in.MCC, "000")),
 		LocaleCountryIso31661Alpha2: proto.String(in.CountryCode),
 	}
 }
@@ -185,12 +209,29 @@ type LoginInput struct {
 
 	Version     WAVersion
 	CountryCode string
+
+	// Device fingerprint fields (same semantics as RegInput); empty -> default.
+	OSVersion     string
+	DeviceName    string
+	OSBuildNumber string
+	LocaleLang    string
+	MCC           string
+	MNC           string
 }
 
 // LoginPayload builds the resume ClientPayload (Baileys' generateLoginNode):
 // passive=true, pull=true, username+device set, no devicePairingData.
 func LoginPayload(in LoginInput) *ClientPayload {
-	ua := userAgent(RegInput{Version: in.Version, CountryCode: in.CountryCode})
+	ua := userAgent(RegInput{
+		Version:       in.Version,
+		CountryCode:   in.CountryCode,
+		OSVersion:     in.OSVersion,
+		Device:        in.DeviceName,
+		OSBuildNumber: in.OSBuildNumber,
+		LocaleLang:    in.LocaleLang,
+		MCC:           in.MCC,
+		MNC:           in.MNC,
+	})
 	return &ClientPayload{
 		ConnectType:   ClientPayload_WIFI_UNKNOWN.Enum(),
 		ConnectReason: ClientPayload_USER_ACTIVATED.Enum(),

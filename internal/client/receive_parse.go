@@ -9,36 +9,43 @@ import "github.com/felipeleal/wa-go/internal/waproto"
 
 // unwrapMessage peels the transport wrappers WhatsApp nests around the real
 // content: deviceSentMessage (a copy of a message we sent from another device)
-// and, when the schema carries them, ephemeralMessage / viewOnceMessage /
-// futureProofMessage. It recurses until it reaches a non-wrapper message. The
-// returned bool reports whether any unwrapping happened (unused today but keeps
-// the contract explicit).
-func unwrapMessage(m *waproto.Message) *waproto.Message {
+// and the FutureProofMessage wrappers (ephemeralMessage / viewOnceMessage /
+// viewOnceMessageV2 / documentWithCaptionMessage). It recurses until it reaches
+// a non-wrapper message and reports, via the returned flags, whether the content
+// was view-once and/or ephemeral so the caller can mark the event.
+func unwrapMessageFlags(m *waproto.Message) (inner *waproto.Message, viewOnce, ephemeral bool) {
 	for m != nil {
-		if ds := m.GetDeviceSentMessage(); ds != nil && ds.GetMessage() != nil {
-			m = ds.GetMessage()
-			continue
+		switch {
+		case m.GetDeviceSentMessage().GetMessage() != nil:
+			m = m.GetDeviceSentMessage().GetMessage()
+		case m.GetViewOnceMessage().GetMessage() != nil:
+			viewOnce = true
+			m = m.GetViewOnceMessage().GetMessage()
+		case m.GetViewOnceMessageV2().GetMessage() != nil:
+			viewOnce = true
+			m = m.GetViewOnceMessageV2().GetMessage()
+		case m.GetViewOnceMessageV2Extension().GetMessage() != nil:
+			viewOnce = true
+			m = m.GetViewOnceMessageV2Extension().GetMessage()
+		case m.GetEphemeralMessage().GetMessage() != nil:
+			ephemeral = true
+			m = m.GetEphemeralMessage().GetMessage()
+		case m.GetDocumentWithCaptionMessage().GetMessage() != nil:
+			// documentWithCaptionMessage is a pure container; no flag to surface.
+			m = m.GetDocumentWithCaptionMessage().GetMessage()
+		default:
+			return m, viewOnce, ephemeral
 		}
-		// ephemeralMessage / viewOnceMessage / futureProofMessage are optional in
-		// the schema; only unwrap when the generated type exposes them. They are
-		// added defensively below via the helper getters when present.
-		if inner := ephemeralInner(m); inner != nil {
-			m = inner
-			continue
-		}
-		break
 	}
-	return m
+	return m, viewOnce, ephemeral
 }
 
-// ephemeralInner returns the inner message of an ephemeral / view-once wrapper,
-// or nil when neither is present. The current generated schema does not include
-// ephemeralMessage / viewOnceMessage wrapper fields, so this is a no-op today; it
-// exists so unwrapMessage stays correct (and one place changes) if those wrapper
-// types are added to the protobuf later.
-func ephemeralInner(m *waproto.Message) *waproto.Message {
-	_ = m
-	return nil
+// unwrapMessage peels the transport wrappers and returns the inner content,
+// discarding the view-once / ephemeral flags. Kept for callers (receive.go) that
+// only need the unwrapped message; parseMessage uses unwrapMessageFlags directly.
+func unwrapMessage(m *waproto.Message) *waproto.Message {
+	inner, _, _ := unwrapMessageFlags(m)
+	return inner
 }
 
 // parseMessage builds a MessageEvent from a decoded WAProto.Message. from/id/
@@ -46,8 +53,8 @@ func ephemeralInner(m *waproto.Message) *waproto.Message {
 // caller); this function fills Type and the typed content. Text is populated for
 // text bodies and media captions so existing consumers keep working.
 func parseMessage(m *waproto.Message) MessageEvent {
-	m = unwrapMessage(m)
-	ev := MessageEvent{Type: MessageUnknown, Raw: m}
+	m, viewOnce, ephemeral := unwrapMessageFlags(m)
+	ev := MessageEvent{Type: MessageUnknown, Raw: m, ViewOnce: viewOnce, Ephemeral: ephemeral}
 	if m == nil {
 		return ev
 	}
@@ -212,6 +219,119 @@ func parseMessage(m *waproto.Message) MessageEvent {
 			SelectableOptionsCount: pm.GetSelectableOptionsCount(),
 		}
 		applyContext(&ev, pm.GetContextInfo())
+
+	case m.GetPollUpdateMessage() != nil:
+		pu := m.GetPollUpdateMessage()
+		ev.Type = MessagePollVote
+		ev.PollVote = &PollVoteInfo{
+			PollKey:    messageRefFromKey(pu.GetPollCreationMessageKey()),
+			EncPayload: pu.GetVote().GetEncPayload(),
+			EncIV:      pu.GetVote().GetEncIv(),
+		}
+
+	case m.GetButtonsMessage() != nil:
+		bm := m.GetButtonsMessage()
+		ev.Type = MessageButtons
+		ev.Text = bm.GetContentText()
+		for _, b := range bm.GetButtons() {
+			ev.Buttons = append(ev.Buttons, ButtonInfo{
+				ID:   b.GetButtonId(),
+				Text: b.GetButtonText().GetDisplayText(),
+			})
+		}
+		applyContext(&ev, bm.GetContextInfo())
+
+	case m.GetListMessage() != nil:
+		lm := m.GetListMessage()
+		ev.Type = MessageList
+		ev.Text = lm.GetDescription()
+		li := &ListInfo{
+			Title:       lm.GetTitle(),
+			Description: lm.GetDescription(),
+			ButtonText:  lm.GetButtonText(),
+			FooterText:  lm.GetFooterText(),
+		}
+		for _, s := range lm.GetSections() {
+			sec := ListItemSection{Title: s.GetTitle()}
+			for _, r := range s.GetRows() {
+				sec.Rows = append(sec.Rows, ListItemRow{
+					RowID:       r.GetRowId(),
+					Title:       r.GetTitle(),
+					Description: r.GetDescription(),
+				})
+			}
+			li.Sections = append(li.Sections, sec)
+		}
+		ev.List = li
+		applyContext(&ev, lm.GetContextInfo())
+
+	case m.GetTemplateMessage() != nil:
+		tm := m.GetTemplateMessage()
+		ev.Type = MessageTemplate
+		if h := tm.GetHydratedTemplate(); h != nil {
+			ev.Text = h.GetHydratedContentText()
+			for _, b := range h.GetHydratedButtons() {
+				if qr := b.GetQuickReplyButton(); qr != nil {
+					ev.Buttons = append(ev.Buttons, ButtonInfo{
+						ID:   qr.GetId(),
+						Text: qr.GetDisplayText(),
+					})
+				} else if u := b.GetUrlButton(); u != nil {
+					ev.Buttons = append(ev.Buttons, ButtonInfo{
+						ID:   u.GetUrl(),
+						Text: u.GetDisplayText(),
+					})
+				}
+			}
+		}
+		applyContext(&ev, tm.GetContextInfo())
+
+	case m.GetInteractiveMessage() != nil:
+		im := m.GetInteractiveMessage()
+		ev.Type = MessageInteractive
+		ev.Text = im.GetBody().GetText()
+		applyContext(&ev, im.GetContextInfo())
+
+	case m.GetButtonsResponseMessage() != nil:
+		br := m.GetButtonsResponseMessage()
+		ev.Type = MessageButtonReply
+		ev.ButtonReply = &ButtonReplyInfo{
+			SelectedID: br.GetSelectedButtonId(),
+			Text:       br.GetSelectedDisplayText(),
+		}
+		applyContext(&ev, br.GetContextInfo())
+
+	case m.GetListResponseMessage() != nil:
+		lr := m.GetListResponseMessage()
+		ev.Type = MessageListReply
+		ev.ListReply = &ListReplyInfo{
+			RowID:       lr.GetSingleSelectReply().GetSelectedRowId(),
+			Title:       lr.GetTitle(),
+			Description: lr.GetDescription(),
+		}
+		ev.Text = lr.GetTitle()
+		applyContext(&ev, lr.GetContextInfo())
+
+	case m.GetTemplateButtonReplyMessage() != nil:
+		tr := m.GetTemplateButtonReplyMessage()
+		ev.Type = MessageTemplateReply
+		ev.ButtonReply = &ButtonReplyInfo{
+			SelectedID: tr.GetSelectedId(),
+			Text:       tr.GetSelectedDisplayText(),
+		}
+		ev.Text = tr.GetSelectedDisplayText()
+		applyContext(&ev, tr.GetContextInfo())
+
+	case m.GetInteractiveResponseMessage() != nil:
+		ir := m.GetInteractiveResponseMessage()
+		ev.Type = MessageInteractiveReply
+		ev.InteractiveReply = &InteractiveReplyInfo{
+			Text:       ir.GetBody().GetText(),
+			Name:       ir.GetNativeFlowResponseMessage().GetName(),
+			ParamsJSON: ir.GetNativeFlowResponseMessage().GetParamsJson(),
+		}
+		ev.Text = ir.GetBody().GetText()
+		applyContext(&ev, ir.GetContextInfo())
 
 	case m.GetProtocolMessage() != nil:
 		applyProtocol(&ev, m.GetProtocolMessage())

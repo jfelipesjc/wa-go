@@ -36,6 +36,30 @@ const (
 	MessageEdit MessageType = "edit"
 	// MessagePoll is a poll-creation message; see Poll.
 	MessagePoll MessageType = "poll"
+	// MessagePollVote is a poll-update message (a vote); see PollVote. The vote
+	// itself is encrypted and is exposed raw (the crypto is handled elsewhere).
+	MessagePollVote MessageType = "poll_vote"
+	// MessageButtons is a buttonsMessage (template-style quick-reply buttons);
+	// Text holds the content text and Buttons the choices.
+	MessageButtons MessageType = "buttons"
+	// MessageList is a listMessage (a menu of selectable rows); Text holds the
+	// description and List the sections/rows.
+	MessageList MessageType = "list"
+	// MessageTemplate is a templateMessage (hydrated four-row template); Text
+	// holds the hydrated content text and Buttons the hydrated buttons.
+	MessageTemplate MessageType = "template"
+	// MessageInteractive is an interactiveMessage (native-flow / product list);
+	// Text holds the body text.
+	MessageInteractive MessageType = "interactive"
+	// MessageButtonReply is the reply to a buttonsMessage; see ButtonReply.
+	MessageButtonReply MessageType = "button_reply"
+	// MessageListReply is the reply to a listMessage; see ListReply.
+	MessageListReply MessageType = "list_reply"
+	// MessageTemplateReply is the reply to a templateMessage; see ButtonReply.
+	MessageTemplateReply MessageType = "template_reply"
+	// MessageInteractiveReply is the reply to an interactiveMessage; see
+	// InteractiveReply.
+	MessageInteractiveReply MessageType = "interactive_reply"
 	// MessageUnknown is any content the parser did not recognize. Raw still holds
 	// the decoded protobuf for inspection.
 	MessageUnknown MessageType = "unknown"
@@ -114,6 +138,68 @@ type PollInfo struct {
 	SelectableOptionsCount uint32
 }
 
+// ButtonInfo is one quick-reply button of a buttonsMessage / templateMessage.
+type ButtonInfo struct {
+	ID   string
+	Text string
+}
+
+// ListItemRow is one selectable row of a received listMessage section. It is a
+// receive-side type (distinct from the send path's ListRow) so the two surfaces
+// can evolve independently.
+type ListItemRow struct {
+	RowID       string
+	Title       string
+	Description string
+}
+
+// ListItemSection is one section (group of rows) of a received listMessage.
+type ListItemSection struct {
+	Title string
+	Rows  []ListItemRow
+}
+
+// ListInfo describes a received listMessage (interactive menu).
+type ListInfo struct {
+	Title       string
+	Description string
+	ButtonText  string
+	FooterText  string
+	Sections    []ListItemSection
+}
+
+// ButtonReplyInfo describes the reply to a buttonsMessage or templateMessage:
+// the id of the selected button and its display text.
+type ButtonReplyInfo struct {
+	SelectedID string
+	Text       string
+}
+
+// ListReplyInfo describes the reply to a listMessage: the id of the selected
+// row plus, when present, its title/description.
+type ListReplyInfo struct {
+	RowID       string
+	Title       string
+	Description string
+}
+
+// InteractiveReplyInfo describes the reply to an interactiveMessage: the body
+// text plus, for native-flow replies, the flow name and raw params JSON.
+type InteractiveReplyInfo struct {
+	Text       string
+	Name       string
+	ParamsJSON string
+}
+
+// PollVoteInfo describes a poll-update message (a vote). The vote is encrypted;
+// EncPayload/EncIV expose the ciphertext (decryption is handled elsewhere) and
+// PollKey references the poll-creation message the vote belongs to.
+type PollVoteInfo struct {
+	PollKey    MessageRef
+	EncPayload []byte
+	EncIV      []byte
+}
+
 // MessageRef identifies a specific message (the WAProto.MessageKey subset that
 // matters for replies, reactions, edits and revokes).
 type MessageRef struct {
@@ -153,6 +239,21 @@ type MessageEvent struct {
 	Location *LocationInfo
 	Contact  *ContactInfo
 	Poll     *PollInfo
+
+	// Interactive content (buttons / list / template / interactive) and replies.
+	Buttons          []ButtonInfo
+	List             *ListInfo
+	ButtonReply      *ButtonReplyInfo
+	ListReply        *ListReplyInfo
+	InteractiveReply *InteractiveReplyInfo
+	// PollVote is set for Type == MessagePollVote (a pollUpdateMessage).
+	PollVote *PollVoteInfo
+
+	// ViewOnce / Ephemeral report which transport wrappers were peeled off the
+	// real content while parsing. They are independent (a view-once message can
+	// also be ephemeral).
+	ViewOnce  bool
+	Ephemeral bool
 
 	// Quoted is the reply context (extendedTextMessage / media contextInfo).
 	Quoted *QuotedInfo

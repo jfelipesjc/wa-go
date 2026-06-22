@@ -1,0 +1,29 @@
+{
+  "_note": "Captured live by gen_qr.mjs — QR only, no pairing",
+  "qr": "https://wa.me/settings/linked_devices#2@Zyjh8aq9CwzVBSrtSVoMjA7UCBdPtHrW9Qv5FLLUKoGoCiq5zH7PE0ETWcqDVq4XdRgobw5y3T2YYSghE6iht94Q8EMJBeDpsCM=,eS3vVR5a+HyJlXJrJyhnZre6+3fDeP5ZItJJ3QLDqFw=,A3Cnqg6bLPTxxssTnIsitYRDWoZHY2XPuKjESBBGhzk=,MF+9Ev4b+WhBq4sKDyYkyJh5Lbu3uqZjw91CeyTxaw0=,1",
+  "parts": [
+    "https://wa.me/settings/linked_devices#2@Zyjh8aq9CwzVBSrtSVoMjA7UCBdPtHrW9Qv5FLLUKoGoCiq5zH7PE0ETWcqDVq4XdRgobw5y3T2YYSghE6iht94Q8EMJBeDpsCM=",
+    "eS3vVR5a+HyJlXJrJyhnZre6+3fDeP5ZItJJ3QLDqFw=",
+    "A3Cnqg6bLPTxxssTnIsitYRDWoZHY2XPuKjESBBGhzk=",
+    "MF+9Ev4b+WhBq4sKDyYkyJh5Lbu3uqZjw91CeyTxaw0=",
+    "1"
+  ],
+  "partsCount": 5,
+  "partsLayout": [
+    "ref",
+    "noiseKeyB64",
+    "identityKeyB64",
+    "advB64",
+    "platformId"
+  ],
+  "credsKeys": {
+    "noiseKeyPub_base64": "eS3vVR5a+HyJlXJrJyhnZre6+3fDeP5ZItJJ3QLDqFw=",
+    "identityKeyPub_base64": "A3Cnqg6bLPTxxssTnIsitYRDWoZHY2XPuKjESBBGhzk=",
+    "advSecretKey_base64": "MF+9Ev4b+WhBq4sKDyYkyJh5Lbu3uqZjw91CeyTxaw0="
+  },
+  "validation": {
+    "noiseKeyMatch": true,
+    "identityKeyMatch": true,
+    "advKeyMatch": true
+  }
+}

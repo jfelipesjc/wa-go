@@ -1,4 +1,6 @@
 /harness/node_modules/
 harness/.auth_capture/
+harness/.auth_capture_pair/
+harness/.auth_*/
 *.log
 /bin/

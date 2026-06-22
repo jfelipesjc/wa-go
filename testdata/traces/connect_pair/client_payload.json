@@ -1,0 +1,80 @@
+{
+  "_note": "Generated offline by gen_client_payload.mjs — no network required",
+  "config": {
+    "version": [
+      2,
+      3000,
+      1035194821
+    ],
+    "browser": [
+      "Ubuntu",
+      "Chrome",
+      "22.04.4"
+    ],
+    "countryCode": "US",
+    "syncFullHistory": false
+  },
+  "payloadHex": "18002a36080e120b080210b81718c5a3cfed031a0330303022033030302a03302e313a074465736b746f704203302e3150005a02656e6202555332022000600168019a01d5010a04000000f31201051a2070ecefd9e95137bebbfd4a31aff191ceeab920fecb65bf8816cb2c98c623136222030000012a206f5cd14d65e5e77ea668021fda8b7ff047cdfa02fc7c87c432cda22c0e65d44b3240e3d87f565b2c3e194fc00ce33688cf2bb567319c583bc98fb44341c41c968bc55cf46d8cfd6de68c2c1b3abec0d486549578b208f759458c7322392ca7fbef0d3a10a2c9471eff910a9e1ae659890a28872d422d0a065562756e74751206080a100f1807180120002a171880502001300038014001480150015801600170017800880200",
+  "fields": {
+    "passive": false,
+    "userAgent": {
+      "platform": "WEB",
+      "appVersion": {
+        "primary": 2,
+        "secondary": 3000,
+        "tertiary": 1035194821
+      },
+      "mcc": "000",
+      "mnc": "000",
+      "osVersion": "0.1",
+      "device": "Desktop",
+      "osBuildNumber": "0.1",
+      "releaseChannel": "RELEASE",
+      "localeLanguageIso6391": "en",
+      "localeCountryIso31661Alpha2": "US"
+    },
+    "webInfo": {
+      "webSubPlatform": "WEB_BROWSER"
+    },
+    "connectType": "WIFI_UNKNOWN",
+    "connectReason": "USER_ACTIVATED",
+    "devicePairingData": {
+      "eRegid": "AAAA8w==",
+      "eKeytype": "BQ==",
+      "eIdent": "cOzv2elRN767/Uoxr/GRzuq5IP7LZb+IFsssmMYjE2I=",
+      "eSkeyId": "AAAB",
+      "eSkeyVal": "b1zRTWXl536maAIf2ot/8EfN+gL8fIfEMs2iLA5l1Es=",
+      "eSkeySig": "49h/VlssPhlPwAzjNojPK7VnMZxYO8mPtENBxByWi8Vc9G2M/W3mjCwbOr7A1IZUlXiyCPdZRYxzIjksp/vvDQ==",
+      "buildHash": "oslHHv+RCp4a5lmJCiiHLQ==",
+      "deviceProps": "CgZVYnVudHUSBggKEA8YBxgBIAAqFxiAUCABMAA4AUABSAFQAVgBYAFwAXgA"
+    },
+    "pull": false
+  },
+  "creds": {
+    "noiseKey": {
+      "public": "LXgcdtm3II72sGgK+0Sc/vFNMZE44tWKruyWVqVMu1w=",
+      "private": "qN2ejtyx8hEN+QOUGQ1oUtSJi/oBTs+Hkq/Qy6KvbXU="
+    },
+    "pairingEphemeralKeyPair": {
+      "public": "coBzj369DBXaa2CwIaMwwrA0sgZgJJ9I6HJNuZxiQng=",
+      "private": "OL9B2D5RbwzprdO3nDXMDNVIx6TmNXVtCIcUFXbHFVs="
+    },
+    "signedIdentityKey": {
+      "public": "cOzv2elRN767/Uoxr/GRzuq5IP7LZb+IFsssmMYjE2I=",
+      "private": "mHUjHb4GXCdOWWS6SRvlNr1TPgbvlflmWBvsRPPXKVA="
+    },
+    "signedPreKey": {
+      "keyId": 1,
+      "keyPair": {
+        "public": "b1zRTWXl536maAIf2ot/8EfN+gL8fIfEMs2iLA5l1Es=",
+        "private": "uClkvqehx27KQYwZ7HLy176A4Lbcwk+0XoZi8HDdEGg="
+      },
+      "signature": "49h/VlssPhlPwAzjNojPK7VnMZxYO8mPtENBxByWi8Vc9G2M/W3mjCwbOr7A1IZUlXiyCPdZRYxzIjksp/vvDQ=="
+    },
+    "registrationId": 243,
+    "advSecretKey": "m6Fs57lbPr6hcMgSzSKVcCnHCvo5e8ZeNrs/bRsAdWc=",
+    "nextPreKeyId": 1,
+    "firstUnuploadedPreKeyId": 1,
+    "registered": false
+  }
+}

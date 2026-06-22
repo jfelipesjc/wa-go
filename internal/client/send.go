@@ -21,43 +21,58 @@ import (
 // before giving up, so a stalled server cannot hang the caller indefinitely.
 var sendIQTimeout = 30 * time.Second
 
-// SendText sends a 1:1 text message to toJID and returns the generated message
-// id once the stanza has been written to the wire.
-//
-// Flow (mirrors Baileys' relayMessage for a non-group, non-status message):
-//  1. Build a WAProto.Message{conversation: text}, serialize, pad (1..16).
-//  2. usync the recipient's device list to enumerate target devices.
-//  3. assertSessions: for devices without a session, fetch their prekey bundle
-//     and run the X3DH initiator handshake.
-//  4. Encrypt the padded plaintext per device, building <to jid><enc v=2 type>.
-//  5. Wrap the participant nodes in <participants> inside a
-//     <message id to type=text> and send it.
+// SendText and the other text variants live in send_text.go; they build a
+// WAProto.Message and delegate to sendMessage below.
 //
 // Note on own devices: WhatsApp also encrypts a deviceSentMessage copy to the
 // account's OTHER devices so they mirror the conversation. This implementation
 // fans out to the RECIPIENT's devices only (the minimum for delivery); our own
 // other devices are intentionally not targeted here. See the report for details.
-func (c *Client) SendText(ctx context.Context, toJID, text string) (string, error) {
+
+// sendOpts carries optional knobs for the send core. All fields are optional:
+// the zero value reproduces SendText's original behavior.
+type sendOpts struct {
+	// pacerHint is the length passed to the pacer's Wait (so longer payloads
+	// incur a longer human-like delay). When 0 the message-type default is used.
+	pacerHint int
+	// stanzaType overrides the <message type=...> attribute. Empty defaults to
+	// "text" (Baileys uses "text" for chat content and "media" for media; we
+	// keep "text" as the safe default, matching the original SendText).
+	stanzaType string
+}
+
+// sendMessage is the shared 1:1 send core that SendText and every other 1:1
+// sender (reply, mention, media, reaction, edit, delete) funnels through. It
+// performs the full Baileys relayMessage pipeline for a non-group message:
+//
+//  1. consult the pacer (rate limit + human-like delay),
+//  2. encode + pad the WAProto.Message,
+//  3. usync the recipient's device list,
+//  4. assertSessions (fetch prekey bundles + X3DH for missing devices),
+//  5. encrypt per device into <to><enc> participant nodes,
+//  6. wrap in a <message> stanza (with <device-identity> when any pkmsg) and send.
+//
+// It returns the generated message id once the stanza is written to the wire.
+func (c *Client) sendMessage(ctx context.Context, toJID string, msg *waproto.Message, opts sendOpts) (string, error) {
 	sess, ok := c.activeSession()
 	if !ok {
 		return "", errors.New("client: not logged in (no active session)")
 	}
 
 	// Control Layer (B): consult the pacer before sending. Allow enforces the
-	// rate limit; Wait sleeps a human-like delay proportional to the text length.
-	// No pacer = original zero-delay behavior.
+	// rate limit; Wait sleeps a human-like delay proportional to the payload
+	// size. No pacer = original zero-delay behavior.
 	if c.pacer != nil {
 		if !c.pacer.Allow() {
 			return "", errors.New("client: send rate limit exceeded")
 		}
-		if _, err := c.pacer.Wait(ctx, len(text)); err != nil {
+		if _, err := c.pacer.Wait(ctx, opts.pacerHint); err != nil {
 			return "", fmt.Errorf("client: pacer wait: %w", err)
 		}
 	}
 
 	msgID := generateMessageID()
 
-	msg := &waproto.Message{Conversation: proto.String(text)}
 	plaintext, err := encodeWAMessage(msg)
 	if err != nil {
 		return "", err
@@ -91,7 +106,11 @@ func (c *Client) SendText(ctx context.Context, toJID, text string) (string, erro
 		return "", errors.New("client: no recipients could be encrypted for")
 	}
 
-	stanza := buildMessageStanza(msgID, toJID, participantNodes, sess.creds.Account)
+	stanzaType := opts.stanzaType
+	if stanzaType == "" {
+		stanzaType = "text"
+	}
+	stanza := buildMessageStanza(msgID, toJID, stanzaType, participantNodes, sess.creds.Account)
 	if err := sess.send(stanza); err != nil {
 		return "", fmt.Errorf("client: send message: %w", err)
 	}
@@ -203,7 +222,7 @@ func toEncNode(jid, encType string, ciphertext []byte) wire.Node {
 //	    <to jid=device1><enc v=2 type=msg>...</enc></to>
 //	  </participants>
 //	</message>
-func buildMessageStanza(msgID, toJID string, participants []wire.Node, account []byte) wire.Node {
+func buildMessageStanza(msgID, toJID, stanzaType string, participants []wire.Node, account []byte) wire.Node {
 	content := []wire.Node{
 		{Tag: "participants", Attrs: map[string]string{}, Content: participants},
 	}
@@ -222,7 +241,7 @@ func buildMessageStanza(msgID, toJID string, participants []wire.Node, account [
 		Attrs: map[string]string{
 			"id":   msgID,
 			"to":   toJID,
-			"type": "text",
+			"type": stanzaType,
 		},
 		Content: content,
 	}

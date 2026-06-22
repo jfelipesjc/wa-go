@@ -83,6 +83,12 @@ type Client struct {
 	// message goes out. nil = no pacing (the original zero-delay behavior).
 	pacer control.Pacer
 
+	// uploader, when non-nil, performs the live HTTP upload of an encrypted media
+	// blob to WhatsApp's media servers and returns its directPath/url. It is nil
+	// by default (this build is offline), so the Send*media helpers require the
+	// caller to pass a pre-uploaded MediaRef. See send_media.go.
+	uploader mediaUploader
+
 	// onOutgoing / onIncoming are raw frame hooks invoked with each node just
 	// before encryption (outgoing) and just after decode (incoming). They are
 	// optional and run under recover so a panicking hook cannot derail the
@@ -161,6 +167,13 @@ func WithDeviceProfile(p control.DeviceProfile) Option {
 // message. nil leaves the default (no pacing).
 func WithPacer(p control.Pacer) Option {
 	return func(c *Client) { c.pacer = p }
+}
+
+// WithMediaUploader installs the live media-upload transport used by the Send*
+// media helpers when the caller does not supply a pre-uploaded MediaRef. nil
+// (the default) leaves media upload unconfigured. See send_media.go.
+func WithMediaUploader(u mediaUploader) Option {
+	return func(c *Client) { c.uploader = u }
 }
 
 // OnOutgoingNode registers a callback invoked with each outgoing node just

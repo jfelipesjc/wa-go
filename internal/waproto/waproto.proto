@@ -550,6 +550,7 @@ message ProtocolMessage {
     optional Type type = 2;
     optional uint32 ephemeralExpiration = 4;
     optional int64 ephemeralSettingTimestamp = 5;
+    optional HistorySyncNotification historySyncNotification = 6;
     optional AppStateSyncKeyShare appStateSyncKeyShare = 7;
     optional AppStateSyncKeyRequest appStateSyncKeyRequest = 8;
     optional Message editedMessage = 14;
@@ -731,9 +732,45 @@ message SyncActionValue {
     optional PinAction pinAction = 5;
     optional PushNameSetting pushNameSetting = 7;
     optional ArchiveChatAction archiveChatAction = 17;
+    optional DeleteMessageForMeAction deleteMessageForMeAction = 18;
+    optional MarkChatAsReadAction markChatAsReadAction = 20;
+    optional ClearChatAction clearChatAction = 21;
+    optional DeleteChatAction deleteChatAction = 22;
 
     message StarAction {
         optional bool starred = 1;
+    }
+
+    // SyncActionMessage references a single message by key+timestamp inside a
+    // SyncActionMessageRange (used by mark-read / clear / delete chat actions).
+    message SyncActionMessage {
+        optional MessageKey key = 1;
+        optional int64 timestamp = 2;
+    }
+
+    // SyncActionMessageRange bounds the messages an action applies to.
+    message SyncActionMessageRange {
+        optional int64 lastMessageTimestamp = 1;
+        optional int64 lastSystemMessageTimestamp = 2;
+        repeated SyncActionMessage messages = 3;
+    }
+
+    message MarkChatAsReadAction {
+        optional bool read = 1;
+        optional SyncActionMessageRange messageRange = 2;
+    }
+
+    message ClearChatAction {
+        optional SyncActionMessageRange messageRange = 1;
+    }
+
+    message DeleteChatAction {
+        optional SyncActionMessageRange messageRange = 1;
+    }
+
+    message DeleteMessageForMeAction {
+        optional bool deleteMedia = 1;
+        optional int64 messageTimestamp = 2;
     }
 
     message ContactAction {
@@ -761,5 +798,114 @@ message SyncActionValue {
 
     message ArchiveChatAction {
         optional bool archived = 1;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// History Sync: the blob the server pushes after login (HISTORY_SYNC_NOTIFICATION
+// inside a ProtocolMessage). The notification carries a media reference; the
+// downloaded + zlib-inflated blob is a HistorySync proto. Field numbers match the
+// upstream WAProto so captured blobs round-trip.
+// ---------------------------------------------------------------------------
+
+// HistorySyncType classifies the contents of a HistorySync / its notification.
+// Mirrors upstream Message.HistorySyncType.
+enum HistorySyncType {
+    HISTORY_SYNC_INITIAL_BOOTSTRAP = 0;
+    HISTORY_SYNC_INITIAL_STATUS_V3 = 1;
+    HISTORY_SYNC_FULL = 2;
+    HISTORY_SYNC_RECENT = 3;
+    HISTORY_SYNC_PUSH_NAME = 4;
+    HISTORY_SYNC_NON_BLOCKING_DATA = 5;
+    HISTORY_SYNC_ON_DEMAND = 6;
+    HISTORY_SYNC_NO_HISTORY = 7;
+}
+
+// HistorySyncNotification is carried in ProtocolMessage.historySyncNotification.
+// It references an encrypted, zlib-compressed HistorySync blob to download via
+// the media transfer (directPath + mediaKey, MediaType "md-msg-hist").
+message HistorySyncNotification {
+    optional bytes fileSha256 = 1;
+    optional uint64 fileLength = 2;
+    optional bytes mediaKey = 3;
+    optional bytes fileEncSha256 = 4;
+    optional string directPath = 5;
+    optional HistorySyncType syncType = 6;
+    optional uint32 chunkOrder = 7;
+    optional string originalMessageId = 8;
+    optional uint32 progress = 9;
+    optional int64 oldestMsgInChunkTimestampSec = 10;
+    optional bytes initialHistBootstrapInlinePayload = 11;
+    optional string peerDataRequestSessionId = 12;
+}
+
+// HistorySync is the decompressed history payload: conversations (each with its
+// messages) plus push-name records.
+message HistorySync {
+    HistorySyncType syncType = 1;
+    repeated Conversation conversations = 2;
+    repeated WebMessageInfo statusV3Messages = 3;
+    optional uint32 chunkOrder = 5;
+    optional uint32 progress = 6;
+    repeated Pushname pushnames = 7;
+    optional bytes threadIdUserSecret = 9;
+    optional uint32 threadDsTimeframeOffset = 10;
+}
+
+// Conversation is one chat with its (history) messages.
+message Conversation {
+    string id = 1;
+    repeated HistorySyncMsg messages = 2;
+    optional string newJid = 3;
+    optional string oldJid = 4;
+    optional uint64 lastMsgTimestamp = 5;
+    optional uint32 unreadCount = 6;
+    optional bool readOnly = 7;
+    optional bool endOfHistoryTransfer = 8;
+    optional uint32 ephemeralExpiration = 9;
+    optional int64 ephemeralSettingTimestamp = 10;
+    optional uint64 conversationTimestamp = 12;
+    optional string name = 13;
+    optional bool notSpam = 15;
+    optional bool archived = 16;
+    optional uint32 unreadMentionCount = 18;
+    optional bool markedAsUnread = 19;
+    optional uint32 pinned = 24;
+    optional uint64 muteEndTime = 25;
+}
+
+// HistorySyncMsg wraps a WebMessageInfo with its ordering id.
+message HistorySyncMsg {
+    optional WebMessageInfo message = 1;
+    optional uint64 msgOrderId = 2;
+}
+
+// Pushname maps a JID to its display (push) name.
+message Pushname {
+    optional string id = 1;
+    optional string pushname = 2;
+}
+
+// WebMessageInfo is the stored form of a message (key + content + metadata).
+// Only the subset needed to surface history conversations/messages is kept.
+message WebMessageInfo {
+    MessageKey key = 1;
+    optional Message message = 2;
+    optional uint64 messageTimestamp = 3;
+    optional Status status = 4;
+    optional string participant = 5;
+    optional bool ignore = 16;
+    optional bool starred = 17;
+    optional bool broadcast = 18;
+    optional string pushName = 19;
+    repeated string labels = 28;
+
+    enum Status {
+        ERROR = 0;
+        PENDING = 1;
+        SERVER_ACK = 2;
+        DELIVERY_ACK = 3;
+        READ = 4;
+        PLAYED = 5;
     }
 }

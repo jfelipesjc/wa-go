@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -248,6 +249,15 @@ func (c *Client) handleMessage(send func(wire.Node) error, node wire.Node, creds
 			}
 		}
 
+		// Protocol-message side effects (app-state key share, history sync)
+		// are ingested before surfacing the event. These carry no user-visible
+		// content, so on a pure-side-effect message we skip emitting.
+		if pm := protocolMessageOf(m); pm != nil {
+			if c.handleProtocolSideEffects(pm) {
+				continue
+			}
+		}
+
 		ev := parseMessage(m)
 		ev.From = from
 		ev.ID = msgID
@@ -266,6 +276,61 @@ func (c *Client) handleMessage(send func(wire.Node) error, node wire.Node, creds
 	}
 	if err := send(messageAckNode(node, creds.Me)); err != nil {
 		return err
+	}
+	return firstErr
+}
+
+// protocolMessageOf returns the ProtocolMessage carried by a decoded Message
+// (after unwrapping device/ephemeral wrappers), or nil if none.
+func protocolMessageOf(m *waproto.Message) *waproto.ProtocolMessage {
+	m = unwrapMessage(m)
+	if m == nil {
+		return nil
+	}
+	return m.GetProtocolMessage()
+}
+
+// handleProtocolSideEffects ingests the protocol messages that carry state we
+// persist/act on rather than surface as a MessageEvent: an
+// APP_STATE_SYNC_KEY_SHARE (persist each key so app-state/chatmod can decrypt)
+// and a HISTORY_SYNC_NOTIFICATION (download + decode history asynchronously).
+// It returns true when the protocol message is a pure side effect (no further
+// event should be emitted for it).
+func (c *Client) handleProtocolSideEffects(pm *waproto.ProtocolMessage) bool {
+	handled := false
+	if share := pm.GetAppStateSyncKeyShare(); share != nil {
+		if err := c.storeAppStateSyncKeys(share); err != nil && debugPairing {
+			fmt.Fprintf(debugOut, "[wa-go] store app-state sync keys: %v\n", err)
+		}
+		handled = true
+	}
+	if notif := pm.GetHistorySyncNotification(); notif != nil {
+		// The download is live (needs a media_conn + HTTP); run it off the read
+		// loop so receipts/acks are not blocked. Errors are logged, not fatal.
+		go func() {
+			if err := c.handleHistorySync(context.Background(), notif); err != nil && debugPairing {
+				fmt.Fprintf(debugOut, "[wa-go] history sync: %v\n", err)
+			}
+		}()
+		handled = true
+	}
+	return handled
+}
+
+// storeAppStateSyncKeys persists every AppStateSyncKey carried in an
+// APP_STATE_SYNC_KEY_SHARE into the store, keyed by its keyId. These keys unlock
+// the app-state (chatmod) collections.
+func (c *Client) storeAppStateSyncKeys(share *waproto.AppStateSyncKeyShare) error {
+	var firstErr error
+	for _, k := range share.GetKeys() {
+		keyID := k.GetKeyId().GetKeyId()
+		keyData := k.GetKeyData().GetKeyData()
+		if len(keyID) == 0 || len(keyData) == 0 {
+			continue
+		}
+		if err := c.store.StoreAppStateSyncKey(keyID, keyData); err != nil && firstErr == nil {
+			firstErr = err
+		}
 	}
 	return firstErr
 }

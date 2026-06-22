@@ -10,7 +10,6 @@ import (
 	"github.com/felipeleal/wa-go/internal/appstate"
 	waproto "github.com/felipeleal/wa-go/internal/waproto"
 	"github.com/felipeleal/wa-go/internal/wire"
-	"google.golang.org/protobuf/encoding/protowire"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -132,19 +131,16 @@ func (c *Client) MuteChat(ctx context.Context, jid string, duration time.Duratio
 }
 
 // MarkRead marks a chat as read (read=true) or unread (read=false).
-//
-// markChatAsReadAction (field 20) is absent from the generated waproto, so its
-// sub-message is hand-encoded and attached as an unknown field. See withUnknownMessageField.
 func (c *Client) MarkRead(ctx context.Context, jid string, read bool) error {
-	// markChatAsReadAction { read = 1 (bool, field 1) }
-	sub := protowire.AppendTag(nil, 1, protowire.VarintType)
-	sub = protowire.AppendVarint(sub, boolToVarint(read))
-	val := withUnknownMessageField(&waproto.SyncActionValue{}, 20, sub)
 	return c.ChatModify(ctx, jid, ChatAction{
 		collection: collRegularLow,
 		apiVersion: 3,
 		index:      []string{"markChatAsRead", jid},
-		value:      val,
+		value: &waproto.SyncActionValue{
+			MarkChatAsReadAction: &waproto.SyncActionValue_MarkChatAsReadAction{
+				Read: proto.Bool(read),
+			},
+		},
 	})
 }
 
@@ -161,31 +157,28 @@ func (c *Client) StarMessage(ctx context.Context, jid string, key MsgKey, star b
 }
 
 // DeleteChat deletes a chat for this account.
-//
-// deleteChatAction (field 22) is absent from the generated waproto; the
-// (empty-but-present) sub-message is hand-encoded as an unknown field.
 func (c *Client) DeleteChat(ctx context.Context, jid string) error {
 	// deleteChatAction {} — present but empty (messageRange omitted).
-	val := withUnknownMessageField(&waproto.SyncActionValue{}, 22, nil)
 	return c.ChatModify(ctx, jid, ChatAction{
 		collection: collRegularHigh,
 		apiVersion: 6,
 		index:      []string{"deleteChat", jid, "1"},
-		value:      val,
+		value: &waproto.SyncActionValue{
+			DeleteChatAction: &waproto.SyncActionValue_DeleteChatAction{},
+		},
 	})
 }
 
 // ClearChat clears a chat's messages for this account (keeping the chat).
-//
-// clearChatAction (field 21) is absent from the generated waproto; hand-encoded.
 func (c *Client) ClearChat(ctx context.Context, jid string) error {
 	// clearChatAction {} — present but empty (messageRange omitted).
-	val := withUnknownMessageField(&waproto.SyncActionValue{}, 21, nil)
 	return c.ChatModify(ctx, jid, ChatAction{
 		collection: collRegularHigh,
 		apiVersion: 6,
 		index:      []string{"clearChat", jid, "1", "0"},
-		value:      val,
+		value: &waproto.SyncActionValue{
+			ClearChatAction: &waproto.SyncActionValue_ClearChatAction{},
+		},
 	})
 }
 
@@ -291,13 +284,6 @@ func buildAppStatePatchIQ(id, collection string, version uint64, patchBytes []by
 
 // --- helpers ---
 
-func boolToVarint(b bool) uint64 {
-	if b {
-		return 1
-	}
-	return 0
-}
-
 func boolDigit(b bool) string {
 	if b {
 		return "1"
@@ -317,17 +303,4 @@ func uintToStr(v uint64) string {
 		v /= 10
 	}
 	return string(buf[i:])
-}
-
-// withUnknownMessageField returns sav with a length-delimited message field of
-// the given number appended to its unknown fields. This is how chat actions that
-// are not (yet) present in the generated waproto (markChatAsRead/clear/delete)
-// are carried inside SyncActionValue: proto.Marshal preserves unknown fields, so
-// the wire bytes are byte-identical to what a generated field would produce.
-func withUnknownMessageField(sav *waproto.SyncActionValue, fieldNum protowire.Number, msgBytes []byte) *waproto.SyncActionValue {
-	enc := protowire.AppendTag(nil, fieldNum, protowire.BytesType)
-	enc = protowire.AppendBytes(enc, msgBytes)
-	ref := sav.ProtoReflect()
-	ref.SetUnknown(append(ref.GetUnknown(), enc...))
-	return sav
 }

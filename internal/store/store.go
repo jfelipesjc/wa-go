@@ -116,6 +116,13 @@ type SignalStore interface {
 	// sender key, so the pair identifies one SenderKeyRecord.
 	LoadSenderKey(group, sender string) ([]byte, bool, error)
 	StoreSenderKey(group, sender string, record []byte) error
+
+	// StoreAppStateSyncKey / LoadAppStateSyncKey persist an app-state sync key's
+	// raw key material, keyed by its (binary) keyId. These keys arrive in an
+	// APP_STATE_SYNC_KEY_SHARE protocolMessage and are what the app-state
+	// (chatmod) encoder/decoder needs to (de)cipher mutations.
+	StoreAppStateSyncKey(keyID, keyData []byte) error
+	LoadAppStateSyncKey(keyID []byte) ([]byte, bool, error)
 }
 
 // Store is the full persistence surface: device credentials plus the signal

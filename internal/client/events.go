@@ -179,3 +179,19 @@ type ReceiptEvent struct {
 }
 
 func (ReceiptEvent) isEvent() {}
+
+// HistorySyncEvent carries a decoded chunk of history the server pushed after
+// login (a HISTORY_SYNC_NOTIFICATION downloaded + inflated into a HistorySync).
+// SyncType classifies the chunk (initial bootstrap, recent, full, push-name...).
+// Conversations holds the chats and their messages; Pushnames maps JIDs to
+// display names. Raw is the full decoded protobuf for callers that need more.
+type HistorySyncEvent struct {
+	SyncType      waproto.HistorySyncType
+	Progress      uint32
+	ChunkOrder    uint32
+	Conversations []*waproto.Conversation
+	Pushnames     []*waproto.Pushname
+	Raw           *waproto.HistorySync
+}
+
+func (HistorySyncEvent) isEvent() {}

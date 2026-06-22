@@ -2,6 +2,7 @@ package store
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -16,6 +17,7 @@ const (
 	nsSession      = "session"
 	nsIdentity     = "identity"
 	nsSenderKey    = "sender_key"
+	nsAppStateKey  = "app_state_key"
 )
 
 const schema = `
@@ -219,4 +221,17 @@ func (s *sqliteStore) LoadSenderKey(group, sender string) ([]byte, bool, error) 
 
 func (s *sqliteStore) StoreSenderKey(group, sender string, record []byte) error {
 	return s.kvPut(nsSenderKey, senderKeyName(group, sender), record)
+}
+
+// appStateKeyName base64-encodes the binary keyId into an ASCII kv key.
+func appStateKeyName(keyID []byte) string {
+	return base64.StdEncoding.EncodeToString(keyID)
+}
+
+func (s *sqliteStore) StoreAppStateSyncKey(keyID, keyData []byte) error {
+	return s.kvPut(nsAppStateKey, appStateKeyName(keyID), keyData)
+}
+
+func (s *sqliteStore) LoadAppStateSyncKey(keyID []byte) ([]byte, bool, error) {
+	return s.kvGet(nsAppStateKey, appStateKeyName(keyID))
 }

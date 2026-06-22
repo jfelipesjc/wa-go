@@ -190,3 +190,41 @@ func TestSignalStoreSenderKeyRoundTrip(t *testing.T) {
 		t.Fatalf("after overwrite = %q, want %q", got, updated)
 	}
 }
+
+func TestSignalStoreAppStateSyncKeyRoundTrip(t *testing.T) {
+	st := openTestStore(t)
+
+	keyID := []byte{0x01, 0x02, 0x03, 0x04, 0x05}
+	keyData := bytes.Repeat([]byte{0xAA}, 32)
+
+	if _, ok, err := st.LoadAppStateSyncKey(keyID); ok || err != nil {
+		t.Fatalf("LoadAppStateSyncKey before store: ok=%v err=%v", ok, err)
+	}
+
+	if err := st.StoreAppStateSyncKey(keyID, keyData); err != nil {
+		t.Fatalf("StoreAppStateSyncKey: %v", err)
+	}
+
+	got, ok, err := st.LoadAppStateSyncKey(keyID)
+	if err != nil || !ok {
+		t.Fatalf("LoadAppStateSyncKey: ok=%v err=%v", ok, err)
+	}
+	if !bytes.Equal(got, keyData) {
+		t.Fatalf("keyData = %x, want %x", got, keyData)
+	}
+
+	// Different keyId: not found.
+	if _, ok, _ := st.LoadAppStateSyncKey([]byte{0x09}); ok {
+		t.Fatal("unexpected key for unknown keyId")
+	}
+
+	// Overwrite in place.
+	updated := bytes.Repeat([]byte{0xBB}, 32)
+	if err := st.StoreAppStateSyncKey(keyID, updated); err != nil {
+		t.Fatal(err)
+	}
+	got, _, _ = st.LoadAppStateSyncKey(keyID)
+	if !bytes.Equal(got, updated) {
+		t.Fatalf("after overwrite = %x, want %x", got, updated)
+	}
+}

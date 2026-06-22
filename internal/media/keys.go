@@ -35,6 +35,13 @@ const (
 	Audio
 	// Document is a generic file payload ("WhatsApp Document Keys").
 	Document
+	// History is a history-sync payload ("WhatsApp History Keys"), the encrypted
+	// + zlib-compressed HistorySync blob referenced by a HistorySyncNotification
+	// (Baileys mediaType "md-msg-hist", HKDF mapping "History").
+	History
+	// AppState is an app-state snapshot/patch external blob ("WhatsApp App State
+	// Keys", Baileys mediaType "md-app-state", HKDF mapping "App State").
+	AppState
 )
 
 // info returns the exact HKDF info string for the media type, matching Baileys'
@@ -51,6 +58,10 @@ func (t MediaType) info() (string, error) {
 		return "WhatsApp Audio Keys", nil
 	case Document:
 		return "WhatsApp Document Keys", nil
+	case History:
+		return "WhatsApp History Keys", nil
+	case AppState:
+		return "WhatsApp App State Keys", nil
 	default:
 		return "", fmt.Errorf("media: unknown media type %d", int(t))
 	}
@@ -68,6 +79,10 @@ func (t MediaType) String() string {
 		return "audio"
 	case Document:
 		return "document"
+	case History:
+		return "history"
+	case AppState:
+		return "app-state"
 	default:
 		return fmt.Sprintf("media(%d)", int(t))
 	}

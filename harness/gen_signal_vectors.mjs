@@ -23,6 +23,29 @@ const keyhelper = require('libsignal/src/keyhelper');
 
 const { SessionBuilder, SessionCipher, ProtocolAddress } = libsignal;
 
+// -------- Capture hook via global.__WA_GO_KP_HOOK (on-disk patch) --------
+// libsignal mints fresh keypairs at points we can't read back from the
+// SessionRecord. In particular, alice's X3DH baseKey: its PRIVATE key is
+// discarded after the initial DHs — only the public survives in
+// pendingPreKey/indexInfo. The DH-ratchet sending-chain ephemerals are likewise
+// generated internally. To make the golden vectors reproducible byte-for-byte
+// in Go, harness/node_modules/libsignal/src/curve.js has a tiny test patch
+// (backup: curve.js.orig): whenever generateKeyPair runs and
+// global.__WA_GO_KP_HOOK is a function, it calls it with {priv,pub} hex (priv
+// 32b raw, pub 33b with 0x05 prefix). We install that global below BEFORE any
+// session is created, accumulating every minted keypair in generation order.
+// `capturing` is flipped on only around protocol calls so our own setup keys
+// (identities, bob's prekeys) are NOT recorded — keeping ephemeralsGenerated[0]
+// = alice's X3DH baseKey.
+const ephemeralsGenerated = [];
+let capturing = false;
+global.__WA_GO_KP_HOOK = function (kp) {
+    if (capturing) {
+        // kp already carries priv/pub as hex from the curve.js patch.
+        ephemeralsGenerated.push({ priv: kp.priv, pub: kp.pub });
+    }
+};
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT = resolve(__dirname, '..', 'testdata', 'signal', 'session_ab.json');
 
@@ -131,6 +154,8 @@ async function main() {
             publicKey: bobPreKey.keyPair.pubKey,
         },
     };
+    // Begin capturing protocol-generated keypairs from here on.
+    capturing = true;
     await new SessionBuilder(aliceStore, bobAddr).initOutgoing(bundle);
 
     // Capture alice's base/ephemeral key used for X3DH from the stored session.
@@ -195,6 +220,16 @@ async function main() {
     assertEq(dec4, msg4pt, 'msg4');
     if (ct4.type !== 1) throw new Error(`msg4 expected type 1, got ${ct4.type}`);
     recordExchange('a->b', ct4, msg4pt);
+    capturing = false;
+
+    // Recover alice's baseKey PRIVATE from the capture list by matching its pub.
+    // The baseKey is the FIRST keypair generated inside initOutgoing.
+    const baseKeyPubHex = hex(aliceBaseKeyPub);
+    const baseKeyEntry = ephemeralsGenerated.find((e) => e.pub === baseKeyPubHex);
+    if (!baseKeyEntry) {
+        throw new Error('could not recover alice baseKey private from capture');
+    }
+    const baseKeyIsFirst = ephemeralsGenerated[0].pub === baseKeyPubHex;
 
     // ----- dump -----
     const out = {
@@ -205,6 +240,7 @@ async function main() {
             pubkeyFormat: '0x05-prefixed, 33 bytes (priv keys are 32 bytes raw)',
             versionByte: '0x33 = (3<<4)|3 for v3; first byte of every ciphertext',
             macTrailer: 'last 8 bytes = HMAC-SHA256(macKey, version||serialized)[:8]',
+            privateKeysNote: 'alice.baseKey.priv + ephemeralsGenerated[] captured via runtime hook on curve.generateKeyPair (no on-disk patch). ephemeralsGenerated is in generation order; index 0 = alice X3DH baseKey; match each to a type-1 msg by the pub appearing as WhisperMessage.ephemeralKey (ratchet key).',
             protoFields: {
                 WhisperMessage: { ephemeralKey: 1, counter: 2, previousCounter: 3, ciphertext: 4 },
                 PreKeyWhisperMessage: { preKeyId: 1, baseKey: 2, identityKey: 3, message: 4, registrationId: 5, signedPreKeyId: 6 },
@@ -226,9 +262,16 @@ async function main() {
         alice: {
             identityKeyPair: { priv: hex(aliceIdentity.privKey), pub: hex(aliceIdentity.pubKey) },
             registrationId: aliceRegId,
-            // base/ephemeral key alice used in X3DH (initOutgoing); pub only is recoverable.
-            baseKey: { pub: hex(aliceBaseKeyPub) },
+            // base/ephemeral key alice used in X3DH (initOutgoing). The private is
+            // recovered via the capture hook (priv+pub, 32b/33b). Pub also appears
+            // in the pkmsg PreKeyWhisperMessage.baseKey and is the 1st ephemeral.
+            baseKey: { priv: baseKeyEntry.priv, pub: baseKeyPubHex },
         },
+        // Every keypair libsignal generated during the protocol, in order, with
+        // private keys. Map each to a message by matching the pub that appears as
+        // WhisperMessage.ephemeralKey (the "ratchet key") in the type-1 ciphertexts.
+        // Index 0 is alice's X3DH baseKey; the rest are DH-ratchet sending keys.
+        ephemeralsGenerated,
         exchanges,
     };
 
@@ -238,6 +281,8 @@ async function main() {
     console.log(`wrote ${OUT}`);
     console.log(`roundtrip OK ${exchanges.length}/${exchanges.length}`);
     console.log('types:', exchanges.map((e) => `${e.dir}:${e.type}(v${e.ciphertextHex.slice(0, 2)})`).join(' '));
+    console.log(`ephemerals captured: ${ephemeralsGenerated.length}`);
+    console.log(`alice baseKey priv recovered: yes; baseKey is 1st ephemeral: ${baseKeyIsFirst}`);
 }
 
 function assertEq(got, want, label) {

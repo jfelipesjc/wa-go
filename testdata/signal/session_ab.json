@@ -6,6 +6,7 @@
     "pubkeyFormat": "0x05-prefixed, 33 bytes (priv keys are 32 bytes raw)",
     "versionByte": "0x33 = (3<<4)|3 for v3; first byte of every ciphertext",
     "macTrailer": "last 8 bytes = HMAC-SHA256(macKey, version||serialized)[:8]",
+    "privateKeysNote": "alice.baseKey.priv + ephemeralsGenerated[] captured via runtime hook on curve.generateKeyPair (no on-disk patch). ephemeralsGenerated is in generation order; index 0 = alice X3DH baseKey; match each to a type-1 msg by the pub appearing as WhisperMessage.ephemeralKey (ratchet key).",
     "protoFields": {
       "WhisperMessage": {
         "ephemeralKey": 1,
@@ -25,43 +26,66 @@
   },
   "bob": {
     "identityKeyPair": {
-      "priv": "087c4c9490f59d3084950e5c19f0a3b08aa873451a42b94929eaae6419bb2563",
-      "pub": "05891234be91eff8cfc4b6e53507cc09a11b4b17979dfe651431b1a1aecfb5ca37"
+      "priv": "b01cf18616de3465f7bf0c35d1aa9ce2cb9ee789a18ebd21835ac5f52c9f4871",
+      "pub": "058145e775548a99bcd83f9762f142e18c75f140d29a78eb06855c66f3d0c4a628"
     },
-    "registrationId": 37,
+    "registrationId": 229,
     "signedPreKey": {
       "id": 1,
       "keyPair": {
-        "priv": "b031be862b20a325423434662176770a4b661dc3f3d2529480132610023db86c",
-        "pub": "05b415255cf5eb62b61147738bd0eb79571c2844419322142f2a9a0e68877e7b43"
+        "priv": "c007e4ea5647ae8742112de44e1b932c97ab8dbfbdaf53b671a29307e471d260",
+        "pub": "057e5a8733d90d474011dd6729f0b9ec79a5b857bd2484573c39de47a3ebae6626"
       },
-      "signature": "e6e49c6feae46124300e28cfcf52f16d725c3b67facb3f95db26e04513a3c5b7cafe217a824a67cf418b24789152e4710cd8558fdada929e532dd042b654d484"
+      "signature": "40ca5537630abd0f9beaf9d19972b04a6965593efff0e7d405f9d5e9fb144977fc245a9330c2c7cb8ae397d0c3c41d30a5ffb9bf9b10d5479e3eae4dec84c781"
     },
     "preKey": {
       "id": 31337,
       "keyPair": {
-        "priv": "a02a97f872a3a253ea52701378bfaf1297b2820eec6c6d3d4972197ecd75014e",
-        "pub": "05cbb4bef6defae1613533d17f0cb90052faf9a4f0ff08c11e7ebb03b5c102932f"
+        "priv": "380f8a6897b6988a512103839c5706c29267b8a8197c819e6f154fb4aac2634e",
+        "pub": "0515f7045f70040d3843e81f85fcb3c4c73e25530fe8ce2849842cefb3f3711358"
       }
     }
   },
   "alice": {
     "identityKeyPair": {
-      "priv": "c016b75c766ca544f6aaa964feb0daca1326f4686ff8fe54cd3166e23aee995b",
-      "pub": "052f769c8471298d7eb929d8b3be53fc3ad64e124292865a1996371ffdd3e1981f"
+      "priv": "507a73dd453888aa35927e388dc7b01e75e3592c9dc95eb1e25eadfaa1121577",
+      "pub": "057734c1731899d34408dbafd2f69ce9e71c37179ddcb4056dcaff9e8a70355f10"
     },
-    "registrationId": 95,
+    "registrationId": 117,
     "baseKey": {
-      "pub": "056fe9a639d17ddacdd9367eaca00ed6717a3fb5fa7f879c586f51b38f2cb5062a"
+      "priv": "30dfb094961cae4131cb02f21201abc045b73cd5fce183a21c1680c92e364a6a",
+      "pub": "053067086fca49c23215ed0072f9519f498a143e757b85ec3956b923df9232a327"
     }
   },
+  "ephemeralsGenerated": [
+    {
+      "priv": "30dfb094961cae4131cb02f21201abc045b73cd5fce183a21c1680c92e364a6a",
+      "pub": "053067086fca49c23215ed0072f9519f498a143e757b85ec3956b923df9232a327"
+    },
+    {
+      "priv": "b8f725339b890331bb7b8af495ff3789e449b497c53f1f7fcdad330b09def044",
+      "pub": "05fcf4cbd0550b6db39cd353a80ead18582140ddce02b2d947ad33cae9f7631825"
+    },
+    {
+      "priv": "f801076c5aeb5921d5a41e5175e592ad73d592781e8e3e11cfe55ee375479267",
+      "pub": "055f366c2db4e44e33ee3eef0d7c4589734b1536d3ba6f2baf2bd74909a3ba8712"
+    },
+    {
+      "priv": "909d6cb7cc2b3c4ae771833d9c593a391e4fb295fd2a1183be1430bbe3416c46",
+      "pub": "0514a2d223f6a4dad317a830ad6d6e9d59cc3ea5737179fbccd3ea495a7c73ce03"
+    },
+    {
+      "priv": "207634bea326276723a7e41cd451165f7d327e355d3d3b67c81ab139deb82d4b",
+      "pub": "0510aa5d286ad9789928d1eef1c513abcee659d3b3a97f1e84345faf51383a937e"
+    }
+  ],
   "exchanges": [
     {
       "n": 1,
       "dir": "a->b",
       "type": "pkmsg",
       "sigType": 3,
-      "ciphertextHex": "3308e9f4011221056fe9a639d17ddacdd9367eaca00ed6717a3fb5fa7f879c586f51b38f2cb5062a1a21052f769c8471298d7eb929d8b3be53fc3ad64e124292865a1996371ffdd3e1981f2242330a21052ff1881b45d4b57113cf822be438e762ec634541211f4dbb6e838d964d517a66100018002210a433fc196d41f45f94ffc4a7a0a52236a4f0331e71e0e3d0285f3001",
+      "ciphertextHex": "3308e9f4011221053067086fca49c23215ed0072f9519f498a143e757b85ec3956b923df9232a3271a21057734c1731899d34408dbafd2f69ce9e71c37179ddcb4056dcaff9e8a70355f102242330a2105fcf4cbd0550b6db39cd353a80ead18582140ddce02b2d947ad33cae9f7631825100018002210763bbb51fbb5bd1413165517ca21cc20558abe8b0a340f6128753001",
       "plaintextHex": "6f6c6120626f622031",
       "plaintext": "ola bob 1"
     },
@@ -70,7 +94,7 @@
       "dir": "b->a",
       "type": "msg",
       "sigType": 1,
-      "ciphertextHex": "330a2105cbda05d1d10244ccb6ddf675f58646864b760e5b7f155a20f69190c22e28ee7e10001800221013fade018352b001caeaa309817a1be78f2c45e716898bf7",
+      "ciphertextHex": "330a21055f366c2db4e44e33ee3eef0d7c4589734b1536d3ba6f2baf2bd74909a3ba8712100018002210c6166a2533ee88d074cf2aced7d199237f48f54963dcc97b",
       "plaintextHex": "6f6920616c6963652032",
       "plaintext": "oi alice 2"
     },
@@ -79,7 +103,7 @@
       "dir": "a->b",
       "type": "msg",
       "sigType": 1,
-      "ciphertextHex": "330a21059ee8316f2b9fdbd5260b9274c95a86d3bbfe9289301b535dbcdfc4ba53002267100018002210eb11c726de935bdca910a5bde1a1d1bf14acfe415605de09",
+      "ciphertextHex": "330a210514a2d223f6a4dad317a830ad6d6e9d59cc3ea5737179fbccd3ea495a7c73ce03100018002210b5003ff4e1a7b384cf2e4fb8cae6040c7e352d271c9da3b0",
       "plaintextHex": "6f6c6120626f622033",
       "plaintext": "ola bob 3"
     },
@@ -88,7 +112,7 @@
       "dir": "a->b",
       "type": "msg",
       "sigType": 1,
-      "ciphertextHex": "330a21059ee8316f2b9fdbd5260b9274c95a86d3bbfe9289301b535dbcdfc4ba5300226710011800221044a9f033091d28b2abbe5f9f0ac6da36923e720717ef22c0",
+      "ciphertextHex": "330a210514a2d223f6a4dad317a830ad6d6e9d59cc3ea5737179fbccd3ea495a7c73ce031001180022100d9867d62c85219a9db34b66017d47d853df2dd14c3b5bc6",
       "plaintextHex": "6f6c6120626f622034",
       "plaintext": "ola bob 4"
     }

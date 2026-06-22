@@ -174,7 +174,7 @@ func (c *Client) runPairing(ctx context.Context, creds *store.Creds) (bool, erro
 // debugPairing, when true, dumps each received node and the disconnect reason to
 // debugOut. Temporary diagnostic for live pairing; gated off by default.
 var (
-	debugPairing = false
+	debugPairing           = false
 	debugOut     io.Writer = io.Discard
 )
 
@@ -449,6 +449,16 @@ func handlePairSuccess(node wire.Node, id keys.Identity, advSecret []byte) (wire
 	}
 	account.DeviceSignature = devSig[:]
 
+	// Persist the FULL signed device identity (WITH accountSignatureKey) — this is
+	// what gets attached as <device-identity> to outgoing messages
+	// (encodeSignedDeviceIdentity(account, true)). Only the pair reply below zeroes
+	// the key. Storing the zeroed version makes our outgoing device-identity
+	// incomplete and recipients drop our messages.
+	accountFull, err := proto.Marshal(&account)
+	if err != nil {
+		return wire.Node{}, out, fmt.Errorf("encode full signed device identity: %w", err)
+	}
+
 	// 6. keyIndex from ADVDeviceIdentity(account.details).
 	var devIdentity waproto.ADVDeviceIdentity
 	if err := proto.Unmarshal(account.GetDetails(), &devIdentity); err != nil {
@@ -459,9 +469,9 @@ func handlePairSuccess(node wire.Node, id keys.Identity, advSecret []byte) (wire
 	// 7. Re-serialize with accountSignatureKey zeroed (encodeSignedDeviceIdentity
 	//    with includeSignatureKey=false).
 	reSigned := &waproto.ADVSignedDeviceIdentity{
-		Details:         account.GetDetails(),
+		Details:          account.GetDetails(),
 		AccountSignature: account.GetAccountSignature(),
-		DeviceSignature: account.GetDeviceSignature(),
+		DeviceSignature:  account.GetDeviceSignature(),
 		// AccountSignatureKey intentionally nil.
 	}
 	accountEnc, err := proto.Marshal(reSigned)
@@ -490,7 +500,7 @@ func handlePairSuccess(node wire.Node, id keys.Identity, advSecret []byte) (wire
 
 	out = pairSuccessCreds{
 		Me:       jid,
-		Account:  accountEnc,
+		Account:  accountFull, // full identity (with accountSignatureKey) for outgoing device-identity
 		Platform: platform,
 		PushName: bizName,
 	}
@@ -612,6 +622,11 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 		return conn.SendNode(n)
 	}
 
+	// Publish the live session so SendText can use this connection, and tear it
+	// down (plus any waiting iq requests) when the loop exits.
+	c.setActive(&session{send: send, creds: creds})
+	defer c.clearActive()
+
 	loopCtx, cancel := context.WithCancel(ctx)
 	var wg sync.WaitGroup
 	defer func() {
@@ -647,6 +662,16 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 		if debugPairing {
 			fmt.Fprintf(debugOut, "[wa-go] node: <%s type=%q id=%q from=%q> children=%d\n",
 				node.Tag, node.Attrs["type"], node.Attrs["id"], node.Attrs["from"], len(children(node)))
+		}
+		// Route replies to outstanding iq requests (usync, prekey-bundle fetch)
+		// before the default handling: an <iq type=result|error> whose id matches a
+		// pending request is delivered to the waiting goroutine and consumed here.
+		if node.Tag == "iq" {
+			if t := node.Attrs["type"]; t == "result" || t == "error" {
+				if c.deliverIQ(node) {
+					continue
+				}
+			}
 		}
 		switch node.Tag {
 		case "success":

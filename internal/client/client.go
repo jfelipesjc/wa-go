@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"sync"
 
 	"github.com/felipeleal/wa-go/internal/keys"
 	"github.com/felipeleal/wa-go/internal/store"
@@ -84,6 +85,26 @@ type Client struct {
 	// newEphemeral generates the Noise ephemeral key pair per connection.
 	// Overridable for deterministic tests.
 	newEphemeral func() (keys.KeyPair, error)
+
+	// active holds the live login session's send function and creds, set while
+	// loginLoop is running so SendText can use the established connection. It is
+	// nil before login / after disconnect. Guarded by mu.
+	mu     sync.Mutex
+	active *session
+
+	// pending maps an outstanding iq stanza id to the channel that delivers the
+	// matching <iq type=result|error> back to the requester. The single read loop
+	// (loginLoop) routes results here so request/response works without a second
+	// reader. Guarded by pendingMu.
+	pendingMu sync.Mutex
+	pending   map[string]chan wire.Node
+}
+
+// session is the live login state SendText needs: the serialized send function
+// (already guarded by loginLoop's sendMu) and the device creds.
+type session struct {
+	send  func(wire.Node) error
+	creds *store.Creds
 }
 
 // New constructs a Client backed by the given store.
@@ -93,6 +114,7 @@ func New(s store.Store) *Client {
 		events:       make(chan Event, 16),
 		dial:         dialWebSocket,
 		newEphemeral: keys.GenKeyPair,
+		pending:      make(map[string]chan wire.Node),
 	}
 }
 
@@ -107,6 +129,72 @@ func (c *Client) emit(e Event) {
 	case c.events <- e:
 	default:
 	}
+}
+
+// --- live session handle ---
+
+// setActive publishes the live login session so SendText can reach the
+// connection. clearActive removes it (and rejects any in-flight iq waiters).
+func (c *Client) setActive(s *session) {
+	c.mu.Lock()
+	c.active = s
+	c.mu.Unlock()
+}
+
+func (c *Client) clearActive() {
+	c.mu.Lock()
+	c.active = nil
+	c.mu.Unlock()
+	// Fail any outstanding iq requests so SendText doesn't block past disconnect.
+	c.pendingMu.Lock()
+	for id, ch := range c.pending {
+		close(ch)
+		delete(c.pending, id)
+	}
+	c.pendingMu.Unlock()
+}
+
+func (c *Client) activeSession() (*session, bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.active, c.active != nil
+}
+
+// --- iq request/response registry ---
+
+// registerIQ allocates a delivery channel for an iq id and returns it plus an
+// unregister func. The read loop matches incoming <iq type=result|error> ids
+// against this map via deliverIQ.
+func (c *Client) registerIQ(id string) (<-chan wire.Node, func()) {
+	ch := make(chan wire.Node, 1)
+	c.pendingMu.Lock()
+	c.pending[id] = ch
+	c.pendingMu.Unlock()
+	return ch, func() {
+		c.pendingMu.Lock()
+		delete(c.pending, id)
+		c.pendingMu.Unlock()
+	}
+}
+
+// deliverIQ routes an <iq> result/error to a waiting requester. It returns true
+// if the id was awaited (and thus consumed by a requester), false otherwise.
+func (c *Client) deliverIQ(node wire.Node) bool {
+	id := node.Attrs["id"]
+	if id == "" {
+		return false
+	}
+	c.pendingMu.Lock()
+	ch, ok := c.pending[id]
+	if ok {
+		delete(c.pending, id)
+	}
+	c.pendingMu.Unlock()
+	if !ok {
+		return false
+	}
+	ch <- node
+	return true
 }
 
 // dialWebSocket is the production transport: ws.Dial.

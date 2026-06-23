@@ -139,7 +139,14 @@ func buildCompanionHelloIQ(p companionHelloParams) (wire.Node, error) {
 	if err != nil {
 		return wire.Node{}, err
 	}
+	// Byte-content leaf (binary node) — for the wrapped ephemeral + auth key.
 	leaf := func(tag string, content []byte) wire.Node {
+		return wire.Node{Tag: tag, Attrs: map[string]string{}, Content: content}
+	}
+	// String-content leaf — Baileys sends platform_id/display/nonce as STRING
+	// content (token/string-encoded), NOT bytes. Encoding them as []byte makes the
+	// server see the wrong type and silently fail to register the pairing code.
+	strLeaf := func(tag, content string) wire.Node {
 		return wire.Node{Tag: tag, Attrs: map[string]string{}, Content: content}
 	}
 	reg := wire.Node{
@@ -152,9 +159,9 @@ func buildCompanionHelloIQ(p companionHelloParams) (wire.Node, error) {
 		Content: []wire.Node{
 			leaf("link_code_pairing_wrapped_companion_ephemeral_pub", wrapped),
 			leaf("companion_server_auth_key_pub", p.noisePub),
-			leaf("companion_platform_id", []byte(p.platformID)),
-			leaf("companion_platform_display", []byte(p.platformDisp)),
-			leaf("link_code_pairing_nonce", []byte("0")),
+			strLeaf("companion_platform_id", p.platformID),
+			strLeaf("companion_platform_display", p.platformDisp),
+			strLeaf("link_code_pairing_nonce", "0"),
 		},
 	}
 	return wire.Node{

@@ -414,9 +414,22 @@ func (c *Client) pairingCodeLoop(ctx context.Context, conn nodeConn, creds *stor
 		if debugPairing {
 			fmt.Fprintf(debugOut, "[wa-go] node: <%s type=%q id=%q> children=%d\n",
 				node.Tag, node.Attrs["type"], node.Attrs["id"], len(children(node)))
+			for _, ch := range children(node) {
+				fmt.Fprintf(debugOut, "[wa-go]   child <%s %v>\n", ch.Tag, ch.Attrs)
+			}
 		}
 
 		switch {
+		case isIQSet(node, "pair-device"):
+			// The server also offers QR pairing on this connection. We're pairing
+			// by code, so we don't show the QR — but we MUST ack the iq, otherwise
+			// the server closes the stream (stream:error) for the unacked stanza.
+			_ = send(iqResult(node.Attrs["id"], nil))
+		case node.Tag == "iq" && node.Attrs["type"] == "get":
+			// Server keep-alive ping: reply with an empty result so it doesn't drop us.
+			if _, ok := childByTag(node, "ping"); ok {
+				_ = send(iqResult(node.Attrs["id"], nil))
+			}
 		case isIQSet(node, "link_code_companion_reg"):
 			// companion_finish: derive the key bundle + advSecret and reply. The
 			// advSecret persisted here is what the following pair-success verifies.

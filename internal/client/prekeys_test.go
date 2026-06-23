@@ -2,6 +2,8 @@ package client
 
 import (
 	"bytes"
+	"context"
+	"path/filepath"
 	"testing"
 
 	"github.com/felipeleal/wa-go/internal/keys"
@@ -175,5 +177,63 @@ func TestGenerateAndStorePreKeysPersists(t *testing.T) {
 	// Signed pre-key persisted.
 	if _, ok, _ := st.LoadSignedPreKey(creds.SignedPreKey.KeyID); !ok {
 		t.Fatal("signed pre-key not persisted")
+	}
+}
+
+// TestLoginLoopUploadsPreKeysOnlyOnce is the regression for the live "login
+// failure: 401" device-unlink: loginLoop must upload the initial one-time
+// pre-key batch on the FIRST login (PreKeysUploaded=false) and persist the flag,
+// but must NOT re-upload on a relogin (PreKeysUploaded=true). Re-uploading a
+// fresh batch (with the same ids 1..N) on every reconnect floods the server and
+// trips anti-abuse. Replenishment afterwards is count-gated via the encrypt
+// notification handler, not the login path.
+func TestLoginLoopUploadsPreKeysOnlyOnce(t *testing.T) {
+	encryptUploads := func(conn *scriptedConn) int {
+		n := 0
+		for _, w := range conn.written {
+			if w.Tag == "iq" && w.Attrs["xmlns"] == "encrypt" && w.Attrs["type"] == "set" {
+				n++
+			}
+		}
+		return n
+	}
+	success := wire.Node{Tag: "success", Attrs: map[string]string{}}
+
+	st, err := store.OpenSQLite(filepath.Join(t.TempDir(), "c.db"))
+	if err != nil {
+		t.Fatalf("OpenSQLite: %v", err)
+	}
+	t.Cleanup(func() { st.Close() })
+	c := New(st)
+
+	creds := credsForTest(t)
+	creds.Me = "5550000000@s.whatsapp.net"
+	creds.Registered = true
+	if err := st.SaveCreds(creds); err != nil {
+		t.Fatalf("SaveCreds: %v", err)
+	}
+
+	// First login: exactly one upload, flag set and persisted.
+	conn := &scriptedConn{inbound: []wire.Node{success}}
+	_ = c.loginLoop(context.Background(), conn, creds)
+	if got := encryptUploads(conn); got != 1 {
+		t.Fatalf("first login: want 1 prekey upload, got %d", got)
+	}
+	if !creds.PreKeysUploaded {
+		t.Fatal("first login: PreKeysUploaded not set on creds")
+	}
+	reloaded, ok, err := st.LoadCreds()
+	if err != nil || !ok {
+		t.Fatalf("LoadCreds: ok=%v err=%v", ok, err)
+	}
+	if !reloaded.PreKeysUploaded {
+		t.Fatal("first login: PreKeysUploaded not persisted")
+	}
+
+	// Relogin with the persisted (already-uploaded) creds: no upload.
+	conn2 := &scriptedConn{inbound: []wire.Node{success}}
+	_ = c.loginLoop(context.Background(), conn2, reloaded)
+	if got := encryptUploads(conn2); got != 0 {
+		t.Fatalf("relogin: want 0 prekey uploads, got %d", got)
 	}
 }

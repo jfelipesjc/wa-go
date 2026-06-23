@@ -839,12 +839,23 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 		switch node.Tag {
 		case "success":
 			c.emit(LoggedInEvent{})
-			// Post-login: upload pre-keys, then announce active presence so the
-			// server delivers queued/incoming messages. Mirrors socket.js's
-			// CB:success handler (uploadPreKeys + sendPassiveIq('active')).
-			if err := c.uploadPreKeys(send, creds); err != nil {
-				c.emit(DisconnectedEvent{Reason: "upload pre-keys: " + err.Error()})
-				return err
+			// Post-login: upload pre-keys (ONCE), then announce active presence so
+			// the server delivers queued/incoming messages. Mirrors socket.js's
+			// CB:success handler (uploadPreKeysIfRequired + sendPassiveIq('active')).
+			// Gate on PreKeysUploaded: re-uploading a fresh batch on every relogin
+			// (worse, with the same ids 1..N) floods the server and trips anti-abuse
+			// — observed live as the device being unlinked (login failure 401).
+			// Replenishment afterwards is count-gated in handleEncryptNotification.
+			if !creds.PreKeysUploaded {
+				if err := c.uploadPreKeys(send, creds); err != nil {
+					c.emit(DisconnectedEvent{Reason: "upload pre-keys: " + err.Error()})
+					return err
+				}
+				creds.PreKeysUploaded = true
+				if err := c.store.SaveCreds(creds); err != nil {
+					c.emit(DisconnectedEvent{Reason: "save creds (prekeys uploaded): " + err.Error()})
+					return err
+				}
 			}
 			if err := send(passiveIqNode("active")); err != nil {
 				return err
@@ -860,6 +871,26 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 				reason = node.Attrs["text"]
 			}
 			c.emit(DisconnectedEvent{Reason: "login failure: " + reason})
+			return nil
+		case "stream:error":
+			// The server closes the stream with a reason (code 515 restart,
+			// <conflict type=replaced> for a duplicate session, etc.). Without a
+			// case here the node was dropped and the caller only saw an opaque
+			// "stream ended: EOF". Surface the code/detail in the disconnect.
+			reason := "stream:error"
+			if code := node.Attrs["code"]; code != "" {
+				reason += " code=" + code
+			}
+			if ch := children(node); len(ch) > 0 {
+				reason += " " + ch[0].Tag
+				if t := ch[0].Attrs["type"]; t != "" {
+					reason += ":" + t
+				}
+				if t := ch[0].Attrs["text"]; t != "" {
+					reason += " (" + t + ")"
+				}
+			}
+			c.emit(DisconnectedEvent{Reason: reason})
 			return nil
 		case "message":
 			if err := c.handleMessage(send, node, creds); err != nil && debugPairing {

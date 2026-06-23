@@ -77,6 +77,13 @@ type Creds struct {
 	Platform   string   `json:"platform,omitempty"` // server-reported platform
 	PushName   string   `json:"pushName,omitempty"` // display name
 	Registered bool     `json:"registered"`         // true once paired
+
+	// PreKeysUploaded is true once the initial one-time pre-key batch has been
+	// uploaded (after the first post-pairing login). It gates uploadPreKeys so we
+	// do NOT re-upload a fresh batch on every relogin — doing so floods the server
+	// and trips anti-abuse (observed: device unlinked with login failure 401).
+	// Replenishment afterwards is count-gated via handleEncryptNotification.
+	PreKeysUploaded bool `json:"preKeysUploaded,omitempty"`
 }
 
 // StoredKeyPair is the serializable form of a Curve25519 key pair as persisted

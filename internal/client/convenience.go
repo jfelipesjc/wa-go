@@ -31,6 +31,86 @@ func buildReactionKey(toJID, targetMsgID string, fromMe bool) *waproto.MessageKe
 	}
 }
 
+// DeleteMessageByID revokes (deletes for everyone) a previously sent message,
+// identified by its remote JID, message id and fromMe flag. It builds the
+// waproto.MessageKey internally (so callers outside this module need not name
+// that type) and delegates to DeleteMessage. Returns the revoke message id.
+func (c *Client) DeleteMessageByID(ctx context.Context, toJID, targetMsgID string, fromMe bool) (string, error) {
+	return c.DeleteMessage(ctx, toJID, buildReactionKey(toJID, targetMsgID, fromMe))
+}
+
+// EditTextByID edits a previously sent text message, identified by its remote
+// JID, message id and fromMe flag, replacing its body with newText. It builds
+// the waproto.MessageKey internally and delegates to EditText.
+func (c *Client) EditTextByID(ctx context.Context, toJID, targetMsgID string, fromMe bool, newText string) (string, error) {
+	return c.EditText(ctx, toJID, buildReactionKey(toJID, targetMsgID, fromMe), newText)
+}
+
+// SendButtonsSimple sends a ButtonsMessage built from parallel id/text slices
+// (stdlib-only args), pairing buttonIDs[i] with buttonTexts[i]. Excess ids/texts
+// without a counterpart are ignored. Delegates to SendButtons.
+func (c *Client) SendButtonsSimple(ctx context.Context, toJID, text, footer string, buttonIDs, buttonTexts []string) (string, error) {
+	return c.SendButtons(ctx, toJID, text, footer, buildButtonsFromSlices(buttonIDs, buttonTexts))
+}
+
+// buildButtonsFromSlices is the pure constructor pairing parallel id/text slices
+// into []Button, bounded by the shorter slice (split out so the pairing is
+// testable without a session).
+func buildButtonsFromSlices(buttonIDs, buttonTexts []string) []Button {
+	n := len(buttonIDs)
+	if len(buttonTexts) < n {
+		n = len(buttonTexts)
+	}
+	buttons := make([]Button, 0, n)
+	for i := 0; i < n; i++ {
+		buttons = append(buttons, Button{ID: buttonIDs[i], Text: buttonTexts[i]})
+	}
+	return buttons
+}
+
+// SendListSimple sends a ListMessage built from parallel stdlib-only slices: one
+// section per sectionTitles entry, and for each section i the rows are taken from
+// rowTitles[i]/rowDescs[i]/rowIDs[i] (parallel inner slices). Missing inner
+// entries are tolerated (bounded by the shortest of the three for that section).
+// Delegates to SendList.
+func (c *Client) SendListSimple(ctx context.Context, toJID, text, buttonText string, sectionTitles []string, rowTitles, rowDescs, rowIDs [][]string) (string, error) {
+	return c.SendList(ctx, toJID, text, buttonText, buildSectionsFromSlices(sectionTitles, rowTitles, rowDescs, rowIDs))
+}
+
+// buildSectionsFromSlices is the pure constructor assembling []ListSection from
+// the parallel section/row slices (split out so the assembly is testable without
+// a session). For section i, the row count is the shortest of rowTitles[i],
+// rowDescs[i] and rowIDs[i]; a nil/short inner slice yields fewer rows.
+func buildSectionsFromSlices(sectionTitles []string, rowTitles, rowDescs, rowIDs [][]string) []ListSection {
+	sections := make([]ListSection, 0, len(sectionTitles))
+	for i, title := range sectionTitles {
+		var titles, descs, ids []string
+		if i < len(rowTitles) {
+			titles = rowTitles[i]
+		}
+		if i < len(rowDescs) {
+			descs = rowDescs[i]
+		}
+		if i < len(rowIDs) {
+			ids = rowIDs[i]
+		}
+		n := len(titles)
+		if len(ids) < n {
+			n = len(ids)
+		}
+		rows := make([]ListRow, 0, n)
+		for j := 0; j < n; j++ {
+			row := ListRow{Title: titles[j], RowID: ids[j]}
+			if j < len(descs) {
+				row.Description = descs[j]
+			}
+			rows = append(rows, row)
+		}
+		sections = append(sections, ListSection{Title: title, Rows: rows})
+	}
+	return sections
+}
+
 // SendImageBytes sends raw image bytes with an optional caption and mimetype,
 // building MediaOpts internally. Requires a configured media uploader (see
 // EnableMediaTransfer / EnableDefaultMediaTransfer); without one SendImage

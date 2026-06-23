@@ -1,0 +1,88 @@
+{
+  "captured_at": "2026-06-23T13:48:08.096Z",
+  "iq": {
+    "tag": "iq",
+    "attrs": {
+      "to": "@s.whatsapp.net",
+      "type": "set",
+      "id": "27246.13028-1",
+      "xmlns": "md"
+    }
+  },
+  "link_code_companion_reg": {
+    "tag": "link_code_companion_reg",
+    "attrs": {
+      "jid": "5512991433650@s.whatsapp.net",
+      "stage": "companion_hello",
+      "should_show_push_notification": "true"
+    }
+  },
+  "children_order": [
+    "link_code_pairing_wrapped_companion_ephemeral_pub",
+    "companion_server_auth_key_pub",
+    "companion_platform_id",
+    "companion_platform_display",
+    "link_code_pairing_nonce"
+  ],
+  "children": [
+    {
+      "tag": "link_code_pairing_wrapped_companion_ephemeral_pub",
+      "attrs": {},
+      "content_kind": "bytes",
+      "content_hex": "07f58f13bf9c2a7959d5a8d1a0e210d93468b0f34e413376a2557a723354dcd72f8533b768b827bbca58bc2260bd96fe28f5be86d63bd8d2132ec00c9a6d86a38f15067830855a64d88cfd9038feba50",
+      "length_bytes": 80,
+      "first_byte_hex": "07",
+      "has_0x05_prefix": false
+    },
+    {
+      "tag": "companion_server_auth_key_pub",
+      "attrs": {},
+      "content_kind": "bytes",
+      "content_hex": "a341e01f587f26623a576af8a5a499b90eb0bb9dcd474920a44e31bd775f403d",
+      "length_bytes": 32,
+      "first_byte_hex": "a3",
+      "has_0x05_prefix": false
+    },
+    {
+      "tag": "companion_platform_id",
+      "attrs": {},
+      "content_kind": "string",
+      "value": "1",
+      "content_hex": "31",
+      "length_bytes": 1
+    },
+    {
+      "tag": "companion_platform_display",
+      "attrs": {},
+      "content_kind": "string",
+      "value": "Chrome (wa-go-capture)",
+      "content_hex": "4368726f6d65202877612d676f2d6361707475726529",
+      "length_bytes": 22
+    },
+    {
+      "tag": "link_code_pairing_nonce",
+      "attrs": {},
+      "content_kind": "string",
+      "value": "0",
+      "content_hex": "30",
+      "length_bytes": 1
+    }
+  ],
+  "iq_encoded_hex": "00f80a1911fa0003045a08ff8727246b13028a1f16fc026d64f801f808fc176c696e6b5f636f64655f636f6d70616e696f6e5f7265670cfaff875512991433650f03ec8bfc0f636f6d70616e696f6e5f68656c6c6ffc1d73686f756c645f73686f775f707573685f6e6f74696669636174696f6e9bf805f802fc316c696e6b5f636f64655f70616972696e675f777261707065645f636f6d70616e696f6e5f657068656d6572616c5f707562fc5007f58f13bf9c2a7959d5a8d1a0e210d93468b0f34e413376a2557a723354dcd72f8533b768b827bbca58bc2260bd96fe28f5be86d63bd8d2132ec00c9a6d86a38f15067830855a64d88cfd9038feba50f802fc1d636f6d70616e696f6e5f7365727665725f617574685f6b65795f707562fc20a341e01f587f26623a576af8a5a499b90eb0bb9dcd474920a44e31bd775f403df802fc15636f6d70616e696f6e5f706c6174666f726d5f696455f802fc1a636f6d70616e696f6e5f706c6174666f726d5f646973706c6179fc164368726f6d65202877612d676f2d6361707475726529f802fc176c696e6b5f636f64655f70616972696e675f6e6f6e63652d",
+  "returned_pairing_code": "HJQN9X7K",
+  "creds_pairing_code": "HJQN9X7K",
+  "pairing_ephemeral_key_pair": {
+    "public_hex": "1312ae56e947c606c167f9288f8968816dc6ff155c164a7859c6870ea7364578",
+    "public_len": 32,
+    "private_hex": "386ef4496a6a375d07fa40d971899b8d19593ef8ecc3a5aba9cbf58c87fe6758",
+    "private_len": 32
+  },
+  "noise_key_public_hex": "a341e01f587f26623a576af8a5a499b90eb0bb9dcd474920a44e31bd775f403d",
+  "browser": [
+    "wa-go-capture",
+    "Chrome",
+    "120.0.0"
+  ],
+  "finish_reason": "after requestPairingCode",
+  "request_error": null
+}

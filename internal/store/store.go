@@ -64,6 +64,13 @@ type Creds struct {
 	AdvSecret      keyBytes         `json:"advSecretKey"`
 	SignedPreKey   CredSignedPreKey `json:"signedPreKey"`
 
+	// PairingEphemeral is the Curve25519 key pair generated for a
+	// pairing-by-code (companion_hello) request. It must persist between the
+	// companion_hello request and the companion_finish response, which derives
+	// the shared secret from this key (Curve.sharedKey(pairingEphemeral.priv,
+	// codePairingPublicKey)). Empty for QR pairing.
+	PairingEphemeral CredKeyPair `json:"pairingEphemeral,omitempty"`
+
 	// Post-pairing (filled after a successful pair).
 	Me         string   `json:"me,omitempty"`       // JID, e.g. "5511...@s.whatsapp.net"
 	Account    keyBytes `json:"account,omitempty"`  // marshaled ADVSignedDeviceIdentity

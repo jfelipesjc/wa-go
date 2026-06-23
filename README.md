@@ -19,9 +19,17 @@ Decomposto em 9 sub-projetos. Specs e planos em `docs/superpowers/`.
 | 5 | App-state sync (LTHash) — decode+encode+resync | ✅ feito (offline) |
 | 6 | Control layer (fingerprint, SendPacer, hooks de frame) | ✅ feito (offline; default reproduz fixture) |
 | 7 | Instance manager (multi-sessão) | ✅ feito (offline; -race 50 instâncias) |
-| 8 | Evolution-compat (HTTP/WS) | ⬜ (deixado por último, a pedido) |
+| 8 | Evolution-compat (HTTP/WS) | ✅ **projeto separado [`wa-evolution`](../wa-evolution)** (importa esta lib via fachada `wa/`) |
 
-## Cobertura de features (offline, 279 testes, suite -race verde)
+> **Esta é a biblioteca** (a "Baileys"). O serviço estilo Evolution está em
+> [`../wa-evolution`](../wa-evolution), que importa
+> `github.com/felipeleal/wa-go/wa` (fachada pública, estilo `index.ts`).
+>
+> **Pareamento:** QR (provado live) e **pairing-code** por código de 8 chars
+> (cripto pronta+validada; estágio final `companion_finish` é live-pending — ver
+> `docs/superpowers/specs/2026-06-22-pairing-code-design.md`).
+
+## Cobertura de features (offline, 418 testes, suite -race verde)
 
 **Mensagens:** texto, reply, menção, imagem/vídeo/áudio/documento/sticker (cripto + upload/download HTTP), localização, contato, reação, editar, apagar, enquete; recebimento parseia todos os tipos (eventos ricos). **Grupos:** sender keys (E2E), enviar/receber, metadata, criar, add/remover/promover/rebaixar, assunto/descrição, sair, convite, settings, comunidades/sub-grupos. **App-state:** LTHash decode+encode, arquivar/fixar/mutar/marcar lido/favoritar/limpar/apagar chat, resync. **Perfil/privacidade:** nome/status/foto, fetch status/foto, privacy settings, bloquear/desbloquear, blocklist. **Outros:** presença/digitando/recibo de leitura/subscribe, chamadas (parse+reject+evento), status/stories, business (perfil/catálogo/pedido), onWhatsApp, newsletters (criar/seguir/mute/metadata), history sync (download+decode). **Infra:** multi-sessão (instance manager), fingerprint por instância, cadência humana (pacer), hooks de frame bruto.
 

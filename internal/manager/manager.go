@@ -118,6 +118,21 @@ func (mc *ManagedClient) SendText(ctx context.Context, to, text string) (string,
 	return sess.SendText(ctx, to, text)
 }
 
+// Client returns the instance's current live *client.Client, exposing the full
+// client API (SendImage/SendReaction/OnWhatsApp/group methods/…) beyond the
+// SendText shortcut. It returns (nil,false) when the instance is offline or when
+// the live session is not a real client (e.g. a test fake). Callers must not
+// retain the pointer across reconnects — fetch it fresh per operation, since the
+// manager rebuilds the client on every reconnection.
+func (mc *ManagedClient) Client() (*client.Client, bool) {
+	sess := mc.m.liveSession(mc.name)
+	if sess == nil {
+		return nil, false
+	}
+	c, ok := sess.(*client.Client)
+	return c, ok
+}
+
 // BackoffFunc maps a 0-based attempt number to a wait duration.
 type BackoffFunc func(attempt int) time.Duration
 

@@ -68,6 +68,32 @@ type (
 // MessageType classifies a received MessageEvent.
 type MessageType = client.MessageType
 
+// MessageType values (see MessageEvent.Type).
+const (
+	MessageText             = client.MessageText
+	MessageImage            = client.MessageImage
+	MessageVideo            = client.MessageVideo
+	MessageAudio            = client.MessageAudio
+	MessageDocument         = client.MessageDocument
+	MessageSticker          = client.MessageSticker
+	MessageLocation         = client.MessageLocation
+	MessageContact          = client.MessageContact
+	MessageReaction         = client.MessageReaction
+	MessageRevoke           = client.MessageRevoke
+	MessageEdit             = client.MessageEdit
+	MessagePoll             = client.MessagePoll
+	MessagePollVote         = client.MessagePollVote
+	MessageButtons          = client.MessageButtons
+	MessageList             = client.MessageList
+	MessageTemplate         = client.MessageTemplate
+	MessageInteractive      = client.MessageInteractive
+	MessageButtonReply      = client.MessageButtonReply
+	MessageListReply        = client.MessageListReply
+	MessageTemplateReply    = client.MessageTemplateReply
+	MessageInteractiveReply = client.MessageInteractiveReply
+	MessageUnknown          = client.MessageUnknown
+)
+
 // --- Manager (multi-session) ---
 
 // Manager runs many Clients concurrently with supervision and reconnection.

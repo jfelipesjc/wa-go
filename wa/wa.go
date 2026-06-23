@@ -1,0 +1,101 @@
+// Package wa is the public API facade for the wa-go WhatsApp library.
+//
+// The heavy implementation lives in internal/ packages (so it can't be imported
+// directly by other modules); this package re-exports the consumer-facing surface
+// via type aliases so a separate project (e.g. an Evolution-style service) can
+// depend on github.com/felipeleal/wa-go/wa.
+//
+// This is the equivalent of Baileys' index.ts entry point.
+package wa
+
+import (
+	"github.com/felipeleal/wa-go/internal/client"
+	"github.com/felipeleal/wa-go/internal/manager"
+	"github.com/felipeleal/wa-go/internal/store"
+)
+
+// --- Store ---
+
+// Store persists device credentials, Signal sessions, prekeys and app-state.
+type Store = store.Store
+
+// OpenStore opens (creating if needed) a SQLite-backed Store at path.
+func OpenStore(path string) (Store, error) { return store.OpenSQLite(path) }
+
+// --- Client ---
+
+// Client is a single WhatsApp connection (one device/number).
+type Client = client.Client
+
+// NewClient builds a Client backed by the given Store.
+func NewClient(s Store) *Client { return client.New(s) }
+
+// ChatStore materializes history sync + contacts + app-state into queryable
+// chats/contacts/messages. Plug it into a Client's event stream via Consume.
+type ChatStore = client.ChatStore
+
+// NewChatStore builds an empty ChatStore.
+func NewChatStore() *ChatStore { return client.NewChatStore() }
+
+// EnableDebug turns on verbose pairing/connection diagnostics to w.
+var EnableDebug = client.EnableDebug
+
+// --- Events ---
+
+// Event is the sum type delivered on Client.Events().
+type Event = client.Event
+
+type (
+	QREvent                      = client.QREvent
+	PairSuccessEvent             = client.PairSuccessEvent
+	LoggedInEvent                = client.LoggedInEvent
+	DisconnectedEvent            = client.DisconnectedEvent
+	MessageEvent                 = client.MessageEvent
+	ReceiptEvent                 = client.ReceiptEvent
+	ReceiptUpdateEvent           = client.ReceiptUpdateEvent
+	PresenceEvent                = client.PresenceEvent
+	CallEvent                    = client.CallEvent
+	ContactEvent                 = client.ContactEvent
+	ContactUpdateEvent           = client.ContactUpdateEvent
+	GroupParticipantsUpdateEvent = client.GroupParticipantsUpdateEvent
+	GroupUpdateEvent             = client.GroupUpdateEvent
+	PictureUpdateEvent           = client.PictureUpdateEvent
+	AppStateSyncDirtyEvent       = client.AppStateSyncDirtyEvent
+	HistorySyncEvent             = client.HistorySyncEvent
+	NotificationEvent            = client.NotificationEvent
+)
+
+// MessageType classifies a received MessageEvent.
+type MessageType = client.MessageType
+
+// --- Manager (multi-session) ---
+
+// Manager runs many Clients concurrently with supervision and reconnection.
+type Manager = manager.Manager
+
+// ManagedClient is a Manager-supervised instance handle (SendText, etc.).
+type ManagedClient = manager.ManagedClient
+
+// Option configures a Manager.
+type Option = manager.Option
+
+// State is an instance's lifecycle state.
+type State = manager.State
+
+const (
+	StateIdle         = manager.StateIdle
+	StateConnecting   = manager.StateConnecting
+	StateConnected    = manager.StateConnected
+	StateLoggedIn     = manager.StateLoggedIn
+	StateDisconnected = manager.StateDisconnected
+	StateBackoff      = manager.StateBackoff
+)
+
+// InstanceEvent is an Event tagged with the originating instance name.
+type InstanceEvent = manager.InstanceEvent
+
+// NewManager builds a Manager.
+func NewManager(opts ...Option) *Manager { return manager.New(opts...) }
+
+// WithConcurrency bounds how many instances connect at once (default 16).
+func WithConcurrency(n int) Option { return manager.WithConcurrency(n) }

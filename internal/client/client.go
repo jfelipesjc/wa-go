@@ -44,6 +44,11 @@ type Event interface{ isEvent() }
 // QREvent carries a freshly built pairing QR string to render/scan.
 type QREvent struct{ Code string }
 
+// PairingCodeEvent carries the 8-character pairing code the user types on their
+// phone (WhatsApp > Linked devices > Link with phone number). It is emitted
+// instead of QREvent when pairing via ConnectWithPairingCode.
+type PairingCodeEvent struct{ Code string }
+
 // PairSuccessEvent signals a successful first-time pairing. JID is the device's
 // assigned WhatsApp JID ("me").
 type PairSuccessEvent struct{ JID string }
@@ -58,6 +63,7 @@ type DisconnectedEvent struct{ Reason string }
 // events.go.
 
 func (QREvent) isEvent()           {}
+func (PairingCodeEvent) isEvent()  {}
 func (PairSuccessEvent) isEvent()  {}
 func (LoggedInEvent) isEvent()     {}
 func (DisconnectedEvent) isEvent() {}
@@ -421,6 +427,54 @@ func (c *Client) Connect(ctx context.Context) error {
 	}
 
 	// Reload the now-registered creds and log in.
+	creds, _, err = c.store.LoadCreds()
+	if err != nil {
+		return fmt.Errorf("client: reload creds after pairing: %w", err)
+	}
+	return c.runLogin(ctx, creds)
+}
+
+// ConnectWithPairingCode runs the auth flow using pairing-by-code (a.k.a. "link
+// with phone number") instead of a QR scan: the user types an 8-character code,
+// emitted as a PairingCodeEvent, into WhatsApp > Linked devices > Link with
+// phone number. phoneNumber is the E.164 number WITHOUT a leading '+', e.g.
+// "5511999998888".
+//
+// It mirrors Connect: if the device is already registered it logs in directly;
+// otherwise it runs the pairing-code flow (companion_hello -> companion_finish
+// -> pair-success) and, on success, transparently reconnects to log in. The QR
+// flow (Connect/runPairing) is untouched — this is a parallel path. The event
+// channel is closed before this returns.
+func (c *Client) ConnectWithPairingCode(ctx context.Context, phoneNumber string) error {
+	defer close(c.events)
+
+	creds, ok, err := c.store.LoadCreds()
+	if err != nil {
+		return fmt.Errorf("client: load creds: %w", err)
+	}
+	if !ok || creds == nil {
+		id, err := keys.NewIdentity()
+		if err != nil {
+			return fmt.Errorf("client: new identity: %w", err)
+		}
+		creds = credsFromIdentity(id)
+		if err := c.store.SaveCreds(creds); err != nil {
+			return fmt.Errorf("client: save initial creds: %w", err)
+		}
+	}
+
+	if creds.Registered {
+		return c.runLogin(ctx, creds)
+	}
+
+	paired, err := c.runPairingCode(ctx, creds, phoneNumber)
+	if err != nil {
+		return err
+	}
+	if !paired {
+		return nil // context cancelled / stream ended without success
+	}
+
 	creds, _, err = c.store.LoadCreds()
 	if err != nil {
 		return fmt.Errorf("client: reload creds after pairing: %w", err)

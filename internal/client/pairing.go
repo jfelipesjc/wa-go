@@ -318,6 +318,141 @@ func (c *Client) pairingLoop(ctx context.Context, conn nodeConn, creds *store.Cr
 	}
 }
 
+// runPairingCode runs the pairing-by-code (link-with-phone-number) flow: it
+// handshakes with the registration payload (same as QR), then drives
+// pairingCodeLoop — which proactively sends companion_hello (emitting the code)
+// and completes companion_finish + pair-success. It returns paired=true once
+// pair-success is persisted (the server then ends the stream).
+func (c *Client) runPairingCode(ctx context.Context, creds *store.Creds, phoneNumber string) (bool, error) {
+	conn, hsErr := c.handshake(ctx, creds, c.registrationPayloadBytes)
+	if hsErr != nil {
+		return false, hsErr
+	}
+	defer conn.Close()
+	return c.pairingCodeLoop(ctx, conn, creds, phoneNumber)
+}
+
+// pairingCodeLoop drives the pairing-by-code state machine over conn. Unlike the
+// QR pairingLoop it does NOT wait for a pair-device iq: right after the handshake
+// it sends companion_hello (RequestPairingCode), emits PairingCodeEvent with the
+// code for the user to type on the phone, then handles the server's
+// link_code_companion_reg (companion_finish) and the subsequent pair-success
+// (reusing handlePairSuccess). It is separated from runPairingCode so tests can
+// drive it over a fake nodeConn without a real handshake.
+//
+// As in pairingLoop, every write goes through sendMu because the Noise
+// transport's nonce counter is not concurrency-safe (keep-alive + read loop).
+func (c *Client) pairingCodeLoop(ctx context.Context, conn nodeConn, creds *store.Creds, phoneNumber string) (bool, error) {
+	id := identityFromCreds(creds)
+
+	var sendMu sync.Mutex
+	send := func(n wire.Node) error {
+		// Control Layer (C): outgoing frame hooks run pre-encrypt.
+		c.runOutgoingHooks(&n)
+		sendMu.Lock()
+		defer sendMu.Unlock()
+		return conn.SendNode(n)
+	}
+
+	// RequestPairingCode requires an active session (it reads sess.creds and uses
+	// sess.send). Publish one bound to this connection for the duration of the
+	// pairing-code exchange; clear it on exit so SendText cannot use a half-paired
+	// session and any iq waiters are released.
+	c.setActive(&session{send: send, creds: creds})
+	defer c.clearActive()
+
+	loopCtx, cancel := context.WithCancel(ctx)
+	var wg sync.WaitGroup
+	defer func() {
+		cancel()
+		wg.Wait()
+	}()
+
+	// Keep-alive so the server keeps the stream open while the user reads and
+	// types the code on their phone.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		t := time.NewTicker(keepAliveInterval)
+		defer t.Stop()
+		for {
+			select {
+			case <-loopCtx.Done():
+				return
+			case <-t.C:
+				_ = send(pingNode())
+			}
+		}
+	}()
+
+	// Proactively request the pairing code and show it to the user. This sends
+	// companion_hello and persists the pairing ephemeral + me into creds.
+	code, err := c.RequestPairingCode(ctx, phoneNumber)
+	if err != nil {
+		return false, fmt.Errorf("client: request pairing code: %w", err)
+	}
+	c.emit(PairingCodeEvent{Code: code})
+	if debugPairing {
+		fmt.Fprintf(debugOut, "[wa-go] pairing code: %s\n", code)
+	}
+
+	for {
+		if ctx.Err() != nil {
+			return false, nil
+		}
+		node, err := conn.ReadNode()
+		if err == nil {
+			c.runIncomingHooks(node)
+		}
+		if err != nil {
+			if debugPairing {
+				fmt.Fprintf(debugOut, "[wa-go] stream ended: %v\n", err)
+			}
+			c.emit(DisconnectedEvent{Reason: "stream ended: " + err.Error()})
+			return creds.Registered, nil
+		}
+		if debugPairing {
+			fmt.Fprintf(debugOut, "[wa-go] node: <%s type=%q id=%q> children=%d\n",
+				node.Tag, node.Attrs["type"], node.Attrs["id"], len(children(node)))
+		}
+
+		switch {
+		case isIQSet(node, "link_code_companion_reg"):
+			// companion_finish: derive the key bundle + advSecret and reply. The
+			// advSecret persisted here is what the following pair-success verifies.
+			reply, ferr := c.finishCompanionPairing(node, creds, code)
+			if ferr != nil {
+				c.emit(DisconnectedEvent{Reason: "companion_finish: " + ferr.Error()})
+				return false, fmt.Errorf("client: companion_finish: %w", ferr)
+			}
+			if err := send(reply); err != nil {
+				return false, fmt.Errorf("client: send companion_finish: %w", err)
+			}
+		case isPairSuccess(node):
+			// creds.AdvSecret was replaced by finishCompanionPairing; rebuild the
+			// in-memory identity so handlePairSuccess verifies against it.
+			id = identityFromCreds(creds)
+			reply, updated, err := handlePairSuccess(node, id, creds.AdvSecret)
+			if err != nil {
+				c.emit(DisconnectedEvent{Reason: "pair-success: " + err.Error()})
+				return false, fmt.Errorf("client: pair-success: %w", err)
+			}
+			creds.Me = updated.Me
+			creds.Account = updated.Account
+			creds.Platform = updated.Platform
+			creds.PushName = updated.PushName
+			creds.Registered = true
+			if err := c.store.SaveCreds(creds); err != nil {
+				return false, fmt.Errorf("client: save creds after pairing: %w", err)
+			}
+			if err := send(reply); err != nil {
+				return false, fmt.Errorf("client: send pair-device-sign: %w", err)
+			}
+			c.emit(PairSuccessEvent{JID: creds.Me})
+		}
+	}
+}
+
 // replyPairDevice sends the empty <iq result> ack for a pair-device iq and
 // returns the list of ref strings it carries (in order). QR emission is handled
 // separately by rotateQR so refs can be displayed one at a time.

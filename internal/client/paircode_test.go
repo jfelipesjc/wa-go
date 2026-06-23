@@ -2,12 +2,15 @@ package client
 
 import (
 	"context"
+	"crypto/aes"
+	"crypto/cipher"
 	"encoding/hex"
 	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/felipeleal/wa-go/internal/keys"
 	"github.com/felipeleal/wa-go/internal/store"
 	"github.com/felipeleal/wa-go/internal/wire"
 )
@@ -322,10 +325,165 @@ func TestRequestPairingCode_NoSession(t *testing.T) {
 	}
 }
 
-func TestFinishCompanionPairing_LivePending(t *testing.T) {
-	// Guards the LIVE-PENDING contract: companion_finish must error until wired.
-	c := NewWithDialer(nil, nil)
-	if err := c.finishCompanionPairing(); err == nil {
-		t.Fatal("expected finishCompanionPairing to be LIVE-PENDING (error)")
+// TestBuildCompanionFinish_RoundTrip exercises the companion_finish crypto
+// OFFLINE by playing the phone's role: it wraps a freshly generated "primary
+// ephemeral" public key under the pairing code (exactly as the phone does),
+// feeds it to buildCompanionFinish, then independently recomputes the expected
+// advSecretKey and decrypts the wrapped key bundle to verify the payload. The
+// only part that cannot be tested offline is the live network exchange.
+func TestBuildCompanionFinish_RoundTrip(t *testing.T) {
+	mustKP := func() keys.KeyPair {
+		kp, err := keys.GenKeyPair()
+		if err != nil {
+			t.Fatalf("genkeypair: %v", err)
+		}
+		return kp
 	}
+
+	const code = "WAGOTEST"
+
+	companionEphem := mustKP() // our (companion) pairing ephemeral
+	identity := mustKP()       // our signed identity key
+	primaryEphem := mustKP()   // the phone's primary ephemeral
+	primaryIdentity := mustKP()
+
+	// The phone wraps its primary ephemeral pub under the pairing code.
+	salt := bytesSeq(0x10, 32)
+	iv := bytesSeq(0x40, 16)
+	wrapped, err := wrapCompanionEphemeral(code, primaryEphem.Pub[:], salt, iv)
+	if err != nil {
+		t.Fatalf("wrap primary ephemeral: %v", err)
+	}
+
+	random := bytesSeq(0x70, 32)
+	linkCodeSalt := bytesSeq(0xa0, 32)
+	encryptIv := bytesSeq(0xb0, 12)
+	ref := []byte("ref-123")
+
+	res, err := buildCompanionFinish(companionFinishInput{
+		code:                code,
+		pairingEphemPriv:    companionEphem.Priv[:],
+		identityPriv:        identity.Priv[:],
+		identityPub:         identity.Pub[:],
+		jid:                 "5511999998888@s.whatsapp.net",
+		iqID:                "fin-1",
+		ref:                 ref,
+		primaryIdentityPub:  primaryIdentity.Pub[:],
+		wrappedPrimaryEphem: wrapped,
+		random:              random,
+		linkCodeSalt:        linkCodeSalt,
+		encryptIv:           encryptIv,
+	})
+	if err != nil {
+		t.Fatalf("buildCompanionFinish: %v", err)
+	}
+
+	// Recompute the shared keys the way the spec/Baileys does.
+	companionShared, err := x25519(companionEphem.Priv[:], primaryEphem.Pub[:])
+	if err != nil {
+		t.Fatalf("companion shared: %v", err)
+	}
+	identityShared, err := x25519(identity.Priv[:], primaryIdentity.Pub[:])
+	if err != nil {
+		t.Fatalf("identity shared: %v", err)
+	}
+	wantAdv, err := hkdfSHA256(concat(companionShared, identityShared, random), 32, nil, []byte("adv_secret"))
+	if err != nil {
+		t.Fatalf("adv hkdf: %v", err)
+	}
+	if string(res.advSecretKey) != string(wantAdv) {
+		t.Fatalf("advSecretKey mismatch:\n got %x\nwant %x", res.advSecretKey, wantAdv)
+	}
+
+	// Inspect & decrypt the wrapped key bundle.
+	reg, ok := childByTag(res.iq, "link_code_companion_reg")
+	if !ok {
+		t.Fatalf("missing link_code_companion_reg")
+	}
+	if reg.Attrs["stage"] != "companion_finish" {
+		t.Fatalf("stage = %q, want companion_finish", reg.Attrs["stage"])
+	}
+	if reg.Attrs["jid"] != "5511999998888@s.whatsapp.net" {
+		t.Fatalf("jid = %q", reg.Attrs["jid"])
+	}
+	kids := children(reg)
+	wantTags := []string{"link_code_pairing_wrapped_key_bundle", "companion_identity_public", "link_code_pairing_ref"}
+	if len(kids) != len(wantTags) {
+		t.Fatalf("reg has %d children, want %d", len(kids), len(wantTags))
+	}
+	for i, want := range wantTags {
+		if kids[i].Tag != want {
+			t.Fatalf("child %d = %q, want %q", i, kids[i].Tag, want)
+		}
+	}
+	refNode, _ := childByTag(reg, "link_code_pairing_ref")
+	if string(nodeBytes(refNode)) != string(ref) {
+		t.Fatalf("ref echoed = %q, want %q", nodeBytes(refNode), ref)
+	}
+	idPubNode, _ := childByTag(reg, "companion_identity_public")
+	if string(nodeBytes(idPubNode)) != string(identity.Pub[:]) {
+		t.Fatalf("companion_identity_public mismatch")
+	}
+
+	bundleNode, _ := childByTag(reg, "link_code_pairing_wrapped_key_bundle")
+	bundle := nodeBytes(bundleNode)
+	// bundle = linkCodeSalt(32) || iv(12) || ciphertext+tag.
+	if string(bundle[:32]) != string(linkCodeSalt) {
+		t.Fatalf("bundle salt mismatch")
+	}
+	if string(bundle[32:44]) != string(encryptIv) {
+		t.Fatalf("bundle iv mismatch")
+	}
+	expanded, err := hkdfSHA256(companionShared, 32, linkCodeSalt, []byte("link_code_pairing_key_bundle_encryption_key"))
+	if err != nil {
+		t.Fatalf("expand hkdf: %v", err)
+	}
+	block, err := aes.NewCipher(expanded)
+	if err != nil {
+		t.Fatalf("aes: %v", err)
+	}
+	gcm, err := cipher.NewGCM(block)
+	if err != nil {
+		t.Fatalf("gcm: %v", err)
+	}
+	plain, err := gcm.Open(nil, encryptIv, bundle[44:], nil)
+	if err != nil {
+		t.Fatalf("gcm open: %v", err)
+	}
+	wantPayload := concat(identity.Pub[:], primaryIdentity.Pub[:], random)
+	if string(plain) != string(wantPayload) {
+		t.Fatalf("decrypted payload mismatch")
+	}
+}
+
+// TestDecipherLinkPublicKey_InverseOfWrap verifies decipherLinkPublicKey undoes
+// wrapCompanionEphemeral (the wrap/unwrap round-trip).
+func TestDecipherLinkPublicKey_InverseOfWrap(t *testing.T) {
+	const code = "WAGOTEST"
+	pub := bytesSeq(0x01, 32)
+	salt := bytesSeq(0x10, 32)
+	iv := bytesSeq(0x40, 16)
+	wrapped, err := wrapCompanionEphemeral(code, pub, salt, iv)
+	if err != nil {
+		t.Fatalf("wrap: %v", err)
+	}
+	got, err := decipherLinkPublicKey(code, wrapped)
+	if err != nil {
+		t.Fatalf("decipher: %v", err)
+	}
+	if string(got) != string(pub) {
+		t.Fatalf("decipher = %x, want %x", got, pub)
+	}
+	if _, err := decipherLinkPublicKey(code, wrapped[:40]); err == nil {
+		t.Fatal("expected error on short input")
+	}
+}
+
+// bytesSeq returns n bytes starting at start and incrementing (wrapping at 256).
+func bytesSeq(start byte, n int) []byte {
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = start + byte(i)
+	}
+	return b
 }

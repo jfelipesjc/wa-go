@@ -7,25 +7,31 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
+	"io"
 
 	"github.com/felipeleal/wa-go/internal/store"
 	"github.com/felipeleal/wa-go/internal/wire"
+	"golang.org/x/crypto/curve25519"
+	"golang.org/x/crypto/hkdf"
 	"golang.org/x/crypto/pbkdf2"
 )
 
 // Pairing-by-code (a.k.a. "link with phone number"): instead of scanning a QR,
 // the user types an 8-character code on their phone. This file implements the
-// CRYPTO and the REQUEST stage (companion_hello) of that flow, mirroring Baileys
-// (lib/Socket/socket.js requestPairingCode/generatePairingKey, lib/Utils
-// crypto.js derivePairingCodeKey/aesEncryptCTR, generics.js bytesToCrockford).
+// full crypto for that flow, mirroring Baileys: the REQUEST stage
+// (companion_hello — lib/Socket/socket.js requestPairingCode/generatePairingKey,
+// lib/Utils crypto.js derivePairingCodeKey/aesEncryptCTR, generics.js
+// bytesToCrockford) and the FINISH stage (companion_finish — the
+// link_code_companion_reg handler in lib/Socket/messages-recv.js: decipher the
+// primary ephemeral pub, derive the companion shared key, build the
+// link_code_pairing_wrapped_key_bundle, set advSecretKey, and reply
+// stage=companion_finish).
 //
-// LIVE-PENDING — the companion_finish stage (handling the server's
-// link_code_companion_reg response: decipher the primary ephemeral pub, derive
-// the companion shared key, build the link_code_pairing_wrapped_key_bundle, set
-// advSecretKey, and reply stage=companion_finish) is NOT implemented here. It
-// can only be exercised against a live WhatsApp server + phone, so it is left as
-// a TODO. See finishCompanionPairing below and
-// docs/superpowers/specs/2026-06-22-pairing-code-design.md.
+// The wiring (driving these stages over a live connection) lives in pairing.go
+// (pairingCodeLoop) and client.go (ConnectWithPairingCode). The finish crypto is
+// validated offline by a wrap/unwrap round-trip + recomputed adv_secret
+// (paircode_test.go); the actual network exchange requires a live phone entering
+// the code. See docs/superpowers/specs/2026-06-22-pairing-code-design.md.
 
 // crockfordAlphabet is the base32 alphabet used by WhatsApp, exactly as
 // Baileys' bytesToCrockford (lib/Utils/generics.js): it starts at '1' (no
@@ -255,38 +261,258 @@ func (c *Client) RequestPairingCode(ctx context.Context, phoneNumber string) (st
 	return code, nil
 }
 
-// finishCompanionPairing is the LIVE-PENDING companion_finish stage. It is a
-// placeholder documenting the work that must be done against a live server.
+// decipherLinkPublicKey is the inverse of wrapCompanionEphemeral and mirrors
+// Baileys' decipherLinkPublicKey (lib/Socket/messages-recv.js): it strips the
+// salt(32)||iv(16) prefix and AES-256-CTR-decrypts the trailing 32 bytes with
+// derivePairingCodeKey(code, salt). CTR decrypt == encrypt, so it reuses the
+// same primitive as the wrap path. The 80-byte input layout is
+// salt(32) || iv(16) || ciphertext(32).
+func decipherLinkPublicKey(code string, wrapped []byte) ([]byte, error) {
+	if len(wrapped) < 48 {
+		return nil, fmt.Errorf("client: paircode wrapped key too short: %d bytes", len(wrapped))
+	}
+	salt := wrapped[:32]
+	iv := wrapped[32:48]
+	payload := wrapped[48:]
+
+	key := derivePairingCodeKey(code, salt)
+	block, err := aes.NewCipher(key) // AES-256 (32-byte key)
+	if err != nil {
+		return nil, fmt.Errorf("client: paircode aes cipher: %w", err)
+	}
+	plaintext := make([]byte, len(payload))
+	cipher.NewCTR(block, iv).XORKeyStream(plaintext, payload)
+	return plaintext, nil
+}
+
+// hkdfSHA256 expands ikm into length bytes with HKDF-SHA256(salt, info),
+// matching Baileys' hkdf (whatsapp-rust-bridge): a single-shot
+// Extract-and-Expand with the given salt and info. A nil/empty salt means the
+// all-zeros block per RFC 5869.
+func hkdfSHA256(ikm []byte, length int, salt, info []byte) ([]byte, error) {
+	r := hkdf.New(sha256.New, ikm, salt, info)
+	out := make([]byte, length)
+	if _, err := io.ReadFull(r, out); err != nil {
+		return nil, fmt.Errorf("client: hkdf expand: %w", err)
+	}
+	return out, nil
+}
+
+// x25519 computes the X25519 shared secret, mirroring Baileys'
+// Curve.sharedKey(priv, pub).
+func x25519(priv, pub []byte) ([]byte, error) {
+	return curve25519.X25519(priv, pub)
+}
+
+// companionFinishResult carries the outputs of the companion_finish crypto: the
+// iq to send back and the advSecretKey to persist (which the subsequent
+// pair-success HMAC verifies against).
+type companionFinishResult struct {
+	iq           wire.Node
+	advSecretKey []byte
+}
+
+// companionFinishInput pins everything buildCompanionFinish needs so the crypto
+// is a pure function of its inputs (random/salt/iv injectable for round-trip
+// tests). Ports Baileys' link_code_companion_reg handler.
+type companionFinishInput struct {
+	code             string // the 8-char pairing code we issued
+	pairingEphemPriv []byte // creds.PairingEphemeral.Priv (32 bytes)
+	identityPriv     []byte // creds.IdentityKey.Priv (signedIdentityKey.private)
+	identityPub      []byte // creds.IdentityKey.Pub  (signedIdentityKey.public)
+	jid              string // creds.Me (link_code_companion_reg jid attr)
+	iqID             string // outgoing iq id
+
+	// From the server's <link_code_companion_reg> reply.
+	ref                 []byte // link_code_pairing_ref (echoed back)
+	primaryIdentityPub  []byte // primary_identity_pub (32 bytes)
+	wrappedPrimaryEphem []byte // link_code_pairing_wrapped_primary_ephemeral_pub
+
+	// Injectable randomness (filled with crypto/rand in the live path).
+	random       []byte // 32 bytes
+	linkCodeSalt []byte // 32 bytes
+	encryptIv    []byte // 12 bytes (GCM nonce)
+}
+
+// buildCompanionFinish ports the cryptographic core of Baileys'
+// link_code_companion_reg handler (lib/Socket/messages-recv.js ~881-942). It is
+// a pure function so the wrap/unwrap and HKDF chain can be exercised offline via
+// a round-trip test (the live network leg is the only untestable part).
 //
-// TODO(live): implement the companion_finish exchange. When the server replies
-// with an <iq> carrying a <link_code_companion_reg> child, do (per Baileys
-// lib/Socket/messages-recv.js, the "link_code_companion_reg" case):
+// Steps (mirroring Baileys exactly):
 //
-//  1. Read link_code_pairing_ref, primary_identity_pub, and
-//     link_code_pairing_wrapped_primary_ephemeral_pub.
-//  2. codePairingPublicKey = decipherLinkPublicKey(wrappedPrimaryEphemeralPub),
-//     where decipherLinkPublicKey strips the salt||iv prefix and AES-CTR-decrypts
-//     with derivePairingCodeKey(code, salt) — the inverse of wrapCompanionEphemeral.
-//  3. companionSharedKey = X25519(pairingEphemeral.priv, codePairingPublicKey).
-//  4. random = 32 random bytes; linkCodeSalt = 32 random bytes.
-//  5. linkCodePairingExpanded = HKDF-SHA256(companionSharedKey, 32,
+//  1. codePairingPublicKey = decipherLinkPublicKey(wrappedPrimaryEphem).
+//  2. companionSharedKey   = X25519(pairingEphemeral.priv, codePairingPublicKey).
+//  3. linkCodePairingExpanded = HKDF-SHA256(companionSharedKey, 32,
 //     salt=linkCodeSalt, info="link_code_pairing_key_bundle_encryption_key").
-//  6. payload = signedIdentityKey.pub || primaryIdentityPub || random.
-//  7. encrypted = AES-256-GCM(payload, linkCodePairingExpanded, iv=12 random
-//     bytes, aad=empty); wrappedKeyBundle = linkCodeSalt || iv || encrypted.
-//  8. identitySharedKey = X25519(signedIdentityKey.priv, primaryIdentityPub).
-//  9. advSecretKey = HKDF-SHA256(companionSharedKey || identitySharedKey ||
-//     random, 32, info="adv_secret"); persist it (it replaces the random
-//     advSecret — pair-success HMAC verifies against THIS value).
-//  10. Reply <iq type=set> with <link_code_companion_reg stage=companion_finish>
-//     containing link_code_pairing_wrapped_key_bundle (=wrappedKeyBundle),
-//     companion_identity_public (=signedIdentityKey.pub), and
-//     link_code_pairing_ref (echoed).
+//  4. payload   = identityPub || primaryIdentityPub || random.
+//  5. encrypted = AES-256-GCM(payload, linkCodePairingExpanded, encryptIv, aad=∅).
+//     encryptedPayload = linkCodeSalt || encryptIv || encrypted.
+//  6. identitySharedKey = X25519(identityPriv, primaryIdentityPub).
+//  7. advSecretKey = HKDF-SHA256(companionSharedKey || identitySharedKey ||
+//     random, 32, salt=∅, info="adv_secret").
+//  8. iq = <link_code_companion_reg stage=companion_finish jid=me> with
+//     link_code_pairing_wrapped_key_bundle, companion_identity_public, and the
+//     echoed link_code_pairing_ref (in that order).
+func buildCompanionFinish(in companionFinishInput) (companionFinishResult, error) {
+	var res companionFinishResult
+
+	// 1. Decipher the primary ephemeral public key the phone wrapped under the
+	//    pairing code.
+	codePairingPublicKey, err := decipherLinkPublicKey(in.code, in.wrappedPrimaryEphem)
+	if err != nil {
+		return res, err
+	}
+
+	// 2. companionSharedKey = X25519(our pairing ephemeral priv, codePairingPub).
+	companionSharedKey, err := x25519(in.pairingEphemPriv, codePairingPublicKey)
+	if err != nil {
+		return res, fmt.Errorf("client: companionSharedKey x25519: %w", err)
+	}
+
+	// 3. Expand to the key-bundle encryption key.
+	linkCodePairingExpanded, err := hkdfSHA256(
+		companionSharedKey, 32, in.linkCodeSalt,
+		[]byte("link_code_pairing_key_bundle_encryption_key"),
+	)
+	if err != nil {
+		return res, err
+	}
+
+	// 4. payload = signedIdentityKey.public || primary_identity_pub || random.
+	payload := concat(in.identityPub, in.primaryIdentityPub, in.random)
+
+	// 5. AES-256-GCM with the 12-byte nonce, empty AAD; tag suffixed (Go's Seal,
+	//    matching Baileys' aesEncryptGCM). wrappedKeyBundle = salt || iv || ct.
+	block, err := aes.NewCipher(linkCodePairingExpanded)
+	if err != nil {
+		return res, fmt.Errorf("client: paircode gcm cipher: %w", err)
+	}
+	gcm, err := cipher.NewGCM(block) // 12-byte nonce
+	if err != nil {
+		return res, fmt.Errorf("client: paircode new gcm: %w", err)
+	}
+	encrypted := gcm.Seal(nil, in.encryptIv, payload, nil)
+	wrappedKeyBundle := concat(in.linkCodeSalt, in.encryptIv, encrypted)
+
+	// 6. identitySharedKey = X25519(signedIdentityKey.priv, primary_identity_pub).
+	identitySharedKey, err := x25519(in.identityPriv, in.primaryIdentityPub)
+	if err != nil {
+		return res, fmt.Errorf("client: identitySharedKey x25519: %w", err)
+	}
+
+	// 7. advSecretKey = HKDF-SHA256(companionSharedKey || identitySharedKey ||
+	//    random, 32, salt=∅, info="adv_secret").
+	advSecretKey, err := hkdfSHA256(
+		concat(companionSharedKey, identitySharedKey, in.random),
+		32, nil, []byte("adv_secret"),
+	)
+	if err != nil {
+		return res, err
+	}
+
+	// 8. Build the companion_finish iq.
+	leaf := func(tag string, content []byte) wire.Node {
+		return wire.Node{Tag: tag, Attrs: map[string]string{}, Content: content}
+	}
+	reg := wire.Node{
+		Tag: "link_code_companion_reg",
+		Attrs: map[string]string{
+			"jid":   in.jid,
+			"stage": "companion_finish",
+		},
+		Content: []wire.Node{
+			leaf("link_code_pairing_wrapped_key_bundle", wrappedKeyBundle),
+			leaf("companion_identity_public", append([]byte(nil), in.identityPub...)),
+			leaf("link_code_pairing_ref", append([]byte(nil), in.ref...)),
+		},
+	}
+	res.iq = wire.Node{
+		Tag: "iq",
+		Attrs: map[string]string{
+			"to":    sWhatsAppNet,
+			"type":  "set",
+			"id":    in.iqID,
+			"xmlns": "md",
+		},
+		Content: []wire.Node{reg},
+	}
+	res.advSecretKey = advSecretKey
+	return res, nil
+}
+
+// finishCompanionPairing handles the server's <iq> carrying a
+// <link_code_companion_reg> reply (the companion_finish stage). It reads the
+// server's fields, generates the fresh randomness, runs buildCompanionFinish,
+// PERSISTS the derived advSecretKey into creds (replacing the random one — the
+// subsequent pair-success HMAC verifies against THIS value), and returns the iq
+// to send back. After this exchange the server proceeds to the normal
+// pair-success flow, which handlePairSuccess already implements.
 //
-// After companion_finish the server proceeds to the normal pair-success
-// exchange, which handlePairSuccess already implements (the advSecretKey from
-// step 9 makes the HMAC verify). This requires a live phone entering the code,
-// so it cannot be unit-tested offline.
-func (c *Client) finishCompanionPairing() error {
-	return fmt.Errorf("client: companion_finish is LIVE-PENDING (not yet implemented)")
+// code is the 8-char pairing code issued by RequestPairingCode; it is held in
+// memory by the pairing-code loop (it is not persisted in store.Creds) and is
+// needed to decipher the phone's wrapped primary ephemeral public key.
+func (c *Client) finishCompanionPairing(node wire.Node, creds *store.Creds, code string) (wire.Node, error) {
+	reg, ok := childByTag(node, "link_code_companion_reg")
+	if !ok {
+		return wire.Node{}, fmt.Errorf("client: companion_finish: missing link_code_companion_reg child")
+	}
+	refNode, ok := childByTag(reg, "link_code_pairing_ref")
+	if !ok {
+		return wire.Node{}, fmt.Errorf("client: companion_finish: missing link_code_pairing_ref")
+	}
+	primNode, ok := childByTag(reg, "primary_identity_pub")
+	if !ok {
+		return wire.Node{}, fmt.Errorf("client: companion_finish: missing primary_identity_pub")
+	}
+	wrappedNode, ok := childByTag(reg, "link_code_pairing_wrapped_primary_ephemeral_pub")
+	if !ok {
+		return wire.Node{}, fmt.Errorf("client: companion_finish: missing link_code_pairing_wrapped_primary_ephemeral_pub")
+	}
+
+	if len(creds.PairingEphemeral.Priv) != 32 {
+		return wire.Node{}, fmt.Errorf("client: companion_finish: pairing ephemeral key not present (RequestPairingCode must run first)")
+	}
+	if code == "" {
+		return wire.Node{}, fmt.Errorf("client: companion_finish: empty pairing code")
+	}
+
+	random := make([]byte, 32)
+	linkCodeSalt := make([]byte, 32)
+	encryptIv := make([]byte, 12)
+	if _, err := rand.Read(random); err != nil {
+		return wire.Node{}, fmt.Errorf("client: companion_finish random: %w", err)
+	}
+	if _, err := rand.Read(linkCodeSalt); err != nil {
+		return wire.Node{}, fmt.Errorf("client: companion_finish salt: %w", err)
+	}
+	if _, err := rand.Read(encryptIv); err != nil {
+		return wire.Node{}, fmt.Errorf("client: companion_finish iv: %w", err)
+	}
+
+	res, err := buildCompanionFinish(companionFinishInput{
+		code:                code,
+		pairingEphemPriv:    creds.PairingEphemeral.Priv,
+		identityPriv:        creds.IdentityKey.Priv,
+		identityPub:         creds.IdentityKey.Pub,
+		jid:                 creds.Me,
+		iqID:                node.Attrs["id"],
+		ref:                 nodeBytes(refNode),
+		primaryIdentityPub:  nodeBytes(primNode),
+		wrappedPrimaryEphem: nodeBytes(wrappedNode),
+		random:              random,
+		linkCodeSalt:        linkCodeSalt,
+		encryptIv:           encryptIv,
+	})
+	if err != nil {
+		return wire.Node{}, err
+	}
+
+	// Persist the derived advSecretKey before replying so a reconnect cannot lose
+	// it; the pair-success HMAC that follows verifies against it.
+	creds.AdvSecret = res.advSecretKey
+	if err := c.store.SaveCreds(creds); err != nil {
+		return wire.Node{}, fmt.Errorf("client: save creds after companion_finish: %w", err)
+	}
+	return res.iq, nil
 }

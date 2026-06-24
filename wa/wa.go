@@ -37,6 +37,31 @@ type ChatStore = client.ChatStore
 // NewChatStore builds an empty ChatStore.
 func NewChatStore() *ChatStore { return client.NewChatStore() }
 
+// Chat is a materialized chat row (JID, name, archived/pinned/muted, timestamps).
+type Chat = client.Chat
+
+// Contact is a materialized peer identity (JID + name surfaces).
+type Contact = client.Contact
+
+// MediaOpts carries optional metadata for media sends (mimetype, dimensions,
+// duration, etc.). Used by SendSticker and the lower-level media senders.
+type MediaOpts = client.MediaOpts
+
+// PrivacySetting names a privacy toggle (lastSeen, online, profile, status,
+// readReceipts, groupsAdd) for UpdatePrivacy.
+type PrivacySetting = client.PrivacySetting
+
+// Privacy setting names, re-exported so external callers can pass them to
+// (*Client).UpdatePrivacy without importing internal/client.
+const (
+	PrivacyLastSeen       = client.PrivacyLastSeen
+	PrivacyOnline         = client.PrivacyOnline
+	PrivacyProfilePicture = client.PrivacyProfilePicture
+	PrivacyStatus         = client.PrivacyStatus
+	PrivacyReadReceipts   = client.PrivacyReadReceipts
+	PrivacyGroupsAdd      = client.PrivacyGroupsAdd
+)
+
 // EnableDebug turns on verbose pairing/connection diagnostics to w.
 var EnableDebug = client.EnableDebug
 

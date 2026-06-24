@@ -237,6 +237,29 @@ func (s *sqliteStore) LoadAppStateSyncKey(keyID []byte) ([]byte, bool, error) {
 	return s.kvGet(nsAppStateKey, appStateKeyName(keyID))
 }
 
+// LatestAppStateSyncKey returns the keyId + keyData of a stored app-state sync
+// key (the highest key name), or ok=false if none is stored. It lets ensureKey
+// recover the key across sessions when the in-memory lastKeyID was lost on
+// relogin (the APP_STATE_SYNC_KEY_SHARE arrives once, after pairing).
+func (s *sqliteStore) LatestAppStateSyncKey() (keyID, keyData []byte, ok bool, err error) {
+	var name string
+	var v []byte
+	row := s.db.QueryRow(
+		`SELECT key, value FROM signal_kv WHERE namespace = ? ORDER BY key DESC LIMIT 1`, nsAppStateKey)
+	e := row.Scan(&name, &v)
+	if errors.Is(e, sql.ErrNoRows) {
+		return nil, nil, false, nil
+	}
+	if e != nil {
+		return nil, nil, false, fmt.Errorf("store: latest app-state key: %w", e)
+	}
+	id, derr := base64.StdEncoding.DecodeString(name)
+	if derr != nil {
+		return nil, nil, false, fmt.Errorf("store: decode app-state keyId %q: %w", name, derr)
+	}
+	return id, v, true, nil
+}
+
 // --- LID <-> PN mapping ---
 //
 // Mirrors Baileys' LIDMappingStore: each mapping is persisted in both directions

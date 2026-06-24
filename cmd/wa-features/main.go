@@ -87,18 +87,19 @@ func run(db, recipient string, timeout time.Duration) error {
 					return err
 				})
 
-				// APP-STATE RESYNC: sincroniza coleções.
-				step("AppStateResync", func() error {
-					return c.ResyncAppState(ctx, []string{"regular_high", "critical_block"}, true)
-				})
-
-				// APP-STATE write: arquivar e desarquivar um chat.
+				// APP-STATE write: arquivar e desarquivar um chat (o mais usado).
 				if recipient != "" {
 					step("ArchiveChat(on/off)", func() error {
 						if err := c.ArchiveChat(ctx, recipient, true); err != nil {
 							return err
 						}
 						return c.ArchiveChat(ctx, recipient, false)
+					})
+					step("PinChat(on/off)", func() error {
+						if err := c.PinChat(ctx, recipient, true); err != nil {
+							return err
+						}
+						return c.PinChat(ctx, recipient, false)
 					})
 				}
 
@@ -121,6 +122,11 @@ func run(db, recipient string, timeout time.Duration) error {
 						return nil
 					})
 				}
+
+				// APP-STATE RESYNC por último (puxa coleções; pode ser lento).
+				step("AppStateResync", func() error {
+					return c.ResyncAppState(ctx, []string{"regular_high"}, true)
+				})
 				_ = me
 
 				fmt.Println("=== fim ===")

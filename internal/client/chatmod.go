@@ -144,12 +144,39 @@ func (c *Client) ensureKey() (rawKey []byte, keyIDB64 string, err error) {
 	keyID := append([]byte(nil), st.lastKeyID...)
 	st.mu.Unlock()
 
-	if len(keyID) == 0 || c.store == nil {
+	if c.store == nil {
 		return nil, "", errors.New("client: app state sync key not configured (call ConfigureAppState or pair to receive APP_STATE_SYNC_KEY_SHARE)")
 	}
-	data, ok, lerr := c.store.LoadAppStateSyncKey(keyID)
-	if lerr != nil {
-		return nil, "", fmt.Errorf("client: load app state sync key: %w", lerr)
+
+	var data []byte
+	var ok bool
+	if len(keyID) > 0 {
+		var lerr error
+		data, ok, lerr = c.store.LoadAppStateSyncKey(keyID)
+		if lerr != nil {
+			return nil, "", fmt.Errorf("client: load app state sync key: %w", lerr)
+		}
+	}
+	// Cross-session recovery: the APP_STATE_SYNC_KEY_SHARE arrives once (after
+	// pairing) and only sets lastKeyID in memory, lost on relogin. When we don't
+	// have the keyId in memory (or it didn't resolve), pull the latest persisted
+	// app-state key directly from the store so resync/archive/pin/mute keep
+	// working across reconnects.
+	if !ok || len(data) == 0 {
+		if latest, has := c.store.(interface {
+			LatestAppStateSyncKey() (keyID, keyData []byte, ok bool, err error)
+		}); has {
+			lid, ldata, lok, lerr := latest.LatestAppStateSyncKey()
+			if lerr != nil {
+				return nil, "", fmt.Errorf("client: latest app state sync key: %w", lerr)
+			}
+			if lok && len(ldata) > 0 {
+				keyID, data, ok = lid, ldata, true
+			}
+		}
+	}
+	if len(keyID) == 0 {
+		return nil, "", errors.New("client: app state sync key not configured (call ConfigureAppState or pair to receive APP_STATE_SYNC_KEY_SHARE)")
 	}
 	if !ok || len(data) == 0 {
 		return nil, "", errors.New("client: app state sync key not found in store")

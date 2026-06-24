@@ -89,6 +89,18 @@ func (c *Client) decryptPreKey(addr string, creds *store.Creds, ciphertext []byt
 			return nil, err
 		}
 		if !ok {
+			// The one-time prekey was already consumed by an earlier pkmsg that
+			// established this session. A peer keeps wrapping messages as pkmsg
+			// (same baseKey/prekey) until it sees our first reply, so a burst
+			// (e.g. history sync) arrives as several pkmsg referencing the same,
+			// now-removed prekey. libsignal handles this by reusing the existing
+			// session instead of requiring the prekey again: decrypt the embedded
+			// WhisperMessage against the session we already built.
+			if _, sok, serr := c.store.LoadSession(addr); serr == nil && sok {
+				if pt, derr := c.decryptMsg(addr, pm.Message); derr == nil {
+					return pt, nil
+				}
+			}
 			return nil, fmt.Errorf("client: one-time pre-key %d not found (used already?)", pm.PreKeyID)
 		}
 		k := keyPairFromStored(kp)

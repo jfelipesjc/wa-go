@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -481,4 +482,107 @@ func TestHandleMessageExtendedText(t *testing.T) {
 		break
 	}
 	t.Fatal("no MessageEvent with extended text")
+}
+
+// TestHandleMessagePkmsgBurstReusesSession is the regression for the live
+// "one-time pre-key N not found (used already?)" seen during history sync: a
+// peer keeps wrapping messages as pkmsg (same baseKey + one-time prekey) until
+// it sees our first reply, so a burst arrives as several pkmsg referencing the
+// SAME prekey. The first consumes+removes it; the rest must still decrypt by
+// reusing the established session instead of failing on the missing prekey.
+func TestHandleMessagePkmsgBurstReusesSession(t *testing.T) {
+	v := loadVVectors(t)
+	st, err := store.OpenSQLite(filepath.Join(t.TempDir(), "bob.db"))
+	if err != nil {
+		t.Fatalf("OpenSQLite: %v", err)
+	}
+	t.Cleanup(func() { st.Close() })
+	c := New(st)
+
+	bobIdentity := v.Bob.IdentityKeyPair.keyPair(t)
+	bobSignedPre := v.Bob.SignedPreKey.KeyPair.keyPair(t)
+	bobPreKey := v.Bob.PreKey.KeyPair.keyPair(t)
+	bobCreds := &store.Creds{
+		IdentityKey:    store.CredKeyPair{Priv: bobIdentity.Priv[:], Pub: bobIdentity.Pub[:]},
+		RegistrationID: v.Bob.RegistrationID,
+		SignedPreKey: store.CredSignedPreKey{
+			KeyID:   v.Bob.SignedPreKey.ID,
+			KeyPair: store.CredKeyPair{Priv: bobSignedPre.Priv[:], Pub: bobSignedPre.Pub[:]},
+		},
+		Me: "5550000000@s.whatsapp.net", Registered: true,
+	}
+	if err := st.StoreSignedPreKey(v.Bob.SignedPreKey.ID, store.StoredKeyPair{Priv: bobSignedPre.Priv[:], Pub: bobSignedPre.Pub[:]}); err != nil {
+		t.Fatalf("StoreSignedPreKey: %v", err)
+	}
+	if err := st.StorePreKeys(map[uint32]store.StoredKeyPair{
+		v.Bob.PreKey.ID: {Priv: bobPreKey.Priv[:], Pub: bobPreKey.Pub[:]},
+	}); err != nil {
+		t.Fatalf("StorePreKeys: %v", err)
+	}
+
+	aliceIdentity := v.Alice.IdentityKeyPair.keyPair(t)
+	aliceState, err := signal.InitiateSession(signal.InitiatorParams{
+		LocalIdentity:   aliceIdentity,
+		LocalBaseKey:    v.Alice.BaseKey.keyPair(t),
+		RemoteIdentity:  v.Bob.IdentityKeyPair.signalPub(t),
+		RemoteSignedPre: v.Bob.SignedPreKey.KeyPair.signalPub(t),
+		RemotePreKey:    v.Bob.PreKey.KeyPair.signalPub(t),
+		HasPreKey:       true,
+	}, v.EphemeralsGenerated[1].keyPair(t))
+	if err != nil {
+		t.Fatalf("InitiateSession: %v", err)
+	}
+	aliceState.LocalRegID = v.Alice.RegistrationID
+	aliceState.PendingActive = true
+	aliceState.HasPendingPreKey = true
+	aliceState.PendingPreKeyID = v.Bob.PreKey.ID
+	aliceState.PendingSignedPreKeyID = v.Bob.SignedPreKey.ID
+	aliceCipher := signal.NewSessionCipher(aliceState)
+	aliceJID := "5551111111@s.whatsapp.net"
+
+	collectText := func() string {
+		var got string
+		for {
+			select {
+			case ev := <-c.Events():
+				if me, ok := ev.(MessageEvent); ok {
+					got = me.Text
+				}
+				continue
+			default:
+			}
+			return got
+		}
+	}
+
+	for i, want := range []string{"burst msg 1", "burst msg 2", "burst msg 3"} {
+		raw, _ := proto.Marshal(&waproto.Message{Conversation: proto.String(want)})
+		ct, err := aliceCipher.Encrypt(padWAMessage(raw, 7))
+		if err != nil {
+			t.Fatalf("Encrypt #%d: %v", i+1, err)
+		}
+		// Every message is still a pkmsg (alice hasn't seen a reply), all
+		// referencing the same one-time prekey — removed after the first.
+		if ct.Type != "pkmsg" {
+			t.Fatalf("msg #%d type = %q, want pkmsg", i+1, ct.Type)
+		}
+		node := wire.Node{
+			Tag:   "message",
+			Attrs: map[string]string{"from": aliceJID, "id": fmt.Sprintf("BURST%d", i+1)},
+			Content: []wire.Node{
+				{Tag: "enc", Attrs: map[string]string{"type": "pkmsg"}, Content: ct.Serialized},
+			},
+		}
+		if err := c.handleMessage((&recordConn{}).SendNode, node, bobCreds); err != nil {
+			t.Fatalf("handleMessage #%d (prekey consumed=%v): %v", i+1, i > 0, err)
+		}
+		if got := collectText(); got != want {
+			t.Fatalf("msg #%d text = %q, want %q", i+1, got, want)
+		}
+	}
+
+	// The prekey was consumed by the first message and never resurrected.
+	if _, ok, _ := st.LoadPreKey(v.Bob.PreKey.ID); ok {
+		t.Fatal("one-time pre-key should stay removed after the burst")
+	}
 }

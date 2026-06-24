@@ -392,6 +392,20 @@ message Message {
     optional FutureProofMessage viewOnceMessageV2 = 55;
     optional FutureProofMessage editedMessage = 58;
     optional FutureProofMessage viewOnceMessageV2Extension = 59;
+    optional PinInChatMessage pinInChatMessage = 63;
+}
+
+// PinInChatMessage pins/unpins a specific message in a chat (Message.pinInChatMessage).
+message PinInChatMessage {
+    optional MessageKey key = 1;
+    optional PinInChatType type = 2;
+    optional int64 senderTimestampMs = 3;
+}
+
+enum PinInChatType {
+    PIN_IN_CHAT_UNKNOWN = 0;
+    PIN_IN_CHAT_FOR_ALL = 1;
+    PIN_IN_CHAT_UNPIN_FOR_ALL = 2;
 }
 
 // FutureProofMessage wraps an inner Message (upstream Message.FutureProofMessage).

@@ -17,7 +17,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v3.21.12
-// source: internal/waproto/waproto.proto
+// source: waproto.proto
 
 package waproto
 
@@ -66,11 +66,11 @@ func (x ADVEncryptionType) String() string {
 }
 
 func (ADVEncryptionType) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[0].Descriptor()
+	return file_waproto_proto_enumTypes[0].Descriptor()
 }
 
 func (ADVEncryptionType) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[0]
+	return &file_waproto_proto_enumTypes[0]
 }
 
 func (x ADVEncryptionType) Number() protoreflect.EnumNumber {
@@ -79,7 +79,56 @@ func (x ADVEncryptionType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ADVEncryptionType.Descriptor instead.
 func (ADVEncryptionType) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{0}
+	return file_waproto_proto_rawDescGZIP(), []int{0}
+}
+
+type PinInChatType int32
+
+const (
+	PinInChatType_PIN_IN_CHAT_UNKNOWN       PinInChatType = 0
+	PinInChatType_PIN_IN_CHAT_FOR_ALL       PinInChatType = 1
+	PinInChatType_PIN_IN_CHAT_UNPIN_FOR_ALL PinInChatType = 2
+)
+
+// Enum value maps for PinInChatType.
+var (
+	PinInChatType_name = map[int32]string{
+		0: "PIN_IN_CHAT_UNKNOWN",
+		1: "PIN_IN_CHAT_FOR_ALL",
+		2: "PIN_IN_CHAT_UNPIN_FOR_ALL",
+	}
+	PinInChatType_value = map[string]int32{
+		"PIN_IN_CHAT_UNKNOWN":       0,
+		"PIN_IN_CHAT_FOR_ALL":       1,
+		"PIN_IN_CHAT_UNPIN_FOR_ALL": 2,
+	}
+)
+
+func (x PinInChatType) Enum() *PinInChatType {
+	p := new(PinInChatType)
+	*p = x
+	return p
+}
+
+func (x PinInChatType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PinInChatType) Descriptor() protoreflect.EnumDescriptor {
+	return file_waproto_proto_enumTypes[1].Descriptor()
+}
+
+func (PinInChatType) Type() protoreflect.EnumType {
+	return &file_waproto_proto_enumTypes[1]
+}
+
+func (x PinInChatType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PinInChatType.Descriptor instead.
+func (PinInChatType) EnumDescriptor() ([]byte, []int) {
+	return file_waproto_proto_rawDescGZIP(), []int{1}
 }
 
 // HistorySyncType classifies the contents of a HistorySync / its notification.
@@ -132,11 +181,11 @@ func (x HistorySyncType) String() string {
 }
 
 func (HistorySyncType) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[1].Descriptor()
+	return file_waproto_proto_enumTypes[2].Descriptor()
 }
 
 func (HistorySyncType) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[1]
+	return &file_waproto_proto_enumTypes[2]
 }
 
 func (x HistorySyncType) Number() protoreflect.EnumNumber {
@@ -145,7 +194,7 @@ func (x HistorySyncType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use HistorySyncType.Descriptor instead.
 func (HistorySyncType) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{1}
+	return file_waproto_proto_rawDescGZIP(), []int{2}
 }
 
 type DeviceProps_PlatformType int32
@@ -247,11 +296,11 @@ func (x DeviceProps_PlatformType) String() string {
 }
 
 func (DeviceProps_PlatformType) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[2].Descriptor()
+	return file_waproto_proto_enumTypes[3].Descriptor()
 }
 
 func (DeviceProps_PlatformType) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[2]
+	return &file_waproto_proto_enumTypes[3]
 }
 
 func (x DeviceProps_PlatformType) Number() protoreflect.EnumNumber {
@@ -260,7 +309,7 @@ func (x DeviceProps_PlatformType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use DeviceProps_PlatformType.Descriptor instead.
 func (DeviceProps_PlatformType) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{4, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{4, 0}
 }
 
 type ClientPayload_AccountType int32
@@ -293,11 +342,11 @@ func (x ClientPayload_AccountType) String() string {
 }
 
 func (ClientPayload_AccountType) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[3].Descriptor()
+	return file_waproto_proto_enumTypes[4].Descriptor()
 }
 
 func (ClientPayload_AccountType) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[3]
+	return &file_waproto_proto_enumTypes[4]
 }
 
 func (x ClientPayload_AccountType) Number() protoreflect.EnumNumber {
@@ -306,7 +355,7 @@ func (x ClientPayload_AccountType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ClientPayload_AccountType.Descriptor instead.
 func (ClientPayload_AccountType) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 0}
 }
 
 type ClientPayload_ConnectReason int32
@@ -354,11 +403,11 @@ func (x ClientPayload_ConnectReason) String() string {
 }
 
 func (ClientPayload_ConnectReason) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[4].Descriptor()
+	return file_waproto_proto_enumTypes[5].Descriptor()
 }
 
 func (ClientPayload_ConnectReason) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[4]
+	return &file_waproto_proto_enumTypes[5]
 }
 
 func (x ClientPayload_ConnectReason) Number() protoreflect.EnumNumber {
@@ -367,7 +416,7 @@ func (x ClientPayload_ConnectReason) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ClientPayload_ConnectReason.Descriptor instead.
 func (ClientPayload_ConnectReason) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 1}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 1}
 }
 
 type ClientPayload_ConnectType int32
@@ -439,11 +488,11 @@ func (x ClientPayload_ConnectType) String() string {
 }
 
 func (ClientPayload_ConnectType) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[5].Descriptor()
+	return file_waproto_proto_enumTypes[6].Descriptor()
 }
 
 func (ClientPayload_ConnectType) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[5]
+	return &file_waproto_proto_enumTypes[6]
 }
 
 func (x ClientPayload_ConnectType) Number() protoreflect.EnumNumber {
@@ -452,7 +501,7 @@ func (x ClientPayload_ConnectType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ClientPayload_ConnectType.Descriptor instead.
 func (ClientPayload_ConnectType) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 2}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 2}
 }
 
 type ClientPayload_IOSAppExtension int32
@@ -488,11 +537,11 @@ func (x ClientPayload_IOSAppExtension) String() string {
 }
 
 func (ClientPayload_IOSAppExtension) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[6].Descriptor()
+	return file_waproto_proto_enumTypes[7].Descriptor()
 }
 
 func (ClientPayload_IOSAppExtension) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[6]
+	return &file_waproto_proto_enumTypes[7]
 }
 
 func (x ClientPayload_IOSAppExtension) Number() protoreflect.EnumNumber {
@@ -501,7 +550,7 @@ func (x ClientPayload_IOSAppExtension) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ClientPayload_IOSAppExtension.Descriptor instead.
 func (ClientPayload_IOSAppExtension) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 3}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 3}
 }
 
 type ClientPayload_Product int32
@@ -543,11 +592,11 @@ func (x ClientPayload_Product) String() string {
 }
 
 func (ClientPayload_Product) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[7].Descriptor()
+	return file_waproto_proto_enumTypes[8].Descriptor()
 }
 
 func (ClientPayload_Product) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[7]
+	return &file_waproto_proto_enumTypes[8]
 }
 
 func (x ClientPayload_Product) Number() protoreflect.EnumNumber {
@@ -556,7 +605,7 @@ func (x ClientPayload_Product) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ClientPayload_Product.Descriptor instead.
 func (ClientPayload_Product) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 4}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 4}
 }
 
 type ClientPayload_TrafficAnonymization int32
@@ -589,11 +638,11 @@ func (x ClientPayload_TrafficAnonymization) String() string {
 }
 
 func (ClientPayload_TrafficAnonymization) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[8].Descriptor()
+	return file_waproto_proto_enumTypes[9].Descriptor()
 }
 
 func (ClientPayload_TrafficAnonymization) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[8]
+	return &file_waproto_proto_enumTypes[9]
 }
 
 func (x ClientPayload_TrafficAnonymization) Number() protoreflect.EnumNumber {
@@ -602,7 +651,7 @@ func (x ClientPayload_TrafficAnonymization) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ClientPayload_TrafficAnonymization.Descriptor instead.
 func (ClientPayload_TrafficAnonymization) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 5}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 5}
 }
 
 type ClientPayload_DNSSource_DNSResolutionMethod int32
@@ -647,11 +696,11 @@ func (x ClientPayload_DNSSource_DNSResolutionMethod) String() string {
 }
 
 func (ClientPayload_DNSSource_DNSResolutionMethod) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[9].Descriptor()
+	return file_waproto_proto_enumTypes[10].Descriptor()
 }
 
 func (ClientPayload_DNSSource_DNSResolutionMethod) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[9]
+	return &file_waproto_proto_enumTypes[10]
 }
 
 func (x ClientPayload_DNSSource_DNSResolutionMethod) Number() protoreflect.EnumNumber {
@@ -660,7 +709,7 @@ func (x ClientPayload_DNSSource_DNSResolutionMethod) Number() protoreflect.EnumN
 
 // Deprecated: Use ClientPayload_DNSSource_DNSResolutionMethod.Descriptor instead.
 func (ClientPayload_DNSSource_DNSResolutionMethod) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 0, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 0, 0}
 }
 
 type ClientPayload_UserAgent_DeviceType int32
@@ -702,11 +751,11 @@ func (x ClientPayload_UserAgent_DeviceType) String() string {
 }
 
 func (ClientPayload_UserAgent_DeviceType) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[10].Descriptor()
+	return file_waproto_proto_enumTypes[11].Descriptor()
 }
 
 func (ClientPayload_UserAgent_DeviceType) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[10]
+	return &file_waproto_proto_enumTypes[11]
 }
 
 func (x ClientPayload_UserAgent_DeviceType) Number() protoreflect.EnumNumber {
@@ -715,7 +764,7 @@ func (x ClientPayload_UserAgent_DeviceType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ClientPayload_UserAgent_DeviceType.Descriptor instead.
 func (ClientPayload_UserAgent_DeviceType) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 3, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 3, 0}
 }
 
 type ClientPayload_UserAgent_Platform int32
@@ -856,11 +905,11 @@ func (x ClientPayload_UserAgent_Platform) String() string {
 }
 
 func (ClientPayload_UserAgent_Platform) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[11].Descriptor()
+	return file_waproto_proto_enumTypes[12].Descriptor()
 }
 
 func (ClientPayload_UserAgent_Platform) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[11]
+	return &file_waproto_proto_enumTypes[12]
 }
 
 func (x ClientPayload_UserAgent_Platform) Number() protoreflect.EnumNumber {
@@ -869,7 +918,7 @@ func (x ClientPayload_UserAgent_Platform) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ClientPayload_UserAgent_Platform.Descriptor instead.
 func (ClientPayload_UserAgent_Platform) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 3, 1}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 3, 1}
 }
 
 type ClientPayload_UserAgent_ReleaseChannel int32
@@ -908,11 +957,11 @@ func (x ClientPayload_UserAgent_ReleaseChannel) String() string {
 }
 
 func (ClientPayload_UserAgent_ReleaseChannel) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[12].Descriptor()
+	return file_waproto_proto_enumTypes[13].Descriptor()
 }
 
 func (ClientPayload_UserAgent_ReleaseChannel) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[12]
+	return &file_waproto_proto_enumTypes[13]
 }
 
 func (x ClientPayload_UserAgent_ReleaseChannel) Number() protoreflect.EnumNumber {
@@ -921,7 +970,7 @@ func (x ClientPayload_UserAgent_ReleaseChannel) Number() protoreflect.EnumNumber
 
 // Deprecated: Use ClientPayload_UserAgent_ReleaseChannel.Descriptor instead.
 func (ClientPayload_UserAgent_ReleaseChannel) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 3, 2}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 3, 2}
 }
 
 type ClientPayload_WebInfo_WebSubPlatform int32
@@ -966,11 +1015,11 @@ func (x ClientPayload_WebInfo_WebSubPlatform) String() string {
 }
 
 func (ClientPayload_WebInfo_WebSubPlatform) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[13].Descriptor()
+	return file_waproto_proto_enumTypes[14].Descriptor()
 }
 
 func (ClientPayload_WebInfo_WebSubPlatform) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[13]
+	return &file_waproto_proto_enumTypes[14]
 }
 
 func (x ClientPayload_WebInfo_WebSubPlatform) Number() protoreflect.EnumNumber {
@@ -979,7 +1028,7 @@ func (x ClientPayload_WebInfo_WebSubPlatform) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ClientPayload_WebInfo_WebSubPlatform.Descriptor instead.
 func (ClientPayload_WebInfo_WebSubPlatform) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 4, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 4, 0}
 }
 
 type ButtonsMessage_HeaderType int32
@@ -1027,11 +1076,11 @@ func (x ButtonsMessage_HeaderType) String() string {
 }
 
 func (ButtonsMessage_HeaderType) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[14].Descriptor()
+	return file_waproto_proto_enumTypes[15].Descriptor()
 }
 
 func (ButtonsMessage_HeaderType) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[14]
+	return &file_waproto_proto_enumTypes[15]
 }
 
 func (x ButtonsMessage_HeaderType) Number() protoreflect.EnumNumber {
@@ -1040,7 +1089,7 @@ func (x ButtonsMessage_HeaderType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ButtonsMessage_HeaderType.Descriptor instead.
 func (ButtonsMessage_HeaderType) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{22, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{23, 0}
 }
 
 type ButtonsMessage_Button_Type int32
@@ -1076,11 +1125,11 @@ func (x ButtonsMessage_Button_Type) String() string {
 }
 
 func (ButtonsMessage_Button_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[15].Descriptor()
+	return file_waproto_proto_enumTypes[16].Descriptor()
 }
 
 func (ButtonsMessage_Button_Type) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[15]
+	return &file_waproto_proto_enumTypes[16]
 }
 
 func (x ButtonsMessage_Button_Type) Number() protoreflect.EnumNumber {
@@ -1089,7 +1138,7 @@ func (x ButtonsMessage_Button_Type) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ButtonsMessage_Button_Type.Descriptor instead.
 func (ButtonsMessage_Button_Type) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{22, 0, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{23, 0, 0}
 }
 
 type ButtonsResponseMessage_Type int32
@@ -1122,11 +1171,11 @@ func (x ButtonsResponseMessage_Type) String() string {
 }
 
 func (ButtonsResponseMessage_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[16].Descriptor()
+	return file_waproto_proto_enumTypes[17].Descriptor()
 }
 
 func (ButtonsResponseMessage_Type) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[16]
+	return &file_waproto_proto_enumTypes[17]
 }
 
 func (x ButtonsResponseMessage_Type) Number() protoreflect.EnumNumber {
@@ -1135,7 +1184,7 @@ func (x ButtonsResponseMessage_Type) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ButtonsResponseMessage_Type.Descriptor instead.
 func (ButtonsResponseMessage_Type) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{23, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{24, 0}
 }
 
 type ListMessage_ListType int32
@@ -1171,11 +1220,11 @@ func (x ListMessage_ListType) String() string {
 }
 
 func (ListMessage_ListType) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[17].Descriptor()
+	return file_waproto_proto_enumTypes[18].Descriptor()
 }
 
 func (ListMessage_ListType) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[17]
+	return &file_waproto_proto_enumTypes[18]
 }
 
 func (x ListMessage_ListType) Number() protoreflect.EnumNumber {
@@ -1184,7 +1233,7 @@ func (x ListMessage_ListType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ListMessage_ListType.Descriptor instead.
 func (ListMessage_ListType) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{24, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{25, 0}
 }
 
 type ListResponseMessage_ListType int32
@@ -1217,11 +1266,11 @@ func (x ListResponseMessage_ListType) String() string {
 }
 
 func (ListResponseMessage_ListType) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[18].Descriptor()
+	return file_waproto_proto_enumTypes[19].Descriptor()
 }
 
 func (ListResponseMessage_ListType) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[18]
+	return &file_waproto_proto_enumTypes[19]
 }
 
 func (x ListResponseMessage_ListType) Number() protoreflect.EnumNumber {
@@ -1230,7 +1279,7 @@ func (x ListResponseMessage_ListType) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ListResponseMessage_ListType.Descriptor instead.
 func (ListResponseMessage_ListType) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{25, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{26, 0}
 }
 
 type ProtocolMessage_Type int32
@@ -1299,11 +1348,11 @@ func (x ProtocolMessage_Type) String() string {
 }
 
 func (ProtocolMessage_Type) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[19].Descriptor()
+	return file_waproto_proto_enumTypes[20].Descriptor()
 }
 
 func (ProtocolMessage_Type) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[19]
+	return &file_waproto_proto_enumTypes[20]
 }
 
 func (x ProtocolMessage_Type) Number() protoreflect.EnumNumber {
@@ -1312,7 +1361,7 @@ func (x ProtocolMessage_Type) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ProtocolMessage_Type.Descriptor instead.
 func (ProtocolMessage_Type) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{30, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{31, 0}
 }
 
 type SyncdMutation_SyncdOperation int32
@@ -1345,11 +1394,11 @@ func (x SyncdMutation_SyncdOperation) String() string {
 }
 
 func (SyncdMutation_SyncdOperation) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[20].Descriptor()
+	return file_waproto_proto_enumTypes[21].Descriptor()
 }
 
 func (SyncdMutation_SyncdOperation) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[20]
+	return &file_waproto_proto_enumTypes[21]
 }
 
 func (x SyncdMutation_SyncdOperation) Number() protoreflect.EnumNumber {
@@ -1358,7 +1407,7 @@ func (x SyncdMutation_SyncdOperation) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use SyncdMutation_SyncdOperation.Descriptor instead.
 func (SyncdMutation_SyncdOperation) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{48, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{49, 0}
 }
 
 type WebMessageInfo_Status int32
@@ -1403,11 +1452,11 @@ func (x WebMessageInfo_Status) String() string {
 }
 
 func (WebMessageInfo_Status) Descriptor() protoreflect.EnumDescriptor {
-	return file_internal_waproto_waproto_proto_enumTypes[21].Descriptor()
+	return file_waproto_proto_enumTypes[22].Descriptor()
 }
 
 func (WebMessageInfo_Status) Type() protoreflect.EnumType {
-	return &file_internal_waproto_waproto_proto_enumTypes[21]
+	return &file_waproto_proto_enumTypes[22]
 }
 
 func (x WebMessageInfo_Status) Number() protoreflect.EnumNumber {
@@ -1416,7 +1465,7 @@ func (x WebMessageInfo_Status) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use WebMessageInfo_Status.Descriptor instead.
 func (WebMessageInfo_Status) EnumDescriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{60, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{61, 0}
 }
 
 type ADVDeviceIdentity struct {
@@ -1432,7 +1481,7 @@ type ADVDeviceIdentity struct {
 
 func (x *ADVDeviceIdentity) Reset() {
 	*x = ADVDeviceIdentity{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[0]
+	mi := &file_waproto_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1444,7 +1493,7 @@ func (x *ADVDeviceIdentity) String() string {
 func (*ADVDeviceIdentity) ProtoMessage() {}
 
 func (x *ADVDeviceIdentity) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[0]
+	mi := &file_waproto_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1457,7 +1506,7 @@ func (x *ADVDeviceIdentity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ADVDeviceIdentity.ProtoReflect.Descriptor instead.
 func (*ADVDeviceIdentity) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{0}
+	return file_waproto_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *ADVDeviceIdentity) GetRawId() uint32 {
@@ -1508,7 +1557,7 @@ type ADVKeyIndexList struct {
 
 func (x *ADVKeyIndexList) Reset() {
 	*x = ADVKeyIndexList{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[1]
+	mi := &file_waproto_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1520,7 +1569,7 @@ func (x *ADVKeyIndexList) String() string {
 func (*ADVKeyIndexList) ProtoMessage() {}
 
 func (x *ADVKeyIndexList) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[1]
+	mi := &file_waproto_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1533,7 +1582,7 @@ func (x *ADVKeyIndexList) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ADVKeyIndexList.ProtoReflect.Descriptor instead.
 func (*ADVKeyIndexList) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{1}
+	return file_waproto_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ADVKeyIndexList) GetRawId() uint32 {
@@ -1583,7 +1632,7 @@ type ADVSignedDeviceIdentity struct {
 
 func (x *ADVSignedDeviceIdentity) Reset() {
 	*x = ADVSignedDeviceIdentity{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[2]
+	mi := &file_waproto_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1595,7 +1644,7 @@ func (x *ADVSignedDeviceIdentity) String() string {
 func (*ADVSignedDeviceIdentity) ProtoMessage() {}
 
 func (x *ADVSignedDeviceIdentity) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[2]
+	mi := &file_waproto_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1608,7 +1657,7 @@ func (x *ADVSignedDeviceIdentity) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ADVSignedDeviceIdentity.ProtoReflect.Descriptor instead.
 func (*ADVSignedDeviceIdentity) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{2}
+	return file_waproto_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *ADVSignedDeviceIdentity) GetDetails() []byte {
@@ -1650,7 +1699,7 @@ type ADVSignedDeviceIdentityHMAC struct {
 
 func (x *ADVSignedDeviceIdentityHMAC) Reset() {
 	*x = ADVSignedDeviceIdentityHMAC{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[3]
+	mi := &file_waproto_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1662,7 +1711,7 @@ func (x *ADVSignedDeviceIdentityHMAC) String() string {
 func (*ADVSignedDeviceIdentityHMAC) ProtoMessage() {}
 
 func (x *ADVSignedDeviceIdentityHMAC) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[3]
+	mi := &file_waproto_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1675,7 +1724,7 @@ func (x *ADVSignedDeviceIdentityHMAC) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ADVSignedDeviceIdentityHMAC.ProtoReflect.Descriptor instead.
 func (*ADVSignedDeviceIdentityHMAC) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{3}
+	return file_waproto_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ADVSignedDeviceIdentityHMAC) GetDetails() []byte {
@@ -1712,7 +1761,7 @@ type DeviceProps struct {
 
 func (x *DeviceProps) Reset() {
 	*x = DeviceProps{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[4]
+	mi := &file_waproto_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1724,7 +1773,7 @@ func (x *DeviceProps) String() string {
 func (*DeviceProps) ProtoMessage() {}
 
 func (x *DeviceProps) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[4]
+	mi := &file_waproto_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1737,7 +1786,7 @@ func (x *DeviceProps) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeviceProps.ProtoReflect.Descriptor instead.
 func (*DeviceProps) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{4}
+	return file_waproto_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DeviceProps) GetOs() string {
@@ -1817,7 +1866,7 @@ type ClientPayload struct {
 
 func (x *ClientPayload) Reset() {
 	*x = ClientPayload{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[5]
+	mi := &file_waproto_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1829,7 +1878,7 @@ func (x *ClientPayload) String() string {
 func (*ClientPayload) ProtoMessage() {}
 
 func (x *ClientPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[5]
+	mi := &file_waproto_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1842,7 +1891,7 @@ func (x *ClientPayload) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientPayload.ProtoReflect.Descriptor instead.
 func (*ClientPayload) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5}
+	return file_waproto_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ClientPayload) GetUsername() uint64 {
@@ -2104,7 +2153,7 @@ type ExtendedTextMessage struct {
 
 func (x *ExtendedTextMessage) Reset() {
 	*x = ExtendedTextMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[6]
+	mi := &file_waproto_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2116,7 +2165,7 @@ func (x *ExtendedTextMessage) String() string {
 func (*ExtendedTextMessage) ProtoMessage() {}
 
 func (x *ExtendedTextMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[6]
+	mi := &file_waproto_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2129,7 +2178,7 @@ func (x *ExtendedTextMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExtendedTextMessage.ProtoReflect.Descriptor instead.
 func (*ExtendedTextMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{6}
+	return file_waproto_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ExtendedTextMessage) GetText() string {
@@ -2219,13 +2268,14 @@ type Message struct {
 	ViewOnceMessageV2          *FutureProofMessage `protobuf:"bytes,55,opt,name=viewOnceMessageV2,proto3,oneof" json:"viewOnceMessageV2,omitempty"`
 	EditedMessage              *FutureProofMessage `protobuf:"bytes,58,opt,name=editedMessage,proto3,oneof" json:"editedMessage,omitempty"`
 	ViewOnceMessageV2Extension *FutureProofMessage `protobuf:"bytes,59,opt,name=viewOnceMessageV2Extension,proto3,oneof" json:"viewOnceMessageV2Extension,omitempty"`
+	PinInChatMessage           *PinInChatMessage   `protobuf:"bytes,63,opt,name=pinInChatMessage,proto3,oneof" json:"pinInChatMessage,omitempty"`
 	unknownFields              protoimpl.UnknownFields
 	sizeCache                  protoimpl.SizeCache
 }
 
 func (x *Message) Reset() {
 	*x = Message{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[7]
+	mi := &file_waproto_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2237,7 +2287,7 @@ func (x *Message) String() string {
 func (*Message) ProtoMessage() {}
 
 func (x *Message) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[7]
+	mi := &file_waproto_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2250,7 +2300,7 @@ func (x *Message) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Message.ProtoReflect.Descriptor instead.
 func (*Message) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{7}
+	return file_waproto_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *Message) GetConversation() string {
@@ -2477,6 +2527,74 @@ func (x *Message) GetViewOnceMessageV2Extension() *FutureProofMessage {
 	return nil
 }
 
+func (x *Message) GetPinInChatMessage() *PinInChatMessage {
+	if x != nil {
+		return x.PinInChatMessage
+	}
+	return nil
+}
+
+// PinInChatMessage pins/unpins a specific message in a chat (Message.pinInChatMessage).
+type PinInChatMessage struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	Key               *MessageKey            `protobuf:"bytes,1,opt,name=key,proto3,oneof" json:"key,omitempty"`
+	Type              *PinInChatType         `protobuf:"varint,2,opt,name=type,proto3,enum=waproto.PinInChatType,oneof" json:"type,omitempty"`
+	SenderTimestampMs *int64                 `protobuf:"varint,3,opt,name=senderTimestampMs,proto3,oneof" json:"senderTimestampMs,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *PinInChatMessage) Reset() {
+	*x = PinInChatMessage{}
+	mi := &file_waproto_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PinInChatMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PinInChatMessage) ProtoMessage() {}
+
+func (x *PinInChatMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_waproto_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PinInChatMessage.ProtoReflect.Descriptor instead.
+func (*PinInChatMessage) Descriptor() ([]byte, []int) {
+	return file_waproto_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *PinInChatMessage) GetKey() *MessageKey {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+func (x *PinInChatMessage) GetType() PinInChatType {
+	if x != nil && x.Type != nil {
+		return *x.Type
+	}
+	return PinInChatType_PIN_IN_CHAT_UNKNOWN
+}
+
+func (x *PinInChatMessage) GetSenderTimestampMs() int64 {
+	if x != nil && x.SenderTimestampMs != nil {
+		return *x.SenderTimestampMs
+	}
+	return 0
+}
+
 // FutureProofMessage wraps an inner Message (upstream Message.FutureProofMessage).
 type FutureProofMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -2487,7 +2605,7 @@ type FutureProofMessage struct {
 
 func (x *FutureProofMessage) Reset() {
 	*x = FutureProofMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[8]
+	mi := &file_waproto_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2499,7 +2617,7 @@ func (x *FutureProofMessage) String() string {
 func (*FutureProofMessage) ProtoMessage() {}
 
 func (x *FutureProofMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[8]
+	mi := &file_waproto_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2512,7 +2630,7 @@ func (x *FutureProofMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use FutureProofMessage.ProtoReflect.Descriptor instead.
 func (*FutureProofMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{8}
+	return file_waproto_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *FutureProofMessage) GetMessage() *Message {
@@ -2544,7 +2662,7 @@ type ImageMessage struct {
 
 func (x *ImageMessage) Reset() {
 	*x = ImageMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[9]
+	mi := &file_waproto_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2556,7 +2674,7 @@ func (x *ImageMessage) String() string {
 func (*ImageMessage) ProtoMessage() {}
 
 func (x *ImageMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[9]
+	mi := &file_waproto_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2569,7 +2687,7 @@ func (x *ImageMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ImageMessage.ProtoReflect.Descriptor instead.
 func (*ImageMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{9}
+	return file_waproto_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ImageMessage) GetUrl() string {
@@ -2694,7 +2812,7 @@ type VideoMessage struct {
 
 func (x *VideoMessage) Reset() {
 	*x = VideoMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[10]
+	mi := &file_waproto_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2706,7 +2824,7 @@ func (x *VideoMessage) String() string {
 func (*VideoMessage) ProtoMessage() {}
 
 func (x *VideoMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[10]
+	mi := &file_waproto_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2719,7 +2837,7 @@ func (x *VideoMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use VideoMessage.ProtoReflect.Descriptor instead.
 func (*VideoMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{10}
+	return file_waproto_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *VideoMessage) GetUrl() string {
@@ -2856,7 +2974,7 @@ type AudioMessage struct {
 
 func (x *AudioMessage) Reset() {
 	*x = AudioMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[11]
+	mi := &file_waproto_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -2868,7 +2986,7 @@ func (x *AudioMessage) String() string {
 func (*AudioMessage) ProtoMessage() {}
 
 func (x *AudioMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[11]
+	mi := &file_waproto_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -2881,7 +2999,7 @@ func (x *AudioMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AudioMessage.ProtoReflect.Descriptor instead.
 func (*AudioMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{11}
+	return file_waproto_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *AudioMessage) GetUrl() string {
@@ -3010,7 +3128,7 @@ type DocumentMessage struct {
 
 func (x *DocumentMessage) Reset() {
 	*x = DocumentMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[12]
+	mi := &file_waproto_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3022,7 +3140,7 @@ func (x *DocumentMessage) String() string {
 func (*DocumentMessage) ProtoMessage() {}
 
 func (x *DocumentMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[12]
+	mi := &file_waproto_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3035,7 +3153,7 @@ func (x *DocumentMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentMessage.ProtoReflect.Descriptor instead.
 func (*DocumentMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{12}
+	return file_waproto_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DocumentMessage) GetUrl() string {
@@ -3201,7 +3319,7 @@ type StickerMessage struct {
 
 func (x *StickerMessage) Reset() {
 	*x = StickerMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[13]
+	mi := &file_waproto_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3213,7 +3331,7 @@ func (x *StickerMessage) String() string {
 func (*StickerMessage) ProtoMessage() {}
 
 func (x *StickerMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[13]
+	mi := &file_waproto_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3226,7 +3344,7 @@ func (x *StickerMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use StickerMessage.ProtoReflect.Descriptor instead.
 func (*StickerMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{13}
+	return file_waproto_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *StickerMessage) GetUrl() string {
@@ -3354,7 +3472,7 @@ type LocationMessage struct {
 
 func (x *LocationMessage) Reset() {
 	*x = LocationMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[14]
+	mi := &file_waproto_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3366,7 +3484,7 @@ func (x *LocationMessage) String() string {
 func (*LocationMessage) ProtoMessage() {}
 
 func (x *LocationMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[14]
+	mi := &file_waproto_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3379,7 +3497,7 @@ func (x *LocationMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LocationMessage.ProtoReflect.Descriptor instead.
 func (*LocationMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{14}
+	return file_waproto_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *LocationMessage) GetDegreesLatitude() float64 {
@@ -3484,7 +3602,7 @@ type LiveLocationMessage struct {
 
 func (x *LiveLocationMessage) Reset() {
 	*x = LiveLocationMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[15]
+	mi := &file_waproto_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3496,7 +3614,7 @@ func (x *LiveLocationMessage) String() string {
 func (*LiveLocationMessage) ProtoMessage() {}
 
 func (x *LiveLocationMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[15]
+	mi := &file_waproto_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3509,7 +3627,7 @@ func (x *LiveLocationMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use LiveLocationMessage.ProtoReflect.Descriptor instead.
 func (*LiveLocationMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{15}
+	return file_waproto_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *LiveLocationMessage) GetDegreesLatitude() float64 {
@@ -3593,7 +3711,7 @@ type ContactMessage struct {
 
 func (x *ContactMessage) Reset() {
 	*x = ContactMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[16]
+	mi := &file_waproto_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3605,7 +3723,7 @@ func (x *ContactMessage) String() string {
 func (*ContactMessage) ProtoMessage() {}
 
 func (x *ContactMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[16]
+	mi := &file_waproto_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3618,7 +3736,7 @@ func (x *ContactMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContactMessage.ProtoReflect.Descriptor instead.
 func (*ContactMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{16}
+	return file_waproto_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ContactMessage) GetDisplayName() string {
@@ -3653,7 +3771,7 @@ type ContactsArrayMessage struct {
 
 func (x *ContactsArrayMessage) Reset() {
 	*x = ContactsArrayMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[17]
+	mi := &file_waproto_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3665,7 +3783,7 @@ func (x *ContactsArrayMessage) String() string {
 func (*ContactsArrayMessage) ProtoMessage() {}
 
 func (x *ContactsArrayMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[17]
+	mi := &file_waproto_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3678,7 +3796,7 @@ func (x *ContactsArrayMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContactsArrayMessage.ProtoReflect.Descriptor instead.
 func (*ContactsArrayMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{17}
+	return file_waproto_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ContactsArrayMessage) GetDisplayName() string {
@@ -3714,7 +3832,7 @@ type ReactionMessage struct {
 
 func (x *ReactionMessage) Reset() {
 	*x = ReactionMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[18]
+	mi := &file_waproto_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3726,7 +3844,7 @@ func (x *ReactionMessage) String() string {
 func (*ReactionMessage) ProtoMessage() {}
 
 func (x *ReactionMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[18]
+	mi := &file_waproto_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3739,7 +3857,7 @@ func (x *ReactionMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReactionMessage.ProtoReflect.Descriptor instead.
 func (*ReactionMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{18}
+	return file_waproto_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *ReactionMessage) GetKey() *MessageKey {
@@ -3780,7 +3898,7 @@ type SenderKeyDistributionMessage struct {
 
 func (x *SenderKeyDistributionMessage) Reset() {
 	*x = SenderKeyDistributionMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[19]
+	mi := &file_waproto_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3792,7 +3910,7 @@ func (x *SenderKeyDistributionMessage) String() string {
 func (*SenderKeyDistributionMessage) ProtoMessage() {}
 
 func (x *SenderKeyDistributionMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[19]
+	mi := &file_waproto_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3805,7 +3923,7 @@ func (x *SenderKeyDistributionMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SenderKeyDistributionMessage.ProtoReflect.Descriptor instead.
 func (*SenderKeyDistributionMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{19}
+	return file_waproto_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *SenderKeyDistributionMessage) GetGroupId() string {
@@ -3835,7 +3953,7 @@ type PollCreationMessage struct {
 
 func (x *PollCreationMessage) Reset() {
 	*x = PollCreationMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[20]
+	mi := &file_waproto_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3847,7 +3965,7 @@ func (x *PollCreationMessage) String() string {
 func (*PollCreationMessage) ProtoMessage() {}
 
 func (x *PollCreationMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[20]
+	mi := &file_waproto_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3860,7 +3978,7 @@ func (x *PollCreationMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PollCreationMessage.ProtoReflect.Descriptor instead.
 func (*PollCreationMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{20}
+	return file_waproto_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *PollCreationMessage) GetEncKey() []byte {
@@ -3909,7 +4027,7 @@ type PollUpdateMessage struct {
 
 func (x *PollUpdateMessage) Reset() {
 	*x = PollUpdateMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[21]
+	mi := &file_waproto_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3921,7 +4039,7 @@ func (x *PollUpdateMessage) String() string {
 func (*PollUpdateMessage) ProtoMessage() {}
 
 func (x *PollUpdateMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[21]
+	mi := &file_waproto_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3934,7 +4052,7 @@ func (x *PollUpdateMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PollUpdateMessage.ProtoReflect.Descriptor instead.
 func (*PollUpdateMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{21}
+	return file_waproto_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *PollUpdateMessage) GetPollCreationMessageKey() *MessageKey {
@@ -3974,7 +4092,7 @@ type ButtonsMessage struct {
 
 func (x *ButtonsMessage) Reset() {
 	*x = ButtonsMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[22]
+	mi := &file_waproto_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -3986,7 +4104,7 @@ func (x *ButtonsMessage) String() string {
 func (*ButtonsMessage) ProtoMessage() {}
 
 func (x *ButtonsMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[22]
+	mi := &file_waproto_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -3999,7 +4117,7 @@ func (x *ButtonsMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ButtonsMessage.ProtoReflect.Descriptor instead.
 func (*ButtonsMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{22}
+	return file_waproto_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *ButtonsMessage) GetText() string {
@@ -4057,7 +4175,7 @@ type ButtonsResponseMessage struct {
 
 func (x *ButtonsResponseMessage) Reset() {
 	*x = ButtonsResponseMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[23]
+	mi := &file_waproto_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4069,7 +4187,7 @@ func (x *ButtonsResponseMessage) String() string {
 func (*ButtonsResponseMessage) ProtoMessage() {}
 
 func (x *ButtonsResponseMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[23]
+	mi := &file_waproto_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4082,7 +4200,7 @@ func (x *ButtonsResponseMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ButtonsResponseMessage.ProtoReflect.Descriptor instead.
 func (*ButtonsResponseMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{23}
+	return file_waproto_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *ButtonsResponseMessage) GetSelectedButtonId() string {
@@ -4129,7 +4247,7 @@ type ListMessage struct {
 
 func (x *ListMessage) Reset() {
 	*x = ListMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[24]
+	mi := &file_waproto_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4141,7 +4259,7 @@ func (x *ListMessage) String() string {
 func (*ListMessage) ProtoMessage() {}
 
 func (x *ListMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[24]
+	mi := &file_waproto_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4154,7 +4272,7 @@ func (x *ListMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMessage.ProtoReflect.Descriptor instead.
 func (*ListMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{24}
+	return file_waproto_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *ListMessage) GetTitle() string {
@@ -4220,7 +4338,7 @@ type ListResponseMessage struct {
 
 func (x *ListResponseMessage) Reset() {
 	*x = ListResponseMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[25]
+	mi := &file_waproto_proto_msgTypes[26]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4232,7 +4350,7 @@ func (x *ListResponseMessage) String() string {
 func (*ListResponseMessage) ProtoMessage() {}
 
 func (x *ListResponseMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[25]
+	mi := &file_waproto_proto_msgTypes[26]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4245,7 +4363,7 @@ func (x *ListResponseMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListResponseMessage.ProtoReflect.Descriptor instead.
 func (*ListResponseMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{25}
+	return file_waproto_proto_rawDescGZIP(), []int{26}
 }
 
 func (x *ListResponseMessage) GetTitle() string {
@@ -4296,7 +4414,7 @@ type TemplateMessage struct {
 
 func (x *TemplateMessage) Reset() {
 	*x = TemplateMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[26]
+	mi := &file_waproto_proto_msgTypes[27]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4308,7 +4426,7 @@ func (x *TemplateMessage) String() string {
 func (*TemplateMessage) ProtoMessage() {}
 
 func (x *TemplateMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[26]
+	mi := &file_waproto_proto_msgTypes[27]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4321,7 +4439,7 @@ func (x *TemplateMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TemplateMessage.ProtoReflect.Descriptor instead.
 func (*TemplateMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{26}
+	return file_waproto_proto_rawDescGZIP(), []int{27}
 }
 
 func (x *TemplateMessage) GetContextInfo() *ContextInfo {
@@ -4359,7 +4477,7 @@ type TemplateButtonReplyMessage struct {
 
 func (x *TemplateButtonReplyMessage) Reset() {
 	*x = TemplateButtonReplyMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[27]
+	mi := &file_waproto_proto_msgTypes[28]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4371,7 +4489,7 @@ func (x *TemplateButtonReplyMessage) String() string {
 func (*TemplateButtonReplyMessage) ProtoMessage() {}
 
 func (x *TemplateButtonReplyMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[27]
+	mi := &file_waproto_proto_msgTypes[28]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4384,7 +4502,7 @@ func (x *TemplateButtonReplyMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TemplateButtonReplyMessage.ProtoReflect.Descriptor instead.
 func (*TemplateButtonReplyMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{27}
+	return file_waproto_proto_rawDescGZIP(), []int{28}
 }
 
 func (x *TemplateButtonReplyMessage) GetSelectedId() string {
@@ -4437,7 +4555,7 @@ type InteractiveMessage struct {
 
 func (x *InteractiveMessage) Reset() {
 	*x = InteractiveMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[28]
+	mi := &file_waproto_proto_msgTypes[29]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4449,7 +4567,7 @@ func (x *InteractiveMessage) String() string {
 func (*InteractiveMessage) ProtoMessage() {}
 
 func (x *InteractiveMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[28]
+	mi := &file_waproto_proto_msgTypes[29]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4462,7 +4580,7 @@ func (x *InteractiveMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InteractiveMessage.ProtoReflect.Descriptor instead.
 func (*InteractiveMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{28}
+	return file_waproto_proto_rawDescGZIP(), []int{29}
 }
 
 func (x *InteractiveMessage) GetHeader() *InteractiveMessage_Header {
@@ -4512,7 +4630,7 @@ type InteractiveResponseMessage struct {
 
 func (x *InteractiveResponseMessage) Reset() {
 	*x = InteractiveResponseMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[29]
+	mi := &file_waproto_proto_msgTypes[30]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4524,7 +4642,7 @@ func (x *InteractiveResponseMessage) String() string {
 func (*InteractiveResponseMessage) ProtoMessage() {}
 
 func (x *InteractiveResponseMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[29]
+	mi := &file_waproto_proto_msgTypes[30]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4537,7 +4655,7 @@ func (x *InteractiveResponseMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InteractiveResponseMessage.ProtoReflect.Descriptor instead.
 func (*InteractiveResponseMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{29}
+	return file_waproto_proto_rawDescGZIP(), []int{30}
 }
 
 func (x *InteractiveResponseMessage) GetBody() *InteractiveResponseMessage_Body {
@@ -4578,7 +4696,7 @@ type ProtocolMessage struct {
 
 func (x *ProtocolMessage) Reset() {
 	*x = ProtocolMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[30]
+	mi := &file_waproto_proto_msgTypes[31]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4590,7 +4708,7 @@ func (x *ProtocolMessage) String() string {
 func (*ProtocolMessage) ProtoMessage() {}
 
 func (x *ProtocolMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[30]
+	mi := &file_waproto_proto_msgTypes[31]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4603,7 +4721,7 @@ func (x *ProtocolMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProtocolMessage.ProtoReflect.Descriptor instead.
 func (*ProtocolMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{30}
+	return file_waproto_proto_rawDescGZIP(), []int{31}
 }
 
 func (x *ProtocolMessage) GetKey() *MessageKey {
@@ -4679,7 +4797,7 @@ type AppStateSyncKeyId struct {
 
 func (x *AppStateSyncKeyId) Reset() {
 	*x = AppStateSyncKeyId{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[31]
+	mi := &file_waproto_proto_msgTypes[32]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4691,7 +4809,7 @@ func (x *AppStateSyncKeyId) String() string {
 func (*AppStateSyncKeyId) ProtoMessage() {}
 
 func (x *AppStateSyncKeyId) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[31]
+	mi := &file_waproto_proto_msgTypes[32]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4704,7 +4822,7 @@ func (x *AppStateSyncKeyId) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppStateSyncKeyId.ProtoReflect.Descriptor instead.
 func (*AppStateSyncKeyId) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{31}
+	return file_waproto_proto_rawDescGZIP(), []int{32}
 }
 
 func (x *AppStateSyncKeyId) GetKeyId() []byte {
@@ -4725,7 +4843,7 @@ type AppStateSyncKeyFingerprint struct {
 
 func (x *AppStateSyncKeyFingerprint) Reset() {
 	*x = AppStateSyncKeyFingerprint{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[32]
+	mi := &file_waproto_proto_msgTypes[33]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4737,7 +4855,7 @@ func (x *AppStateSyncKeyFingerprint) String() string {
 func (*AppStateSyncKeyFingerprint) ProtoMessage() {}
 
 func (x *AppStateSyncKeyFingerprint) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[32]
+	mi := &file_waproto_proto_msgTypes[33]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4750,7 +4868,7 @@ func (x *AppStateSyncKeyFingerprint) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppStateSyncKeyFingerprint.ProtoReflect.Descriptor instead.
 func (*AppStateSyncKeyFingerprint) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{32}
+	return file_waproto_proto_rawDescGZIP(), []int{33}
 }
 
 func (x *AppStateSyncKeyFingerprint) GetRawId() uint32 {
@@ -4785,7 +4903,7 @@ type AppStateSyncKeyData struct {
 
 func (x *AppStateSyncKeyData) Reset() {
 	*x = AppStateSyncKeyData{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[33]
+	mi := &file_waproto_proto_msgTypes[34]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4797,7 +4915,7 @@ func (x *AppStateSyncKeyData) String() string {
 func (*AppStateSyncKeyData) ProtoMessage() {}
 
 func (x *AppStateSyncKeyData) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[33]
+	mi := &file_waproto_proto_msgTypes[34]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4810,7 +4928,7 @@ func (x *AppStateSyncKeyData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppStateSyncKeyData.ProtoReflect.Descriptor instead.
 func (*AppStateSyncKeyData) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{33}
+	return file_waproto_proto_rawDescGZIP(), []int{34}
 }
 
 func (x *AppStateSyncKeyData) GetKeyData() []byte {
@@ -4844,7 +4962,7 @@ type AppStateSyncKey struct {
 
 func (x *AppStateSyncKey) Reset() {
 	*x = AppStateSyncKey{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[34]
+	mi := &file_waproto_proto_msgTypes[35]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4856,7 +4974,7 @@ func (x *AppStateSyncKey) String() string {
 func (*AppStateSyncKey) ProtoMessage() {}
 
 func (x *AppStateSyncKey) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[34]
+	mi := &file_waproto_proto_msgTypes[35]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4869,7 +4987,7 @@ func (x *AppStateSyncKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppStateSyncKey.ProtoReflect.Descriptor instead.
 func (*AppStateSyncKey) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{34}
+	return file_waproto_proto_rawDescGZIP(), []int{35}
 }
 
 func (x *AppStateSyncKey) GetKeyId() *AppStateSyncKeyId {
@@ -4895,7 +5013,7 @@ type AppStateSyncKeyShare struct {
 
 func (x *AppStateSyncKeyShare) Reset() {
 	*x = AppStateSyncKeyShare{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[35]
+	mi := &file_waproto_proto_msgTypes[36]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4907,7 +5025,7 @@ func (x *AppStateSyncKeyShare) String() string {
 func (*AppStateSyncKeyShare) ProtoMessage() {}
 
 func (x *AppStateSyncKeyShare) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[35]
+	mi := &file_waproto_proto_msgTypes[36]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4920,7 +5038,7 @@ func (x *AppStateSyncKeyShare) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppStateSyncKeyShare.ProtoReflect.Descriptor instead.
 func (*AppStateSyncKeyShare) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{35}
+	return file_waproto_proto_rawDescGZIP(), []int{36}
 }
 
 func (x *AppStateSyncKeyShare) GetKeys() []*AppStateSyncKey {
@@ -4939,7 +5057,7 @@ type AppStateSyncKeyRequest struct {
 
 func (x *AppStateSyncKeyRequest) Reset() {
 	*x = AppStateSyncKeyRequest{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[36]
+	mi := &file_waproto_proto_msgTypes[37]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4951,7 +5069,7 @@ func (x *AppStateSyncKeyRequest) String() string {
 func (*AppStateSyncKeyRequest) ProtoMessage() {}
 
 func (x *AppStateSyncKeyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[36]
+	mi := &file_waproto_proto_msgTypes[37]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -4964,7 +5082,7 @@ func (x *AppStateSyncKeyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppStateSyncKeyRequest.ProtoReflect.Descriptor instead.
 func (*AppStateSyncKeyRequest) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{36}
+	return file_waproto_proto_rawDescGZIP(), []int{37}
 }
 
 func (x *AppStateSyncKeyRequest) GetKeyIds() []*AppStateSyncKeyId {
@@ -4987,7 +5105,7 @@ type MessageKey struct {
 
 func (x *MessageKey) Reset() {
 	*x = MessageKey{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[37]
+	mi := &file_waproto_proto_msgTypes[38]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -4999,7 +5117,7 @@ func (x *MessageKey) String() string {
 func (*MessageKey) ProtoMessage() {}
 
 func (x *MessageKey) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[37]
+	mi := &file_waproto_proto_msgTypes[38]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5012,7 +5130,7 @@ func (x *MessageKey) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MessageKey.ProtoReflect.Descriptor instead.
 func (*MessageKey) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{37}
+	return file_waproto_proto_rawDescGZIP(), []int{38}
 }
 
 func (x *MessageKey) GetRemoteJid() string {
@@ -5059,7 +5177,7 @@ type ContextInfo struct {
 
 func (x *ContextInfo) Reset() {
 	*x = ContextInfo{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[38]
+	mi := &file_waproto_proto_msgTypes[39]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5071,7 +5189,7 @@ func (x *ContextInfo) String() string {
 func (*ContextInfo) ProtoMessage() {}
 
 func (x *ContextInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[38]
+	mi := &file_waproto_proto_msgTypes[39]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5084,7 +5202,7 @@ func (x *ContextInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ContextInfo.ProtoReflect.Descriptor instead.
 func (*ContextInfo) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{38}
+	return file_waproto_proto_rawDescGZIP(), []int{39}
 }
 
 func (x *ContextInfo) GetStanzaId() string {
@@ -5155,7 +5273,7 @@ type MessageContextInfo struct {
 
 func (x *MessageContextInfo) Reset() {
 	*x = MessageContextInfo{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[39]
+	mi := &file_waproto_proto_msgTypes[40]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5167,7 +5285,7 @@ func (x *MessageContextInfo) String() string {
 func (*MessageContextInfo) ProtoMessage() {}
 
 func (x *MessageContextInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[39]
+	mi := &file_waproto_proto_msgTypes[40]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5180,7 +5298,7 @@ func (x *MessageContextInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MessageContextInfo.ProtoReflect.Descriptor instead.
 func (*MessageContextInfo) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{39}
+	return file_waproto_proto_rawDescGZIP(), []int{40}
 }
 
 func (x *MessageContextInfo) GetDeviceListMetadata() *DeviceListMetadata {
@@ -5227,7 +5345,7 @@ type DeviceListMetadata struct {
 
 func (x *DeviceListMetadata) Reset() {
 	*x = DeviceListMetadata{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[40]
+	mi := &file_waproto_proto_msgTypes[41]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5239,7 +5357,7 @@ func (x *DeviceListMetadata) String() string {
 func (*DeviceListMetadata) ProtoMessage() {}
 
 func (x *DeviceListMetadata) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[40]
+	mi := &file_waproto_proto_msgTypes[41]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5252,7 +5370,7 @@ func (x *DeviceListMetadata) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeviceListMetadata.ProtoReflect.Descriptor instead.
 func (*DeviceListMetadata) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{40}
+	return file_waproto_proto_rawDescGZIP(), []int{41}
 }
 
 func (x *DeviceListMetadata) GetSenderKeyHash() []byte {
@@ -5323,7 +5441,7 @@ type DeviceSentMessage struct {
 
 func (x *DeviceSentMessage) Reset() {
 	*x = DeviceSentMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[41]
+	mi := &file_waproto_proto_msgTypes[42]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5335,7 +5453,7 @@ func (x *DeviceSentMessage) String() string {
 func (*DeviceSentMessage) ProtoMessage() {}
 
 func (x *DeviceSentMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[41]
+	mi := &file_waproto_proto_msgTypes[42]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5348,7 +5466,7 @@ func (x *DeviceSentMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeviceSentMessage.ProtoReflect.Descriptor instead.
 func (*DeviceSentMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{41}
+	return file_waproto_proto_rawDescGZIP(), []int{42}
 }
 
 func (x *DeviceSentMessage) GetDestinationJid() string {
@@ -5374,7 +5492,7 @@ type KeyId struct {
 
 func (x *KeyId) Reset() {
 	*x = KeyId{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[42]
+	mi := &file_waproto_proto_msgTypes[43]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5386,7 +5504,7 @@ func (x *KeyId) String() string {
 func (*KeyId) ProtoMessage() {}
 
 func (x *KeyId) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[42]
+	mi := &file_waproto_proto_msgTypes[43]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5399,7 +5517,7 @@ func (x *KeyId) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use KeyId.ProtoReflect.Descriptor instead.
 func (*KeyId) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{42}
+	return file_waproto_proto_rawDescGZIP(), []int{43}
 }
 
 func (x *KeyId) GetId() []byte {
@@ -5423,7 +5541,7 @@ type ExternalBlobReference struct {
 
 func (x *ExternalBlobReference) Reset() {
 	*x = ExternalBlobReference{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[43]
+	mi := &file_waproto_proto_msgTypes[44]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5435,7 +5553,7 @@ func (x *ExternalBlobReference) String() string {
 func (*ExternalBlobReference) ProtoMessage() {}
 
 func (x *ExternalBlobReference) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[43]
+	mi := &file_waproto_proto_msgTypes[44]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5448,7 +5566,7 @@ func (x *ExternalBlobReference) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ExternalBlobReference.ProtoReflect.Descriptor instead.
 func (*ExternalBlobReference) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{43}
+	return file_waproto_proto_rawDescGZIP(), []int{44}
 }
 
 func (x *ExternalBlobReference) GetMediaKey() []byte {
@@ -5502,7 +5620,7 @@ type SyncdVersion struct {
 
 func (x *SyncdVersion) Reset() {
 	*x = SyncdVersion{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[44]
+	mi := &file_waproto_proto_msgTypes[45]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5514,7 +5632,7 @@ func (x *SyncdVersion) String() string {
 func (*SyncdVersion) ProtoMessage() {}
 
 func (x *SyncdVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[44]
+	mi := &file_waproto_proto_msgTypes[45]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5527,7 +5645,7 @@ func (x *SyncdVersion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncdVersion.ProtoReflect.Descriptor instead.
 func (*SyncdVersion) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{44}
+	return file_waproto_proto_rawDescGZIP(), []int{45}
 }
 
 func (x *SyncdVersion) GetVersion() uint64 {
@@ -5546,7 +5664,7 @@ type SyncdIndex struct {
 
 func (x *SyncdIndex) Reset() {
 	*x = SyncdIndex{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[45]
+	mi := &file_waproto_proto_msgTypes[46]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5558,7 +5676,7 @@ func (x *SyncdIndex) String() string {
 func (*SyncdIndex) ProtoMessage() {}
 
 func (x *SyncdIndex) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[45]
+	mi := &file_waproto_proto_msgTypes[46]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5571,7 +5689,7 @@ func (x *SyncdIndex) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncdIndex.ProtoReflect.Descriptor instead.
 func (*SyncdIndex) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{45}
+	return file_waproto_proto_rawDescGZIP(), []int{46}
 }
 
 func (x *SyncdIndex) GetBlob() []byte {
@@ -5590,7 +5708,7 @@ type SyncdValue struct {
 
 func (x *SyncdValue) Reset() {
 	*x = SyncdValue{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[46]
+	mi := &file_waproto_proto_msgTypes[47]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5602,7 +5720,7 @@ func (x *SyncdValue) String() string {
 func (*SyncdValue) ProtoMessage() {}
 
 func (x *SyncdValue) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[46]
+	mi := &file_waproto_proto_msgTypes[47]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5615,7 +5733,7 @@ func (x *SyncdValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncdValue.ProtoReflect.Descriptor instead.
 func (*SyncdValue) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{46}
+	return file_waproto_proto_rawDescGZIP(), []int{47}
 }
 
 func (x *SyncdValue) GetBlob() []byte {
@@ -5636,7 +5754,7 @@ type SyncdRecord struct {
 
 func (x *SyncdRecord) Reset() {
 	*x = SyncdRecord{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[47]
+	mi := &file_waproto_proto_msgTypes[48]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5648,7 +5766,7 @@ func (x *SyncdRecord) String() string {
 func (*SyncdRecord) ProtoMessage() {}
 
 func (x *SyncdRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[47]
+	mi := &file_waproto_proto_msgTypes[48]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5661,7 +5779,7 @@ func (x *SyncdRecord) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncdRecord.ProtoReflect.Descriptor instead.
 func (*SyncdRecord) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{47}
+	return file_waproto_proto_rawDescGZIP(), []int{48}
 }
 
 func (x *SyncdRecord) GetIndex() *SyncdIndex {
@@ -5695,7 +5813,7 @@ type SyncdMutation struct {
 
 func (x *SyncdMutation) Reset() {
 	*x = SyncdMutation{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[48]
+	mi := &file_waproto_proto_msgTypes[49]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5707,7 +5825,7 @@ func (x *SyncdMutation) String() string {
 func (*SyncdMutation) ProtoMessage() {}
 
 func (x *SyncdMutation) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[48]
+	mi := &file_waproto_proto_msgTypes[49]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5720,7 +5838,7 @@ func (x *SyncdMutation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncdMutation.ProtoReflect.Descriptor instead.
 func (*SyncdMutation) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{48}
+	return file_waproto_proto_rawDescGZIP(), []int{49}
 }
 
 func (x *SyncdMutation) GetOperation() SyncdMutation_SyncdOperation {
@@ -5746,7 +5864,7 @@ type SyncdMutations struct {
 
 func (x *SyncdMutations) Reset() {
 	*x = SyncdMutations{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[49]
+	mi := &file_waproto_proto_msgTypes[50]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5758,7 +5876,7 @@ func (x *SyncdMutations) String() string {
 func (*SyncdMutations) ProtoMessage() {}
 
 func (x *SyncdMutations) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[49]
+	mi := &file_waproto_proto_msgTypes[50]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5771,7 +5889,7 @@ func (x *SyncdMutations) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncdMutations.ProtoReflect.Descriptor instead.
 func (*SyncdMutations) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{49}
+	return file_waproto_proto_rawDescGZIP(), []int{50}
 }
 
 func (x *SyncdMutations) GetMutations() []*SyncdMutation {
@@ -5796,7 +5914,7 @@ type SyncdPatch struct {
 
 func (x *SyncdPatch) Reset() {
 	*x = SyncdPatch{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[50]
+	mi := &file_waproto_proto_msgTypes[51]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5808,7 +5926,7 @@ func (x *SyncdPatch) String() string {
 func (*SyncdPatch) ProtoMessage() {}
 
 func (x *SyncdPatch) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[50]
+	mi := &file_waproto_proto_msgTypes[51]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5821,7 +5939,7 @@ func (x *SyncdPatch) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncdPatch.ProtoReflect.Descriptor instead.
 func (*SyncdPatch) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{50}
+	return file_waproto_proto_rawDescGZIP(), []int{51}
 }
 
 func (x *SyncdPatch) GetVersion() *SyncdVersion {
@@ -5885,7 +6003,7 @@ type SyncdSnapshot struct {
 
 func (x *SyncdSnapshot) Reset() {
 	*x = SyncdSnapshot{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[51]
+	mi := &file_waproto_proto_msgTypes[52]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5897,7 +6015,7 @@ func (x *SyncdSnapshot) String() string {
 func (*SyncdSnapshot) ProtoMessage() {}
 
 func (x *SyncdSnapshot) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[51]
+	mi := &file_waproto_proto_msgTypes[52]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5910,7 +6028,7 @@ func (x *SyncdSnapshot) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncdSnapshot.ProtoReflect.Descriptor instead.
 func (*SyncdSnapshot) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{51}
+	return file_waproto_proto_rawDescGZIP(), []int{52}
 }
 
 func (x *SyncdSnapshot) GetVersion() *SyncdVersion {
@@ -5953,7 +6071,7 @@ type SyncActionData struct {
 
 func (x *SyncActionData) Reset() {
 	*x = SyncActionData{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[52]
+	mi := &file_waproto_proto_msgTypes[53]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5965,7 +6083,7 @@ func (x *SyncActionData) String() string {
 func (*SyncActionData) ProtoMessage() {}
 
 func (x *SyncActionData) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[52]
+	mi := &file_waproto_proto_msgTypes[53]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5978,7 +6096,7 @@ func (x *SyncActionData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncActionData.ProtoReflect.Descriptor instead.
 func (*SyncActionData) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{52}
+	return file_waproto_proto_rawDescGZIP(), []int{53}
 }
 
 func (x *SyncActionData) GetIndex() []byte {
@@ -6033,7 +6151,7 @@ type SyncActionValue struct {
 
 func (x *SyncActionValue) Reset() {
 	*x = SyncActionValue{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[53]
+	mi := &file_waproto_proto_msgTypes[54]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6045,7 +6163,7 @@ func (x *SyncActionValue) String() string {
 func (*SyncActionValue) ProtoMessage() {}
 
 func (x *SyncActionValue) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[53]
+	mi := &file_waproto_proto_msgTypes[54]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6058,7 +6176,7 @@ func (x *SyncActionValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncActionValue.ProtoReflect.Descriptor instead.
 func (*SyncActionValue) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53}
+	return file_waproto_proto_rawDescGZIP(), []int{54}
 }
 
 func (x *SyncActionValue) GetTimestamp() int64 {
@@ -6165,7 +6283,7 @@ type PollVoteMessage struct {
 
 func (x *PollVoteMessage) Reset() {
 	*x = PollVoteMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[54]
+	mi := &file_waproto_proto_msgTypes[55]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6177,7 +6295,7 @@ func (x *PollVoteMessage) String() string {
 func (*PollVoteMessage) ProtoMessage() {}
 
 func (x *PollVoteMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[54]
+	mi := &file_waproto_proto_msgTypes[55]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6190,7 +6308,7 @@ func (x *PollVoteMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PollVoteMessage.ProtoReflect.Descriptor instead.
 func (*PollVoteMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{54}
+	return file_waproto_proto_rawDescGZIP(), []int{55}
 }
 
 func (x *PollVoteMessage) GetSelectedOptions() [][]byte {
@@ -6223,7 +6341,7 @@ type HistorySyncNotification struct {
 
 func (x *HistorySyncNotification) Reset() {
 	*x = HistorySyncNotification{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[55]
+	mi := &file_waproto_proto_msgTypes[56]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6235,7 +6353,7 @@ func (x *HistorySyncNotification) String() string {
 func (*HistorySyncNotification) ProtoMessage() {}
 
 func (x *HistorySyncNotification) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[55]
+	mi := &file_waproto_proto_msgTypes[56]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6248,7 +6366,7 @@ func (x *HistorySyncNotification) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HistorySyncNotification.ProtoReflect.Descriptor instead.
 func (*HistorySyncNotification) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{55}
+	return file_waproto_proto_rawDescGZIP(), []int{56}
 }
 
 func (x *HistorySyncNotification) GetFileSha256() []byte {
@@ -6353,7 +6471,7 @@ type HistorySync struct {
 
 func (x *HistorySync) Reset() {
 	*x = HistorySync{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[56]
+	mi := &file_waproto_proto_msgTypes[57]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6365,7 +6483,7 @@ func (x *HistorySync) String() string {
 func (*HistorySync) ProtoMessage() {}
 
 func (x *HistorySync) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[56]
+	mi := &file_waproto_proto_msgTypes[57]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6378,7 +6496,7 @@ func (x *HistorySync) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HistorySync.ProtoReflect.Descriptor instead.
 func (*HistorySync) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{56}
+	return file_waproto_proto_rawDescGZIP(), []int{57}
 }
 
 func (x *HistorySync) GetSyncType() HistorySyncType {
@@ -6464,7 +6582,7 @@ type Conversation struct {
 
 func (x *Conversation) Reset() {
 	*x = Conversation{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[57]
+	mi := &file_waproto_proto_msgTypes[58]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6476,7 +6594,7 @@ func (x *Conversation) String() string {
 func (*Conversation) ProtoMessage() {}
 
 func (x *Conversation) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[57]
+	mi := &file_waproto_proto_msgTypes[58]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6489,7 +6607,7 @@ func (x *Conversation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Conversation.ProtoReflect.Descriptor instead.
 func (*Conversation) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{57}
+	return file_waproto_proto_rawDescGZIP(), []int{58}
 }
 
 func (x *Conversation) GetId() string {
@@ -6629,7 +6747,7 @@ type HistorySyncMsg struct {
 
 func (x *HistorySyncMsg) Reset() {
 	*x = HistorySyncMsg{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[58]
+	mi := &file_waproto_proto_msgTypes[59]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6641,7 +6759,7 @@ func (x *HistorySyncMsg) String() string {
 func (*HistorySyncMsg) ProtoMessage() {}
 
 func (x *HistorySyncMsg) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[58]
+	mi := &file_waproto_proto_msgTypes[59]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6654,7 +6772,7 @@ func (x *HistorySyncMsg) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HistorySyncMsg.ProtoReflect.Descriptor instead.
 func (*HistorySyncMsg) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{58}
+	return file_waproto_proto_rawDescGZIP(), []int{59}
 }
 
 func (x *HistorySyncMsg) GetMessage() *WebMessageInfo {
@@ -6682,7 +6800,7 @@ type Pushname struct {
 
 func (x *Pushname) Reset() {
 	*x = Pushname{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[59]
+	mi := &file_waproto_proto_msgTypes[60]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6694,7 +6812,7 @@ func (x *Pushname) String() string {
 func (*Pushname) ProtoMessage() {}
 
 func (x *Pushname) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[59]
+	mi := &file_waproto_proto_msgTypes[60]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6707,7 +6825,7 @@ func (x *Pushname) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Pushname.ProtoReflect.Descriptor instead.
 func (*Pushname) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{59}
+	return file_waproto_proto_rawDescGZIP(), []int{60}
 }
 
 func (x *Pushname) GetId() string {
@@ -6744,7 +6862,7 @@ type WebMessageInfo struct {
 
 func (x *WebMessageInfo) Reset() {
 	*x = WebMessageInfo{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[60]
+	mi := &file_waproto_proto_msgTypes[61]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6756,7 +6874,7 @@ func (x *WebMessageInfo) String() string {
 func (*WebMessageInfo) ProtoMessage() {}
 
 func (x *WebMessageInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[60]
+	mi := &file_waproto_proto_msgTypes[61]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6769,7 +6887,7 @@ func (x *WebMessageInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WebMessageInfo.ProtoReflect.Descriptor instead.
 func (*WebMessageInfo) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{60}
+	return file_waproto_proto_rawDescGZIP(), []int{61}
 }
 
 func (x *WebMessageInfo) GetKey() *MessageKey {
@@ -6855,7 +6973,7 @@ type DeviceProps_AppVersion struct {
 
 func (x *DeviceProps_AppVersion) Reset() {
 	*x = DeviceProps_AppVersion{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[61]
+	mi := &file_waproto_proto_msgTypes[62]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6867,7 +6985,7 @@ func (x *DeviceProps_AppVersion) String() string {
 func (*DeviceProps_AppVersion) ProtoMessage() {}
 
 func (x *DeviceProps_AppVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[61]
+	mi := &file_waproto_proto_msgTypes[62]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6880,7 +6998,7 @@ func (x *DeviceProps_AppVersion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeviceProps_AppVersion.ProtoReflect.Descriptor instead.
 func (*DeviceProps_AppVersion) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{4, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{4, 0}
 }
 
 func (x *DeviceProps_AppVersion) GetPrimary() uint32 {
@@ -6945,7 +7063,7 @@ type DeviceProps_HistorySyncConfig struct {
 
 func (x *DeviceProps_HistorySyncConfig) Reset() {
 	*x = DeviceProps_HistorySyncConfig{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[62]
+	mi := &file_waproto_proto_msgTypes[63]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6957,7 +7075,7 @@ func (x *DeviceProps_HistorySyncConfig) String() string {
 func (*DeviceProps_HistorySyncConfig) ProtoMessage() {}
 
 func (x *DeviceProps_HistorySyncConfig) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[62]
+	mi := &file_waproto_proto_msgTypes[63]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6970,7 +7088,7 @@ func (x *DeviceProps_HistorySyncConfig) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeviceProps_HistorySyncConfig.ProtoReflect.Descriptor instead.
 func (*DeviceProps_HistorySyncConfig) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{4, 1}
+	return file_waproto_proto_rawDescGZIP(), []int{4, 1}
 }
 
 func (x *DeviceProps_HistorySyncConfig) GetFullSyncDaysLimit() uint32 {
@@ -7116,7 +7234,7 @@ type ClientPayload_DNSSource struct {
 
 func (x *ClientPayload_DNSSource) Reset() {
 	*x = ClientPayload_DNSSource{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[63]
+	mi := &file_waproto_proto_msgTypes[64]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7128,7 +7246,7 @@ func (x *ClientPayload_DNSSource) String() string {
 func (*ClientPayload_DNSSource) ProtoMessage() {}
 
 func (x *ClientPayload_DNSSource) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[63]
+	mi := &file_waproto_proto_msgTypes[64]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7141,7 +7259,7 @@ func (x *ClientPayload_DNSSource) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientPayload_DNSSource.ProtoReflect.Descriptor instead.
 func (*ClientPayload_DNSSource) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 0}
 }
 
 func (x *ClientPayload_DNSSource) GetDnsMethod() ClientPayload_DNSSource_DNSResolutionMethod {
@@ -7174,7 +7292,7 @@ type ClientPayload_DevicePairingRegistrationData struct {
 
 func (x *ClientPayload_DevicePairingRegistrationData) Reset() {
 	*x = ClientPayload_DevicePairingRegistrationData{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[64]
+	mi := &file_waproto_proto_msgTypes[65]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7186,7 +7304,7 @@ func (x *ClientPayload_DevicePairingRegistrationData) String() string {
 func (*ClientPayload_DevicePairingRegistrationData) ProtoMessage() {}
 
 func (x *ClientPayload_DevicePairingRegistrationData) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[64]
+	mi := &file_waproto_proto_msgTypes[65]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7199,7 +7317,7 @@ func (x *ClientPayload_DevicePairingRegistrationData) ProtoReflect() protoreflec
 
 // Deprecated: Use ClientPayload_DevicePairingRegistrationData.ProtoReflect.Descriptor instead.
 func (*ClientPayload_DevicePairingRegistrationData) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 1}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 1}
 }
 
 func (x *ClientPayload_DevicePairingRegistrationData) GetERegid() []byte {
@@ -7269,7 +7387,7 @@ type ClientPayload_InteropData struct {
 
 func (x *ClientPayload_InteropData) Reset() {
 	*x = ClientPayload_InteropData{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[65]
+	mi := &file_waproto_proto_msgTypes[66]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7281,7 +7399,7 @@ func (x *ClientPayload_InteropData) String() string {
 func (*ClientPayload_InteropData) ProtoMessage() {}
 
 func (x *ClientPayload_InteropData) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[65]
+	mi := &file_waproto_proto_msgTypes[66]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7294,7 +7412,7 @@ func (x *ClientPayload_InteropData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientPayload_InteropData.ProtoReflect.Descriptor instead.
 func (*ClientPayload_InteropData) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 2}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 2}
 }
 
 func (x *ClientPayload_InteropData) GetAccountId() uint64 {
@@ -7342,7 +7460,7 @@ type ClientPayload_UserAgent struct {
 
 func (x *ClientPayload_UserAgent) Reset() {
 	*x = ClientPayload_UserAgent{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[66]
+	mi := &file_waproto_proto_msgTypes[67]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7354,7 +7472,7 @@ func (x *ClientPayload_UserAgent) String() string {
 func (*ClientPayload_UserAgent) ProtoMessage() {}
 
 func (x *ClientPayload_UserAgent) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[66]
+	mi := &file_waproto_proto_msgTypes[67]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7367,7 +7485,7 @@ func (x *ClientPayload_UserAgent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientPayload_UserAgent.ProtoReflect.Descriptor instead.
 func (*ClientPayload_UserAgent) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 3}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 3}
 }
 
 func (x *ClientPayload_UserAgent) GetPlatform() ClientPayload_UserAgent_Platform {
@@ -7494,7 +7612,7 @@ type ClientPayload_WebInfo struct {
 
 func (x *ClientPayload_WebInfo) Reset() {
 	*x = ClientPayload_WebInfo{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[67]
+	mi := &file_waproto_proto_msgTypes[68]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7506,7 +7624,7 @@ func (x *ClientPayload_WebInfo) String() string {
 func (*ClientPayload_WebInfo) ProtoMessage() {}
 
 func (x *ClientPayload_WebInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[67]
+	mi := &file_waproto_proto_msgTypes[68]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7519,7 +7637,7 @@ func (x *ClientPayload_WebInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientPayload_WebInfo.ProtoReflect.Descriptor instead.
 func (*ClientPayload_WebInfo) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 4}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 4}
 }
 
 func (x *ClientPayload_WebInfo) GetRefToken() string {
@@ -7563,7 +7681,7 @@ type ClientPayload_UserAgent_AppVersion struct {
 
 func (x *ClientPayload_UserAgent_AppVersion) Reset() {
 	*x = ClientPayload_UserAgent_AppVersion{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[68]
+	mi := &file_waproto_proto_msgTypes[69]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7575,7 +7693,7 @@ func (x *ClientPayload_UserAgent_AppVersion) String() string {
 func (*ClientPayload_UserAgent_AppVersion) ProtoMessage() {}
 
 func (x *ClientPayload_UserAgent_AppVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[68]
+	mi := &file_waproto_proto_msgTypes[69]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7588,7 +7706,7 @@ func (x *ClientPayload_UserAgent_AppVersion) ProtoReflect() protoreflect.Message
 
 // Deprecated: Use ClientPayload_UserAgent_AppVersion.ProtoReflect.Descriptor instead.
 func (*ClientPayload_UserAgent_AppVersion) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 3, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 3, 0}
 }
 
 func (x *ClientPayload_UserAgent_AppVersion) GetPrimary() uint32 {
@@ -7645,7 +7763,7 @@ type ClientPayload_WebInfo_WebdPayload struct {
 
 func (x *ClientPayload_WebInfo_WebdPayload) Reset() {
 	*x = ClientPayload_WebInfo_WebdPayload{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[69]
+	mi := &file_waproto_proto_msgTypes[70]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7657,7 +7775,7 @@ func (x *ClientPayload_WebInfo_WebdPayload) String() string {
 func (*ClientPayload_WebInfo_WebdPayload) ProtoMessage() {}
 
 func (x *ClientPayload_WebInfo_WebdPayload) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[69]
+	mi := &file_waproto_proto_msgTypes[70]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7670,7 +7788,7 @@ func (x *ClientPayload_WebInfo_WebdPayload) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use ClientPayload_WebInfo_WebdPayload.ProtoReflect.Descriptor instead.
 func (*ClientPayload_WebInfo_WebdPayload) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{5, 4, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{5, 4, 0}
 }
 
 func (x *ClientPayload_WebInfo_WebdPayload) GetUsesParticipantInKey() bool {
@@ -7759,7 +7877,7 @@ type PollCreationMessage_Option struct {
 
 func (x *PollCreationMessage_Option) Reset() {
 	*x = PollCreationMessage_Option{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[70]
+	mi := &file_waproto_proto_msgTypes[71]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7771,7 +7889,7 @@ func (x *PollCreationMessage_Option) String() string {
 func (*PollCreationMessage_Option) ProtoMessage() {}
 
 func (x *PollCreationMessage_Option) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[70]
+	mi := &file_waproto_proto_msgTypes[71]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7784,7 +7902,7 @@ func (x *PollCreationMessage_Option) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PollCreationMessage_Option.ProtoReflect.Descriptor instead.
 func (*PollCreationMessage_Option) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{20, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{21, 0}
 }
 
 func (x *PollCreationMessage_Option) GetOptionName() string {
@@ -7804,7 +7922,7 @@ type PollUpdateMessage_PollEncValue struct {
 
 func (x *PollUpdateMessage_PollEncValue) Reset() {
 	*x = PollUpdateMessage_PollEncValue{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[71]
+	mi := &file_waproto_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7816,7 +7934,7 @@ func (x *PollUpdateMessage_PollEncValue) String() string {
 func (*PollUpdateMessage_PollEncValue) ProtoMessage() {}
 
 func (x *PollUpdateMessage_PollEncValue) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[71]
+	mi := &file_waproto_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7829,7 +7947,7 @@ func (x *PollUpdateMessage_PollEncValue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PollUpdateMessage_PollEncValue.ProtoReflect.Descriptor instead.
 func (*PollUpdateMessage_PollEncValue) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{21, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{22, 0}
 }
 
 func (x *PollUpdateMessage_PollEncValue) GetEncPayload() []byte {
@@ -7857,7 +7975,7 @@ type ButtonsMessage_Button struct {
 
 func (x *ButtonsMessage_Button) Reset() {
 	*x = ButtonsMessage_Button{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[72]
+	mi := &file_waproto_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7869,7 +7987,7 @@ func (x *ButtonsMessage_Button) String() string {
 func (*ButtonsMessage_Button) ProtoMessage() {}
 
 func (x *ButtonsMessage_Button) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[72]
+	mi := &file_waproto_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7882,7 +8000,7 @@ func (x *ButtonsMessage_Button) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ButtonsMessage_Button.ProtoReflect.Descriptor instead.
 func (*ButtonsMessage_Button) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{22, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{23, 0}
 }
 
 func (x *ButtonsMessage_Button) GetButtonId() string {
@@ -7915,7 +8033,7 @@ type ButtonsMessage_Button_ButtonText struct {
 
 func (x *ButtonsMessage_Button_ButtonText) Reset() {
 	*x = ButtonsMessage_Button_ButtonText{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[73]
+	mi := &file_waproto_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7927,7 +8045,7 @@ func (x *ButtonsMessage_Button_ButtonText) String() string {
 func (*ButtonsMessage_Button_ButtonText) ProtoMessage() {}
 
 func (x *ButtonsMessage_Button_ButtonText) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[73]
+	mi := &file_waproto_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7940,7 +8058,7 @@ func (x *ButtonsMessage_Button_ButtonText) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ButtonsMessage_Button_ButtonText.ProtoReflect.Descriptor instead.
 func (*ButtonsMessage_Button_ButtonText) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{22, 0, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{23, 0, 0}
 }
 
 func (x *ButtonsMessage_Button_ButtonText) GetDisplayText() string {
@@ -7961,7 +8079,7 @@ type ListMessage_Row struct {
 
 func (x *ListMessage_Row) Reset() {
 	*x = ListMessage_Row{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[74]
+	mi := &file_waproto_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -7973,7 +8091,7 @@ func (x *ListMessage_Row) String() string {
 func (*ListMessage_Row) ProtoMessage() {}
 
 func (x *ListMessage_Row) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[74]
+	mi := &file_waproto_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -7986,7 +8104,7 @@ func (x *ListMessage_Row) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMessage_Row.ProtoReflect.Descriptor instead.
 func (*ListMessage_Row) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{24, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{25, 0}
 }
 
 func (x *ListMessage_Row) GetTitle() string {
@@ -8020,7 +8138,7 @@ type ListMessage_Section struct {
 
 func (x *ListMessage_Section) Reset() {
 	*x = ListMessage_Section{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[75]
+	mi := &file_waproto_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8032,7 +8150,7 @@ func (x *ListMessage_Section) String() string {
 func (*ListMessage_Section) ProtoMessage() {}
 
 func (x *ListMessage_Section) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[75]
+	mi := &file_waproto_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8045,7 +8163,7 @@ func (x *ListMessage_Section) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMessage_Section.ProtoReflect.Descriptor instead.
 func (*ListMessage_Section) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{24, 1}
+	return file_waproto_proto_rawDescGZIP(), []int{25, 1}
 }
 
 func (x *ListMessage_Section) GetTitle() string {
@@ -8071,7 +8189,7 @@ type ListResponseMessage_SingleSelectReply struct {
 
 func (x *ListResponseMessage_SingleSelectReply) Reset() {
 	*x = ListResponseMessage_SingleSelectReply{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[76]
+	mi := &file_waproto_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8083,7 +8201,7 @@ func (x *ListResponseMessage_SingleSelectReply) String() string {
 func (*ListResponseMessage_SingleSelectReply) ProtoMessage() {}
 
 func (x *ListResponseMessage_SingleSelectReply) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[76]
+	mi := &file_waproto_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8096,7 +8214,7 @@ func (x *ListResponseMessage_SingleSelectReply) ProtoReflect() protoreflect.Mess
 
 // Deprecated: Use ListResponseMessage_SingleSelectReply.ProtoReflect.Descriptor instead.
 func (*ListResponseMessage_SingleSelectReply) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{25, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{26, 0}
 }
 
 func (x *ListResponseMessage_SingleSelectReply) GetSelectedRowId() string {
@@ -8119,7 +8237,7 @@ type TemplateMessage_HydratedFourRowTemplate struct {
 
 func (x *TemplateMessage_HydratedFourRowTemplate) Reset() {
 	*x = TemplateMessage_HydratedFourRowTemplate{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[77]
+	mi := &file_waproto_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8131,7 +8249,7 @@ func (x *TemplateMessage_HydratedFourRowTemplate) String() string {
 func (*TemplateMessage_HydratedFourRowTemplate) ProtoMessage() {}
 
 func (x *TemplateMessage_HydratedFourRowTemplate) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[77]
+	mi := &file_waproto_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8144,7 +8262,7 @@ func (x *TemplateMessage_HydratedFourRowTemplate) ProtoReflect() protoreflect.Me
 
 // Deprecated: Use TemplateMessage_HydratedFourRowTemplate.ProtoReflect.Descriptor instead.
 func (*TemplateMessage_HydratedFourRowTemplate) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{26, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{27, 0}
 }
 
 func (x *TemplateMessage_HydratedFourRowTemplate) GetHydratedTitleText() string {
@@ -8196,7 +8314,7 @@ type TemplateMessage_HydratedButton struct {
 
 func (x *TemplateMessage_HydratedButton) Reset() {
 	*x = TemplateMessage_HydratedButton{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[78]
+	mi := &file_waproto_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8208,7 +8326,7 @@ func (x *TemplateMessage_HydratedButton) String() string {
 func (*TemplateMessage_HydratedButton) ProtoMessage() {}
 
 func (x *TemplateMessage_HydratedButton) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[78]
+	mi := &file_waproto_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8221,7 +8339,7 @@ func (x *TemplateMessage_HydratedButton) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TemplateMessage_HydratedButton.ProtoReflect.Descriptor instead.
 func (*TemplateMessage_HydratedButton) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{26, 1}
+	return file_waproto_proto_rawDescGZIP(), []int{27, 1}
 }
 
 func (x *TemplateMessage_HydratedButton) GetIndex() uint32 {
@@ -8262,7 +8380,7 @@ type TemplateMessage_HydratedButton_HydratedQuickReplyButton struct {
 
 func (x *TemplateMessage_HydratedButton_HydratedQuickReplyButton) Reset() {
 	*x = TemplateMessage_HydratedButton_HydratedQuickReplyButton{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[79]
+	mi := &file_waproto_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8274,7 +8392,7 @@ func (x *TemplateMessage_HydratedButton_HydratedQuickReplyButton) String() strin
 func (*TemplateMessage_HydratedButton_HydratedQuickReplyButton) ProtoMessage() {}
 
 func (x *TemplateMessage_HydratedButton_HydratedQuickReplyButton) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[79]
+	mi := &file_waproto_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8287,7 +8405,7 @@ func (x *TemplateMessage_HydratedButton_HydratedQuickReplyButton) ProtoReflect()
 
 // Deprecated: Use TemplateMessage_HydratedButton_HydratedQuickReplyButton.ProtoReflect.Descriptor instead.
 func (*TemplateMessage_HydratedButton_HydratedQuickReplyButton) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{26, 1, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{27, 1, 0}
 }
 
 func (x *TemplateMessage_HydratedButton_HydratedQuickReplyButton) GetDisplayText() string {
@@ -8314,7 +8432,7 @@ type TemplateMessage_HydratedButton_HydratedURLButton struct {
 
 func (x *TemplateMessage_HydratedButton_HydratedURLButton) Reset() {
 	*x = TemplateMessage_HydratedButton_HydratedURLButton{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[80]
+	mi := &file_waproto_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8326,7 +8444,7 @@ func (x *TemplateMessage_HydratedButton_HydratedURLButton) String() string {
 func (*TemplateMessage_HydratedButton_HydratedURLButton) ProtoMessage() {}
 
 func (x *TemplateMessage_HydratedButton_HydratedURLButton) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[80]
+	mi := &file_waproto_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8339,7 +8457,7 @@ func (x *TemplateMessage_HydratedButton_HydratedURLButton) ProtoReflect() protor
 
 // Deprecated: Use TemplateMessage_HydratedButton_HydratedURLButton.ProtoReflect.Descriptor instead.
 func (*TemplateMessage_HydratedButton_HydratedURLButton) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{26, 1, 1}
+	return file_waproto_proto_rawDescGZIP(), []int{27, 1, 1}
 }
 
 func (x *TemplateMessage_HydratedButton_HydratedURLButton) GetDisplayText() string {
@@ -8366,7 +8484,7 @@ type TemplateMessage_HydratedButton_HydratedCallButton struct {
 
 func (x *TemplateMessage_HydratedButton_HydratedCallButton) Reset() {
 	*x = TemplateMessage_HydratedButton_HydratedCallButton{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[81]
+	mi := &file_waproto_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8378,7 +8496,7 @@ func (x *TemplateMessage_HydratedButton_HydratedCallButton) String() string {
 func (*TemplateMessage_HydratedButton_HydratedCallButton) ProtoMessage() {}
 
 func (x *TemplateMessage_HydratedButton_HydratedCallButton) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[81]
+	mi := &file_waproto_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8391,7 +8509,7 @@ func (x *TemplateMessage_HydratedButton_HydratedCallButton) ProtoReflect() proto
 
 // Deprecated: Use TemplateMessage_HydratedButton_HydratedCallButton.ProtoReflect.Descriptor instead.
 func (*TemplateMessage_HydratedButton_HydratedCallButton) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{26, 1, 2}
+	return file_waproto_proto_rawDescGZIP(), []int{27, 1, 2}
 }
 
 func (x *TemplateMessage_HydratedButton_HydratedCallButton) GetDisplayText() string {
@@ -8417,7 +8535,7 @@ type InteractiveMessage_Body struct {
 
 func (x *InteractiveMessage_Body) Reset() {
 	*x = InteractiveMessage_Body{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[82]
+	mi := &file_waproto_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8429,7 +8547,7 @@ func (x *InteractiveMessage_Body) String() string {
 func (*InteractiveMessage_Body) ProtoMessage() {}
 
 func (x *InteractiveMessage_Body) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[82]
+	mi := &file_waproto_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8442,7 +8560,7 @@ func (x *InteractiveMessage_Body) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InteractiveMessage_Body.ProtoReflect.Descriptor instead.
 func (*InteractiveMessage_Body) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{28, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{29, 0}
 }
 
 func (x *InteractiveMessage_Body) GetText() string {
@@ -8461,7 +8579,7 @@ type InteractiveMessage_Footer struct {
 
 func (x *InteractiveMessage_Footer) Reset() {
 	*x = InteractiveMessage_Footer{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[83]
+	mi := &file_waproto_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8473,7 +8591,7 @@ func (x *InteractiveMessage_Footer) String() string {
 func (*InteractiveMessage_Footer) ProtoMessage() {}
 
 func (x *InteractiveMessage_Footer) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[83]
+	mi := &file_waproto_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8486,7 +8604,7 @@ func (x *InteractiveMessage_Footer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InteractiveMessage_Footer.ProtoReflect.Descriptor instead.
 func (*InteractiveMessage_Footer) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{28, 1}
+	return file_waproto_proto_rawDescGZIP(), []int{29, 1}
 }
 
 func (x *InteractiveMessage_Footer) GetText() string {
@@ -8507,7 +8625,7 @@ type InteractiveMessage_Header struct {
 
 func (x *InteractiveMessage_Header) Reset() {
 	*x = InteractiveMessage_Header{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[84]
+	mi := &file_waproto_proto_msgTypes[85]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8519,7 +8637,7 @@ func (x *InteractiveMessage_Header) String() string {
 func (*InteractiveMessage_Header) ProtoMessage() {}
 
 func (x *InteractiveMessage_Header) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[84]
+	mi := &file_waproto_proto_msgTypes[85]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8532,7 +8650,7 @@ func (x *InteractiveMessage_Header) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InteractiveMessage_Header.ProtoReflect.Descriptor instead.
 func (*InteractiveMessage_Header) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{28, 2}
+	return file_waproto_proto_rawDescGZIP(), []int{29, 2}
 }
 
 func (x *InteractiveMessage_Header) GetTitle() string {
@@ -8567,7 +8685,7 @@ type InteractiveMessage_NativeFlowMessage struct {
 
 func (x *InteractiveMessage_NativeFlowMessage) Reset() {
 	*x = InteractiveMessage_NativeFlowMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[85]
+	mi := &file_waproto_proto_msgTypes[86]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8579,7 +8697,7 @@ func (x *InteractiveMessage_NativeFlowMessage) String() string {
 func (*InteractiveMessage_NativeFlowMessage) ProtoMessage() {}
 
 func (x *InteractiveMessage_NativeFlowMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[85]
+	mi := &file_waproto_proto_msgTypes[86]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8592,7 +8710,7 @@ func (x *InteractiveMessage_NativeFlowMessage) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use InteractiveMessage_NativeFlowMessage.ProtoReflect.Descriptor instead.
 func (*InteractiveMessage_NativeFlowMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{28, 3}
+	return file_waproto_proto_rawDescGZIP(), []int{29, 3}
 }
 
 func (x *InteractiveMessage_NativeFlowMessage) GetButtons() []*InteractiveMessage_NativeFlowMessage_NativeFlowButton {
@@ -8626,7 +8744,7 @@ type InteractiveMessage_NativeFlowMessage_NativeFlowButton struct {
 
 func (x *InteractiveMessage_NativeFlowMessage_NativeFlowButton) Reset() {
 	*x = InteractiveMessage_NativeFlowMessage_NativeFlowButton{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[86]
+	mi := &file_waproto_proto_msgTypes[87]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8638,7 +8756,7 @@ func (x *InteractiveMessage_NativeFlowMessage_NativeFlowButton) String() string 
 func (*InteractiveMessage_NativeFlowMessage_NativeFlowButton) ProtoMessage() {}
 
 func (x *InteractiveMessage_NativeFlowMessage_NativeFlowButton) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[86]
+	mi := &file_waproto_proto_msgTypes[87]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8651,7 +8769,7 @@ func (x *InteractiveMessage_NativeFlowMessage_NativeFlowButton) ProtoReflect() p
 
 // Deprecated: Use InteractiveMessage_NativeFlowMessage_NativeFlowButton.ProtoReflect.Descriptor instead.
 func (*InteractiveMessage_NativeFlowMessage_NativeFlowButton) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{28, 3, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{29, 3, 0}
 }
 
 func (x *InteractiveMessage_NativeFlowMessage_NativeFlowButton) GetName() string {
@@ -8677,7 +8795,7 @@ type InteractiveResponseMessage_Body struct {
 
 func (x *InteractiveResponseMessage_Body) Reset() {
 	*x = InteractiveResponseMessage_Body{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[87]
+	mi := &file_waproto_proto_msgTypes[88]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8689,7 +8807,7 @@ func (x *InteractiveResponseMessage_Body) String() string {
 func (*InteractiveResponseMessage_Body) ProtoMessage() {}
 
 func (x *InteractiveResponseMessage_Body) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[87]
+	mi := &file_waproto_proto_msgTypes[88]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8702,7 +8820,7 @@ func (x *InteractiveResponseMessage_Body) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use InteractiveResponseMessage_Body.ProtoReflect.Descriptor instead.
 func (*InteractiveResponseMessage_Body) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{29, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{30, 0}
 }
 
 func (x *InteractiveResponseMessage_Body) GetText() string {
@@ -8723,7 +8841,7 @@ type InteractiveResponseMessage_NativeFlowResponseMessage struct {
 
 func (x *InteractiveResponseMessage_NativeFlowResponseMessage) Reset() {
 	*x = InteractiveResponseMessage_NativeFlowResponseMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[88]
+	mi := &file_waproto_proto_msgTypes[89]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8735,7 +8853,7 @@ func (x *InteractiveResponseMessage_NativeFlowResponseMessage) String() string {
 func (*InteractiveResponseMessage_NativeFlowResponseMessage) ProtoMessage() {}
 
 func (x *InteractiveResponseMessage_NativeFlowResponseMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[88]
+	mi := &file_waproto_proto_msgTypes[89]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8748,7 +8866,7 @@ func (x *InteractiveResponseMessage_NativeFlowResponseMessage) ProtoReflect() pr
 
 // Deprecated: Use InteractiveResponseMessage_NativeFlowResponseMessage.ProtoReflect.Descriptor instead.
 func (*InteractiveResponseMessage_NativeFlowResponseMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{29, 1}
+	return file_waproto_proto_rawDescGZIP(), []int{30, 1}
 }
 
 func (x *InteractiveResponseMessage_NativeFlowResponseMessage) GetName() string {
@@ -8781,7 +8899,7 @@ type SyncActionValue_StarAction struct {
 
 func (x *SyncActionValue_StarAction) Reset() {
 	*x = SyncActionValue_StarAction{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[89]
+	mi := &file_waproto_proto_msgTypes[90]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8793,7 +8911,7 @@ func (x *SyncActionValue_StarAction) String() string {
 func (*SyncActionValue_StarAction) ProtoMessage() {}
 
 func (x *SyncActionValue_StarAction) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[89]
+	mi := &file_waproto_proto_msgTypes[90]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8806,7 +8924,7 @@ func (x *SyncActionValue_StarAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncActionValue_StarAction.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_StarAction) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 0}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 0}
 }
 
 func (x *SyncActionValue_StarAction) GetStarred() bool {
@@ -8828,7 +8946,7 @@ type SyncActionValue_SyncActionMessage struct {
 
 func (x *SyncActionValue_SyncActionMessage) Reset() {
 	*x = SyncActionValue_SyncActionMessage{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[90]
+	mi := &file_waproto_proto_msgTypes[91]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8840,7 +8958,7 @@ func (x *SyncActionValue_SyncActionMessage) String() string {
 func (*SyncActionValue_SyncActionMessage) ProtoMessage() {}
 
 func (x *SyncActionValue_SyncActionMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[90]
+	mi := &file_waproto_proto_msgTypes[91]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8853,7 +8971,7 @@ func (x *SyncActionValue_SyncActionMessage) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use SyncActionValue_SyncActionMessage.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_SyncActionMessage) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 1}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 1}
 }
 
 func (x *SyncActionValue_SyncActionMessage) GetKey() *MessageKey {
@@ -8882,7 +9000,7 @@ type SyncActionValue_SyncActionMessageRange struct {
 
 func (x *SyncActionValue_SyncActionMessageRange) Reset() {
 	*x = SyncActionValue_SyncActionMessageRange{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[91]
+	mi := &file_waproto_proto_msgTypes[92]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8894,7 +9012,7 @@ func (x *SyncActionValue_SyncActionMessageRange) String() string {
 func (*SyncActionValue_SyncActionMessageRange) ProtoMessage() {}
 
 func (x *SyncActionValue_SyncActionMessageRange) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[91]
+	mi := &file_waproto_proto_msgTypes[92]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8907,7 +9025,7 @@ func (x *SyncActionValue_SyncActionMessageRange) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use SyncActionValue_SyncActionMessageRange.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_SyncActionMessageRange) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 2}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 2}
 }
 
 func (x *SyncActionValue_SyncActionMessageRange) GetLastMessageTimestamp() int64 {
@@ -8941,7 +9059,7 @@ type SyncActionValue_MarkChatAsReadAction struct {
 
 func (x *SyncActionValue_MarkChatAsReadAction) Reset() {
 	*x = SyncActionValue_MarkChatAsReadAction{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[92]
+	mi := &file_waproto_proto_msgTypes[93]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -8953,7 +9071,7 @@ func (x *SyncActionValue_MarkChatAsReadAction) String() string {
 func (*SyncActionValue_MarkChatAsReadAction) ProtoMessage() {}
 
 func (x *SyncActionValue_MarkChatAsReadAction) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[92]
+	mi := &file_waproto_proto_msgTypes[93]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -8966,7 +9084,7 @@ func (x *SyncActionValue_MarkChatAsReadAction) ProtoReflect() protoreflect.Messa
 
 // Deprecated: Use SyncActionValue_MarkChatAsReadAction.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_MarkChatAsReadAction) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 3}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 3}
 }
 
 func (x *SyncActionValue_MarkChatAsReadAction) GetRead() bool {
@@ -8992,7 +9110,7 @@ type SyncActionValue_ClearChatAction struct {
 
 func (x *SyncActionValue_ClearChatAction) Reset() {
 	*x = SyncActionValue_ClearChatAction{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[93]
+	mi := &file_waproto_proto_msgTypes[94]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9004,7 +9122,7 @@ func (x *SyncActionValue_ClearChatAction) String() string {
 func (*SyncActionValue_ClearChatAction) ProtoMessage() {}
 
 func (x *SyncActionValue_ClearChatAction) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[93]
+	mi := &file_waproto_proto_msgTypes[94]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9017,7 +9135,7 @@ func (x *SyncActionValue_ClearChatAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncActionValue_ClearChatAction.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_ClearChatAction) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 4}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 4}
 }
 
 func (x *SyncActionValue_ClearChatAction) GetMessageRange() *SyncActionValue_SyncActionMessageRange {
@@ -9036,7 +9154,7 @@ type SyncActionValue_DeleteChatAction struct {
 
 func (x *SyncActionValue_DeleteChatAction) Reset() {
 	*x = SyncActionValue_DeleteChatAction{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[94]
+	mi := &file_waproto_proto_msgTypes[95]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9048,7 +9166,7 @@ func (x *SyncActionValue_DeleteChatAction) String() string {
 func (*SyncActionValue_DeleteChatAction) ProtoMessage() {}
 
 func (x *SyncActionValue_DeleteChatAction) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[94]
+	mi := &file_waproto_proto_msgTypes[95]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9061,7 +9179,7 @@ func (x *SyncActionValue_DeleteChatAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncActionValue_DeleteChatAction.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_DeleteChatAction) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 5}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 5}
 }
 
 func (x *SyncActionValue_DeleteChatAction) GetMessageRange() *SyncActionValue_SyncActionMessageRange {
@@ -9081,7 +9199,7 @@ type SyncActionValue_DeleteMessageForMeAction struct {
 
 func (x *SyncActionValue_DeleteMessageForMeAction) Reset() {
 	*x = SyncActionValue_DeleteMessageForMeAction{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[95]
+	mi := &file_waproto_proto_msgTypes[96]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9093,7 +9211,7 @@ func (x *SyncActionValue_DeleteMessageForMeAction) String() string {
 func (*SyncActionValue_DeleteMessageForMeAction) ProtoMessage() {}
 
 func (x *SyncActionValue_DeleteMessageForMeAction) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[95]
+	mi := &file_waproto_proto_msgTypes[96]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9106,7 +9224,7 @@ func (x *SyncActionValue_DeleteMessageForMeAction) ProtoReflect() protoreflect.M
 
 // Deprecated: Use SyncActionValue_DeleteMessageForMeAction.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_DeleteMessageForMeAction) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 6}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 6}
 }
 
 func (x *SyncActionValue_DeleteMessageForMeAction) GetDeleteMedia() bool {
@@ -9137,7 +9255,7 @@ type SyncActionValue_ContactAction struct {
 
 func (x *SyncActionValue_ContactAction) Reset() {
 	*x = SyncActionValue_ContactAction{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[96]
+	mi := &file_waproto_proto_msgTypes[97]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9149,7 +9267,7 @@ func (x *SyncActionValue_ContactAction) String() string {
 func (*SyncActionValue_ContactAction) ProtoMessage() {}
 
 func (x *SyncActionValue_ContactAction) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[96]
+	mi := &file_waproto_proto_msgTypes[97]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9162,7 +9280,7 @@ func (x *SyncActionValue_ContactAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncActionValue_ContactAction.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_ContactAction) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 7}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 7}
 }
 
 func (x *SyncActionValue_ContactAction) GetFullName() string {
@@ -9218,7 +9336,7 @@ type SyncActionValue_MuteAction struct {
 
 func (x *SyncActionValue_MuteAction) Reset() {
 	*x = SyncActionValue_MuteAction{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[97]
+	mi := &file_waproto_proto_msgTypes[98]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9230,7 +9348,7 @@ func (x *SyncActionValue_MuteAction) String() string {
 func (*SyncActionValue_MuteAction) ProtoMessage() {}
 
 func (x *SyncActionValue_MuteAction) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[97]
+	mi := &file_waproto_proto_msgTypes[98]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9243,7 +9361,7 @@ func (x *SyncActionValue_MuteAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncActionValue_MuteAction.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_MuteAction) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 8}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 8}
 }
 
 func (x *SyncActionValue_MuteAction) GetMuted() bool {
@@ -9276,7 +9394,7 @@ type SyncActionValue_PinAction struct {
 
 func (x *SyncActionValue_PinAction) Reset() {
 	*x = SyncActionValue_PinAction{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[98]
+	mi := &file_waproto_proto_msgTypes[99]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9288,7 +9406,7 @@ func (x *SyncActionValue_PinAction) String() string {
 func (*SyncActionValue_PinAction) ProtoMessage() {}
 
 func (x *SyncActionValue_PinAction) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[98]
+	mi := &file_waproto_proto_msgTypes[99]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9301,7 +9419,7 @@ func (x *SyncActionValue_PinAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncActionValue_PinAction.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_PinAction) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 9}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 9}
 }
 
 func (x *SyncActionValue_PinAction) GetPinned() bool {
@@ -9320,7 +9438,7 @@ type SyncActionValue_PushNameSetting struct {
 
 func (x *SyncActionValue_PushNameSetting) Reset() {
 	*x = SyncActionValue_PushNameSetting{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[99]
+	mi := &file_waproto_proto_msgTypes[100]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9332,7 +9450,7 @@ func (x *SyncActionValue_PushNameSetting) String() string {
 func (*SyncActionValue_PushNameSetting) ProtoMessage() {}
 
 func (x *SyncActionValue_PushNameSetting) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[99]
+	mi := &file_waproto_proto_msgTypes[100]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9345,7 +9463,7 @@ func (x *SyncActionValue_PushNameSetting) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncActionValue_PushNameSetting.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_PushNameSetting) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 10}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 10}
 }
 
 func (x *SyncActionValue_PushNameSetting) GetName() string {
@@ -9364,7 +9482,7 @@ type SyncActionValue_ArchiveChatAction struct {
 
 func (x *SyncActionValue_ArchiveChatAction) Reset() {
 	*x = SyncActionValue_ArchiveChatAction{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[100]
+	mi := &file_waproto_proto_msgTypes[101]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9376,7 +9494,7 @@ func (x *SyncActionValue_ArchiveChatAction) String() string {
 func (*SyncActionValue_ArchiveChatAction) ProtoMessage() {}
 
 func (x *SyncActionValue_ArchiveChatAction) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[100]
+	mi := &file_waproto_proto_msgTypes[101]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9389,7 +9507,7 @@ func (x *SyncActionValue_ArchiveChatAction) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use SyncActionValue_ArchiveChatAction.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_ArchiveChatAction) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 11}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 11}
 }
 
 func (x *SyncActionValue_ArchiveChatAction) GetArchived() bool {
@@ -9413,7 +9531,7 @@ type SyncActionValue_LabelEditAction struct {
 
 func (x *SyncActionValue_LabelEditAction) Reset() {
 	*x = SyncActionValue_LabelEditAction{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[101]
+	mi := &file_waproto_proto_msgTypes[102]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9425,7 +9543,7 @@ func (x *SyncActionValue_LabelEditAction) String() string {
 func (*SyncActionValue_LabelEditAction) ProtoMessage() {}
 
 func (x *SyncActionValue_LabelEditAction) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[101]
+	mi := &file_waproto_proto_msgTypes[102]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9438,7 +9556,7 @@ func (x *SyncActionValue_LabelEditAction) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SyncActionValue_LabelEditAction.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_LabelEditAction) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 12}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 12}
 }
 
 func (x *SyncActionValue_LabelEditAction) GetName() string {
@@ -9479,7 +9597,7 @@ type SyncActionValue_LabelAssociationAction struct {
 
 func (x *SyncActionValue_LabelAssociationAction) Reset() {
 	*x = SyncActionValue_LabelAssociationAction{}
-	mi := &file_internal_waproto_waproto_proto_msgTypes[102]
+	mi := &file_waproto_proto_msgTypes[103]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -9491,7 +9609,7 @@ func (x *SyncActionValue_LabelAssociationAction) String() string {
 func (*SyncActionValue_LabelAssociationAction) ProtoMessage() {}
 
 func (x *SyncActionValue_LabelAssociationAction) ProtoReflect() protoreflect.Message {
-	mi := &file_internal_waproto_waproto_proto_msgTypes[102]
+	mi := &file_waproto_proto_msgTypes[103]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -9504,7 +9622,7 @@ func (x *SyncActionValue_LabelAssociationAction) ProtoReflect() protoreflect.Mes
 
 // Deprecated: Use SyncActionValue_LabelAssociationAction.ProtoReflect.Descriptor instead.
 func (*SyncActionValue_LabelAssociationAction) Descriptor() ([]byte, []int) {
-	return file_internal_waproto_waproto_proto_rawDescGZIP(), []int{53, 13}
+	return file_waproto_proto_rawDescGZIP(), []int{54, 13}
 }
 
 func (x *SyncActionValue_LabelAssociationAction) GetLabeled() bool {
@@ -9514,11 +9632,11 @@ func (x *SyncActionValue_LabelAssociationAction) GetLabeled() bool {
 	return false
 }
 
-var File_internal_waproto_waproto_proto protoreflect.FileDescriptor
+var File_waproto_proto protoreflect.FileDescriptor
 
-const file_internal_waproto_waproto_proto_rawDesc = "" +
+const file_waproto_proto_rawDesc = "" +
 	"\n" +
-	"\x1einternal/waproto/waproto.proto\x12\awaproto\"\xba\x02\n" +
+	"\rwaproto.proto\x12\awaproto\"\xba\x02\n" +
 	"\x11ADVDeviceIdentity\x12\x19\n" +
 	"\x05rawId\x18\x01 \x01(\rH\x00R\x05rawId\x88\x01\x01\x12!\n" +
 	"\ttimestamp\x18\x02 \x01(\x04H\x01R\ttimestamp\x88\x01\x01\x12\x1f\n" +
@@ -10000,7 +10118,7 @@ const file_internal_waproto_waproto_proto_rawDesc = "" +
 	"\f_descriptionB\b\n" +
 	"\x06_titleB\x10\n" +
 	"\x0e_jpegThumbnailB\x0e\n" +
-	"\f_contextInfo\"\xc1\x19\n" +
+	"\f_contextInfo\"\xa2\x1a\n" +
 	"\aMessage\x12'\n" +
 	"\fconversation\x18\x01 \x01(\tH\x00R\fconversation\x88\x01\x01\x12n\n" +
 	"\x1csenderKeyDistributionMessage\x18\x02 \x01(\v2%.waproto.SenderKeyDistributionMessageH\x01R\x1csenderKeyDistributionMessage\x88\x01\x01\x12>\n" +
@@ -10034,7 +10152,8 @@ const file_internal_waproto_waproto_proto_rawDesc = "" +
 	"\x1adocumentWithCaptionMessage\x185 \x01(\v2\x1b.waproto.FutureProofMessageH\x1cR\x1adocumentWithCaptionMessage\x88\x01\x01\x12N\n" +
 	"\x11viewOnceMessageV2\x187 \x01(\v2\x1b.waproto.FutureProofMessageH\x1dR\x11viewOnceMessageV2\x88\x01\x01\x12F\n" +
 	"\reditedMessage\x18: \x01(\v2\x1b.waproto.FutureProofMessageH\x1eR\reditedMessage\x88\x01\x01\x12`\n" +
-	"\x1aviewOnceMessageV2Extension\x18; \x01(\v2\x1b.waproto.FutureProofMessageH\x1fR\x1aviewOnceMessageV2Extension\x88\x01\x01B\x0f\n" +
+	"\x1aviewOnceMessageV2Extension\x18; \x01(\v2\x1b.waproto.FutureProofMessageH\x1fR\x1aviewOnceMessageV2Extension\x88\x01\x01\x12J\n" +
+	"\x10pinInChatMessage\x18? \x01(\v2\x19.waproto.PinInChatMessageH R\x10pinInChatMessage\x88\x01\x01B\x0f\n" +
 	"\r_conversationB\x1f\n" +
 	"\x1d_senderKeyDistributionMessageB\x0f\n" +
 	"\r_imageMessageB\x11\n" +
@@ -10066,7 +10185,15 @@ const file_internal_waproto_waproto_proto_rawDesc = "" +
 	"\x1b_documentWithCaptionMessageB\x14\n" +
 	"\x12_viewOnceMessageV2B\x10\n" +
 	"\x0e_editedMessageB\x1d\n" +
-	"\x1b_viewOnceMessageV2Extension\"Q\n" +
+	"\x1b_viewOnceMessageV2ExtensionB\x13\n" +
+	"\x11_pinInChatMessage\"\xc9\x01\n" +
+	"\x10PinInChatMessage\x12*\n" +
+	"\x03key\x18\x01 \x01(\v2\x13.waproto.MessageKeyH\x00R\x03key\x88\x01\x01\x12/\n" +
+	"\x04type\x18\x02 \x01(\x0e2\x16.waproto.PinInChatTypeH\x01R\x04type\x88\x01\x01\x121\n" +
+	"\x11senderTimestampMs\x18\x03 \x01(\x03H\x02R\x11senderTimestampMs\x88\x01\x01B\x06\n" +
+	"\x04_keyB\a\n" +
+	"\x05_typeB\x14\n" +
+	"\x12_senderTimestampMs\"Q\n" +
 	"\x12FutureProofMessage\x12/\n" +
 	"\amessage\x18\x01 \x01(\v2\x10.waproto.MessageH\x00R\amessage\x88\x01\x01B\n" +
 	"\n" +
@@ -11078,7 +11205,11 @@ const file_internal_waproto_waproto_proto_rawDesc = "" +
 	"\x11ADVEncryptionType\x12\b\n" +
 	"\x04E2EE\x10\x00\x12\n" +
 	"\n" +
-	"\x06HOSTED\x10\x01*\x82\x02\n" +
+	"\x06HOSTED\x10\x01*`\n" +
+	"\rPinInChatType\x12\x17\n" +
+	"\x13PIN_IN_CHAT_UNKNOWN\x10\x00\x12\x17\n" +
+	"\x13PIN_IN_CHAT_FOR_ALL\x10\x01\x12\x1d\n" +
+	"\x19PIN_IN_CHAT_UNPIN_FOR_ALL\x10\x02*\x82\x02\n" +
 	"\x0fHistorySyncType\x12\"\n" +
 	"\x1eHISTORY_SYNC_INITIAL_BOOTSTRAP\x10\x00\x12\"\n" +
 	"\x1eHISTORY_SYNC_INITIAL_STATUS_V3\x10\x01\x12\x15\n" +
@@ -11090,434 +11221,440 @@ const file_internal_waproto_waproto_proto_rawDesc = "" +
 	"\x17HISTORY_SYNC_NO_HISTORY\x10\aB6Z4github.com/felipeleal/wa-go/internal/waproto;waprotob\x06proto3"
 
 var (
-	file_internal_waproto_waproto_proto_rawDescOnce sync.Once
-	file_internal_waproto_waproto_proto_rawDescData []byte
+	file_waproto_proto_rawDescOnce sync.Once
+	file_waproto_proto_rawDescData []byte
 )
 
-func file_internal_waproto_waproto_proto_rawDescGZIP() []byte {
-	file_internal_waproto_waproto_proto_rawDescOnce.Do(func() {
-		file_internal_waproto_waproto_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_internal_waproto_waproto_proto_rawDesc), len(file_internal_waproto_waproto_proto_rawDesc)))
+func file_waproto_proto_rawDescGZIP() []byte {
+	file_waproto_proto_rawDescOnce.Do(func() {
+		file_waproto_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_waproto_proto_rawDesc), len(file_waproto_proto_rawDesc)))
 	})
-	return file_internal_waproto_waproto_proto_rawDescData
+	return file_waproto_proto_rawDescData
 }
 
-var file_internal_waproto_waproto_proto_enumTypes = make([]protoimpl.EnumInfo, 22)
-var file_internal_waproto_waproto_proto_msgTypes = make([]protoimpl.MessageInfo, 103)
-var file_internal_waproto_waproto_proto_goTypes = []any{
+var file_waproto_proto_enumTypes = make([]protoimpl.EnumInfo, 23)
+var file_waproto_proto_msgTypes = make([]protoimpl.MessageInfo, 104)
+var file_waproto_proto_goTypes = []any{
 	(ADVEncryptionType)(0),                                          // 0: waproto.ADVEncryptionType
-	(HistorySyncType)(0),                                            // 1: waproto.HistorySyncType
-	(DeviceProps_PlatformType)(0),                                   // 2: waproto.DeviceProps.PlatformType
-	(ClientPayload_AccountType)(0),                                  // 3: waproto.ClientPayload.AccountType
-	(ClientPayload_ConnectReason)(0),                                // 4: waproto.ClientPayload.ConnectReason
-	(ClientPayload_ConnectType)(0),                                  // 5: waproto.ClientPayload.ConnectType
-	(ClientPayload_IOSAppExtension)(0),                              // 6: waproto.ClientPayload.IOSAppExtension
-	(ClientPayload_Product)(0),                                      // 7: waproto.ClientPayload.Product
-	(ClientPayload_TrafficAnonymization)(0),                         // 8: waproto.ClientPayload.TrafficAnonymization
-	(ClientPayload_DNSSource_DNSResolutionMethod)(0),                // 9: waproto.ClientPayload.DNSSource.DNSResolutionMethod
-	(ClientPayload_UserAgent_DeviceType)(0),                         // 10: waproto.ClientPayload.UserAgent.DeviceType
-	(ClientPayload_UserAgent_Platform)(0),                           // 11: waproto.ClientPayload.UserAgent.Platform
-	(ClientPayload_UserAgent_ReleaseChannel)(0),                     // 12: waproto.ClientPayload.UserAgent.ReleaseChannel
-	(ClientPayload_WebInfo_WebSubPlatform)(0),                       // 13: waproto.ClientPayload.WebInfo.WebSubPlatform
-	(ButtonsMessage_HeaderType)(0),                                  // 14: waproto.ButtonsMessage.HeaderType
-	(ButtonsMessage_Button_Type)(0),                                 // 15: waproto.ButtonsMessage.Button.Type
-	(ButtonsResponseMessage_Type)(0),                                // 16: waproto.ButtonsResponseMessage.Type
-	(ListMessage_ListType)(0),                                       // 17: waproto.ListMessage.ListType
-	(ListResponseMessage_ListType)(0),                               // 18: waproto.ListResponseMessage.ListType
-	(ProtocolMessage_Type)(0),                                       // 19: waproto.ProtocolMessage.Type
-	(SyncdMutation_SyncdOperation)(0),                               // 20: waproto.SyncdMutation.SyncdOperation
-	(WebMessageInfo_Status)(0),                                      // 21: waproto.WebMessageInfo.Status
-	(*ADVDeviceIdentity)(nil),                                       // 22: waproto.ADVDeviceIdentity
-	(*ADVKeyIndexList)(nil),                                         // 23: waproto.ADVKeyIndexList
-	(*ADVSignedDeviceIdentity)(nil),                                 // 24: waproto.ADVSignedDeviceIdentity
-	(*ADVSignedDeviceIdentityHMAC)(nil),                             // 25: waproto.ADVSignedDeviceIdentityHMAC
-	(*DeviceProps)(nil),                                             // 26: waproto.DeviceProps
-	(*ClientPayload)(nil),                                           // 27: waproto.ClientPayload
-	(*ExtendedTextMessage)(nil),                                     // 28: waproto.ExtendedTextMessage
-	(*Message)(nil),                                                 // 29: waproto.Message
-	(*FutureProofMessage)(nil),                                      // 30: waproto.FutureProofMessage
-	(*ImageMessage)(nil),                                            // 31: waproto.ImageMessage
-	(*VideoMessage)(nil),                                            // 32: waproto.VideoMessage
-	(*AudioMessage)(nil),                                            // 33: waproto.AudioMessage
-	(*DocumentMessage)(nil),                                         // 34: waproto.DocumentMessage
-	(*StickerMessage)(nil),                                          // 35: waproto.StickerMessage
-	(*LocationMessage)(nil),                                         // 36: waproto.LocationMessage
-	(*LiveLocationMessage)(nil),                                     // 37: waproto.LiveLocationMessage
-	(*ContactMessage)(nil),                                          // 38: waproto.ContactMessage
-	(*ContactsArrayMessage)(nil),                                    // 39: waproto.ContactsArrayMessage
-	(*ReactionMessage)(nil),                                         // 40: waproto.ReactionMessage
-	(*SenderKeyDistributionMessage)(nil),                            // 41: waproto.SenderKeyDistributionMessage
-	(*PollCreationMessage)(nil),                                     // 42: waproto.PollCreationMessage
-	(*PollUpdateMessage)(nil),                                       // 43: waproto.PollUpdateMessage
-	(*ButtonsMessage)(nil),                                          // 44: waproto.ButtonsMessage
-	(*ButtonsResponseMessage)(nil),                                  // 45: waproto.ButtonsResponseMessage
-	(*ListMessage)(nil),                                             // 46: waproto.ListMessage
-	(*ListResponseMessage)(nil),                                     // 47: waproto.ListResponseMessage
-	(*TemplateMessage)(nil),                                         // 48: waproto.TemplateMessage
-	(*TemplateButtonReplyMessage)(nil),                              // 49: waproto.TemplateButtonReplyMessage
-	(*InteractiveMessage)(nil),                                      // 50: waproto.InteractiveMessage
-	(*InteractiveResponseMessage)(nil),                              // 51: waproto.InteractiveResponseMessage
-	(*ProtocolMessage)(nil),                                         // 52: waproto.ProtocolMessage
-	(*AppStateSyncKeyId)(nil),                                       // 53: waproto.AppStateSyncKeyId
-	(*AppStateSyncKeyFingerprint)(nil),                              // 54: waproto.AppStateSyncKeyFingerprint
-	(*AppStateSyncKeyData)(nil),                                     // 55: waproto.AppStateSyncKeyData
-	(*AppStateSyncKey)(nil),                                         // 56: waproto.AppStateSyncKey
-	(*AppStateSyncKeyShare)(nil),                                    // 57: waproto.AppStateSyncKeyShare
-	(*AppStateSyncKeyRequest)(nil),                                  // 58: waproto.AppStateSyncKeyRequest
-	(*MessageKey)(nil),                                              // 59: waproto.MessageKey
-	(*ContextInfo)(nil),                                             // 60: waproto.ContextInfo
-	(*MessageContextInfo)(nil),                                      // 61: waproto.MessageContextInfo
-	(*DeviceListMetadata)(nil),                                      // 62: waproto.DeviceListMetadata
-	(*DeviceSentMessage)(nil),                                       // 63: waproto.DeviceSentMessage
-	(*KeyId)(nil),                                                   // 64: waproto.KeyId
-	(*ExternalBlobReference)(nil),                                   // 65: waproto.ExternalBlobReference
-	(*SyncdVersion)(nil),                                            // 66: waproto.SyncdVersion
-	(*SyncdIndex)(nil),                                              // 67: waproto.SyncdIndex
-	(*SyncdValue)(nil),                                              // 68: waproto.SyncdValue
-	(*SyncdRecord)(nil),                                             // 69: waproto.SyncdRecord
-	(*SyncdMutation)(nil),                                           // 70: waproto.SyncdMutation
-	(*SyncdMutations)(nil),                                          // 71: waproto.SyncdMutations
-	(*SyncdPatch)(nil),                                              // 72: waproto.SyncdPatch
-	(*SyncdSnapshot)(nil),                                           // 73: waproto.SyncdSnapshot
-	(*SyncActionData)(nil),                                          // 74: waproto.SyncActionData
-	(*SyncActionValue)(nil),                                         // 75: waproto.SyncActionValue
-	(*PollVoteMessage)(nil),                                         // 76: waproto.PollVoteMessage
-	(*HistorySyncNotification)(nil),                                 // 77: waproto.HistorySyncNotification
-	(*HistorySync)(nil),                                             // 78: waproto.HistorySync
-	(*Conversation)(nil),                                            // 79: waproto.Conversation
-	(*HistorySyncMsg)(nil),                                          // 80: waproto.HistorySyncMsg
-	(*Pushname)(nil),                                                // 81: waproto.Pushname
-	(*WebMessageInfo)(nil),                                          // 82: waproto.WebMessageInfo
-	(*DeviceProps_AppVersion)(nil),                                  // 83: waproto.DeviceProps.AppVersion
-	(*DeviceProps_HistorySyncConfig)(nil),                           // 84: waproto.DeviceProps.HistorySyncConfig
-	(*ClientPayload_DNSSource)(nil),                                 // 85: waproto.ClientPayload.DNSSource
-	(*ClientPayload_DevicePairingRegistrationData)(nil),             // 86: waproto.ClientPayload.DevicePairingRegistrationData
-	(*ClientPayload_InteropData)(nil),                               // 87: waproto.ClientPayload.InteropData
-	(*ClientPayload_UserAgent)(nil),                                 // 88: waproto.ClientPayload.UserAgent
-	(*ClientPayload_WebInfo)(nil),                                   // 89: waproto.ClientPayload.WebInfo
-	(*ClientPayload_UserAgent_AppVersion)(nil),                      // 90: waproto.ClientPayload.UserAgent.AppVersion
-	(*ClientPayload_WebInfo_WebdPayload)(nil),                       // 91: waproto.ClientPayload.WebInfo.WebdPayload
-	(*PollCreationMessage_Option)(nil),                              // 92: waproto.PollCreationMessage.Option
-	(*PollUpdateMessage_PollEncValue)(nil),                          // 93: waproto.PollUpdateMessage.PollEncValue
-	(*ButtonsMessage_Button)(nil),                                   // 94: waproto.ButtonsMessage.Button
-	(*ButtonsMessage_Button_ButtonText)(nil),                        // 95: waproto.ButtonsMessage.Button.ButtonText
-	(*ListMessage_Row)(nil),                                         // 96: waproto.ListMessage.Row
-	(*ListMessage_Section)(nil),                                     // 97: waproto.ListMessage.Section
-	(*ListResponseMessage_SingleSelectReply)(nil),                   // 98: waproto.ListResponseMessage.SingleSelectReply
-	(*TemplateMessage_HydratedFourRowTemplate)(nil),                 // 99: waproto.TemplateMessage.HydratedFourRowTemplate
-	(*TemplateMessage_HydratedButton)(nil),                          // 100: waproto.TemplateMessage.HydratedButton
-	(*TemplateMessage_HydratedButton_HydratedQuickReplyButton)(nil), // 101: waproto.TemplateMessage.HydratedButton.HydratedQuickReplyButton
-	(*TemplateMessage_HydratedButton_HydratedURLButton)(nil),        // 102: waproto.TemplateMessage.HydratedButton.HydratedURLButton
-	(*TemplateMessage_HydratedButton_HydratedCallButton)(nil),       // 103: waproto.TemplateMessage.HydratedButton.HydratedCallButton
-	(*InteractiveMessage_Body)(nil),                                 // 104: waproto.InteractiveMessage.Body
-	(*InteractiveMessage_Footer)(nil),                               // 105: waproto.InteractiveMessage.Footer
-	(*InteractiveMessage_Header)(nil),                               // 106: waproto.InteractiveMessage.Header
-	(*InteractiveMessage_NativeFlowMessage)(nil),                    // 107: waproto.InteractiveMessage.NativeFlowMessage
-	(*InteractiveMessage_NativeFlowMessage_NativeFlowButton)(nil),   // 108: waproto.InteractiveMessage.NativeFlowMessage.NativeFlowButton
-	(*InteractiveResponseMessage_Body)(nil),                         // 109: waproto.InteractiveResponseMessage.Body
-	(*InteractiveResponseMessage_NativeFlowResponseMessage)(nil),    // 110: waproto.InteractiveResponseMessage.NativeFlowResponseMessage
-	(*SyncActionValue_StarAction)(nil),                              // 111: waproto.SyncActionValue.StarAction
-	(*SyncActionValue_SyncActionMessage)(nil),                       // 112: waproto.SyncActionValue.SyncActionMessage
-	(*SyncActionValue_SyncActionMessageRange)(nil),                  // 113: waproto.SyncActionValue.SyncActionMessageRange
-	(*SyncActionValue_MarkChatAsReadAction)(nil),                    // 114: waproto.SyncActionValue.MarkChatAsReadAction
-	(*SyncActionValue_ClearChatAction)(nil),                         // 115: waproto.SyncActionValue.ClearChatAction
-	(*SyncActionValue_DeleteChatAction)(nil),                        // 116: waproto.SyncActionValue.DeleteChatAction
-	(*SyncActionValue_DeleteMessageForMeAction)(nil),                // 117: waproto.SyncActionValue.DeleteMessageForMeAction
-	(*SyncActionValue_ContactAction)(nil),                           // 118: waproto.SyncActionValue.ContactAction
-	(*SyncActionValue_MuteAction)(nil),                              // 119: waproto.SyncActionValue.MuteAction
-	(*SyncActionValue_PinAction)(nil),                               // 120: waproto.SyncActionValue.PinAction
-	(*SyncActionValue_PushNameSetting)(nil),                         // 121: waproto.SyncActionValue.PushNameSetting
-	(*SyncActionValue_ArchiveChatAction)(nil),                       // 122: waproto.SyncActionValue.ArchiveChatAction
-	(*SyncActionValue_LabelEditAction)(nil),                         // 123: waproto.SyncActionValue.LabelEditAction
-	(*SyncActionValue_LabelAssociationAction)(nil),                  // 124: waproto.SyncActionValue.LabelAssociationAction
+	(PinInChatType)(0),                                              // 1: waproto.PinInChatType
+	(HistorySyncType)(0),                                            // 2: waproto.HistorySyncType
+	(DeviceProps_PlatformType)(0),                                   // 3: waproto.DeviceProps.PlatformType
+	(ClientPayload_AccountType)(0),                                  // 4: waproto.ClientPayload.AccountType
+	(ClientPayload_ConnectReason)(0),                                // 5: waproto.ClientPayload.ConnectReason
+	(ClientPayload_ConnectType)(0),                                  // 6: waproto.ClientPayload.ConnectType
+	(ClientPayload_IOSAppExtension)(0),                              // 7: waproto.ClientPayload.IOSAppExtension
+	(ClientPayload_Product)(0),                                      // 8: waproto.ClientPayload.Product
+	(ClientPayload_TrafficAnonymization)(0),                         // 9: waproto.ClientPayload.TrafficAnonymization
+	(ClientPayload_DNSSource_DNSResolutionMethod)(0),                // 10: waproto.ClientPayload.DNSSource.DNSResolutionMethod
+	(ClientPayload_UserAgent_DeviceType)(0),                         // 11: waproto.ClientPayload.UserAgent.DeviceType
+	(ClientPayload_UserAgent_Platform)(0),                           // 12: waproto.ClientPayload.UserAgent.Platform
+	(ClientPayload_UserAgent_ReleaseChannel)(0),                     // 13: waproto.ClientPayload.UserAgent.ReleaseChannel
+	(ClientPayload_WebInfo_WebSubPlatform)(0),                       // 14: waproto.ClientPayload.WebInfo.WebSubPlatform
+	(ButtonsMessage_HeaderType)(0),                                  // 15: waproto.ButtonsMessage.HeaderType
+	(ButtonsMessage_Button_Type)(0),                                 // 16: waproto.ButtonsMessage.Button.Type
+	(ButtonsResponseMessage_Type)(0),                                // 17: waproto.ButtonsResponseMessage.Type
+	(ListMessage_ListType)(0),                                       // 18: waproto.ListMessage.ListType
+	(ListResponseMessage_ListType)(0),                               // 19: waproto.ListResponseMessage.ListType
+	(ProtocolMessage_Type)(0),                                       // 20: waproto.ProtocolMessage.Type
+	(SyncdMutation_SyncdOperation)(0),                               // 21: waproto.SyncdMutation.SyncdOperation
+	(WebMessageInfo_Status)(0),                                      // 22: waproto.WebMessageInfo.Status
+	(*ADVDeviceIdentity)(nil),                                       // 23: waproto.ADVDeviceIdentity
+	(*ADVKeyIndexList)(nil),                                         // 24: waproto.ADVKeyIndexList
+	(*ADVSignedDeviceIdentity)(nil),                                 // 25: waproto.ADVSignedDeviceIdentity
+	(*ADVSignedDeviceIdentityHMAC)(nil),                             // 26: waproto.ADVSignedDeviceIdentityHMAC
+	(*DeviceProps)(nil),                                             // 27: waproto.DeviceProps
+	(*ClientPayload)(nil),                                           // 28: waproto.ClientPayload
+	(*ExtendedTextMessage)(nil),                                     // 29: waproto.ExtendedTextMessage
+	(*Message)(nil),                                                 // 30: waproto.Message
+	(*PinInChatMessage)(nil),                                        // 31: waproto.PinInChatMessage
+	(*FutureProofMessage)(nil),                                      // 32: waproto.FutureProofMessage
+	(*ImageMessage)(nil),                                            // 33: waproto.ImageMessage
+	(*VideoMessage)(nil),                                            // 34: waproto.VideoMessage
+	(*AudioMessage)(nil),                                            // 35: waproto.AudioMessage
+	(*DocumentMessage)(nil),                                         // 36: waproto.DocumentMessage
+	(*StickerMessage)(nil),                                          // 37: waproto.StickerMessage
+	(*LocationMessage)(nil),                                         // 38: waproto.LocationMessage
+	(*LiveLocationMessage)(nil),                                     // 39: waproto.LiveLocationMessage
+	(*ContactMessage)(nil),                                          // 40: waproto.ContactMessage
+	(*ContactsArrayMessage)(nil),                                    // 41: waproto.ContactsArrayMessage
+	(*ReactionMessage)(nil),                                         // 42: waproto.ReactionMessage
+	(*SenderKeyDistributionMessage)(nil),                            // 43: waproto.SenderKeyDistributionMessage
+	(*PollCreationMessage)(nil),                                     // 44: waproto.PollCreationMessage
+	(*PollUpdateMessage)(nil),                                       // 45: waproto.PollUpdateMessage
+	(*ButtonsMessage)(nil),                                          // 46: waproto.ButtonsMessage
+	(*ButtonsResponseMessage)(nil),                                  // 47: waproto.ButtonsResponseMessage
+	(*ListMessage)(nil),                                             // 48: waproto.ListMessage
+	(*ListResponseMessage)(nil),                                     // 49: waproto.ListResponseMessage
+	(*TemplateMessage)(nil),                                         // 50: waproto.TemplateMessage
+	(*TemplateButtonReplyMessage)(nil),                              // 51: waproto.TemplateButtonReplyMessage
+	(*InteractiveMessage)(nil),                                      // 52: waproto.InteractiveMessage
+	(*InteractiveResponseMessage)(nil),                              // 53: waproto.InteractiveResponseMessage
+	(*ProtocolMessage)(nil),                                         // 54: waproto.ProtocolMessage
+	(*AppStateSyncKeyId)(nil),                                       // 55: waproto.AppStateSyncKeyId
+	(*AppStateSyncKeyFingerprint)(nil),                              // 56: waproto.AppStateSyncKeyFingerprint
+	(*AppStateSyncKeyData)(nil),                                     // 57: waproto.AppStateSyncKeyData
+	(*AppStateSyncKey)(nil),                                         // 58: waproto.AppStateSyncKey
+	(*AppStateSyncKeyShare)(nil),                                    // 59: waproto.AppStateSyncKeyShare
+	(*AppStateSyncKeyRequest)(nil),                                  // 60: waproto.AppStateSyncKeyRequest
+	(*MessageKey)(nil),                                              // 61: waproto.MessageKey
+	(*ContextInfo)(nil),                                             // 62: waproto.ContextInfo
+	(*MessageContextInfo)(nil),                                      // 63: waproto.MessageContextInfo
+	(*DeviceListMetadata)(nil),                                      // 64: waproto.DeviceListMetadata
+	(*DeviceSentMessage)(nil),                                       // 65: waproto.DeviceSentMessage
+	(*KeyId)(nil),                                                   // 66: waproto.KeyId
+	(*ExternalBlobReference)(nil),                                   // 67: waproto.ExternalBlobReference
+	(*SyncdVersion)(nil),                                            // 68: waproto.SyncdVersion
+	(*SyncdIndex)(nil),                                              // 69: waproto.SyncdIndex
+	(*SyncdValue)(nil),                                              // 70: waproto.SyncdValue
+	(*SyncdRecord)(nil),                                             // 71: waproto.SyncdRecord
+	(*SyncdMutation)(nil),                                           // 72: waproto.SyncdMutation
+	(*SyncdMutations)(nil),                                          // 73: waproto.SyncdMutations
+	(*SyncdPatch)(nil),                                              // 74: waproto.SyncdPatch
+	(*SyncdSnapshot)(nil),                                           // 75: waproto.SyncdSnapshot
+	(*SyncActionData)(nil),                                          // 76: waproto.SyncActionData
+	(*SyncActionValue)(nil),                                         // 77: waproto.SyncActionValue
+	(*PollVoteMessage)(nil),                                         // 78: waproto.PollVoteMessage
+	(*HistorySyncNotification)(nil),                                 // 79: waproto.HistorySyncNotification
+	(*HistorySync)(nil),                                             // 80: waproto.HistorySync
+	(*Conversation)(nil),                                            // 81: waproto.Conversation
+	(*HistorySyncMsg)(nil),                                          // 82: waproto.HistorySyncMsg
+	(*Pushname)(nil),                                                // 83: waproto.Pushname
+	(*WebMessageInfo)(nil),                                          // 84: waproto.WebMessageInfo
+	(*DeviceProps_AppVersion)(nil),                                  // 85: waproto.DeviceProps.AppVersion
+	(*DeviceProps_HistorySyncConfig)(nil),                           // 86: waproto.DeviceProps.HistorySyncConfig
+	(*ClientPayload_DNSSource)(nil),                                 // 87: waproto.ClientPayload.DNSSource
+	(*ClientPayload_DevicePairingRegistrationData)(nil),             // 88: waproto.ClientPayload.DevicePairingRegistrationData
+	(*ClientPayload_InteropData)(nil),                               // 89: waproto.ClientPayload.InteropData
+	(*ClientPayload_UserAgent)(nil),                                 // 90: waproto.ClientPayload.UserAgent
+	(*ClientPayload_WebInfo)(nil),                                   // 91: waproto.ClientPayload.WebInfo
+	(*ClientPayload_UserAgent_AppVersion)(nil),                      // 92: waproto.ClientPayload.UserAgent.AppVersion
+	(*ClientPayload_WebInfo_WebdPayload)(nil),                       // 93: waproto.ClientPayload.WebInfo.WebdPayload
+	(*PollCreationMessage_Option)(nil),                              // 94: waproto.PollCreationMessage.Option
+	(*PollUpdateMessage_PollEncValue)(nil),                          // 95: waproto.PollUpdateMessage.PollEncValue
+	(*ButtonsMessage_Button)(nil),                                   // 96: waproto.ButtonsMessage.Button
+	(*ButtonsMessage_Button_ButtonText)(nil),                        // 97: waproto.ButtonsMessage.Button.ButtonText
+	(*ListMessage_Row)(nil),                                         // 98: waproto.ListMessage.Row
+	(*ListMessage_Section)(nil),                                     // 99: waproto.ListMessage.Section
+	(*ListResponseMessage_SingleSelectReply)(nil),                   // 100: waproto.ListResponseMessage.SingleSelectReply
+	(*TemplateMessage_HydratedFourRowTemplate)(nil),                 // 101: waproto.TemplateMessage.HydratedFourRowTemplate
+	(*TemplateMessage_HydratedButton)(nil),                          // 102: waproto.TemplateMessage.HydratedButton
+	(*TemplateMessage_HydratedButton_HydratedQuickReplyButton)(nil), // 103: waproto.TemplateMessage.HydratedButton.HydratedQuickReplyButton
+	(*TemplateMessage_HydratedButton_HydratedURLButton)(nil),        // 104: waproto.TemplateMessage.HydratedButton.HydratedURLButton
+	(*TemplateMessage_HydratedButton_HydratedCallButton)(nil),       // 105: waproto.TemplateMessage.HydratedButton.HydratedCallButton
+	(*InteractiveMessage_Body)(nil),                                 // 106: waproto.InteractiveMessage.Body
+	(*InteractiveMessage_Footer)(nil),                               // 107: waproto.InteractiveMessage.Footer
+	(*InteractiveMessage_Header)(nil),                               // 108: waproto.InteractiveMessage.Header
+	(*InteractiveMessage_NativeFlowMessage)(nil),                    // 109: waproto.InteractiveMessage.NativeFlowMessage
+	(*InteractiveMessage_NativeFlowMessage_NativeFlowButton)(nil),   // 110: waproto.InteractiveMessage.NativeFlowMessage.NativeFlowButton
+	(*InteractiveResponseMessage_Body)(nil),                         // 111: waproto.InteractiveResponseMessage.Body
+	(*InteractiveResponseMessage_NativeFlowResponseMessage)(nil),    // 112: waproto.InteractiveResponseMessage.NativeFlowResponseMessage
+	(*SyncActionValue_StarAction)(nil),                              // 113: waproto.SyncActionValue.StarAction
+	(*SyncActionValue_SyncActionMessage)(nil),                       // 114: waproto.SyncActionValue.SyncActionMessage
+	(*SyncActionValue_SyncActionMessageRange)(nil),                  // 115: waproto.SyncActionValue.SyncActionMessageRange
+	(*SyncActionValue_MarkChatAsReadAction)(nil),                    // 116: waproto.SyncActionValue.MarkChatAsReadAction
+	(*SyncActionValue_ClearChatAction)(nil),                         // 117: waproto.SyncActionValue.ClearChatAction
+	(*SyncActionValue_DeleteChatAction)(nil),                        // 118: waproto.SyncActionValue.DeleteChatAction
+	(*SyncActionValue_DeleteMessageForMeAction)(nil),                // 119: waproto.SyncActionValue.DeleteMessageForMeAction
+	(*SyncActionValue_ContactAction)(nil),                           // 120: waproto.SyncActionValue.ContactAction
+	(*SyncActionValue_MuteAction)(nil),                              // 121: waproto.SyncActionValue.MuteAction
+	(*SyncActionValue_PinAction)(nil),                               // 122: waproto.SyncActionValue.PinAction
+	(*SyncActionValue_PushNameSetting)(nil),                         // 123: waproto.SyncActionValue.PushNameSetting
+	(*SyncActionValue_ArchiveChatAction)(nil),                       // 124: waproto.SyncActionValue.ArchiveChatAction
+	(*SyncActionValue_LabelEditAction)(nil),                         // 125: waproto.SyncActionValue.LabelEditAction
+	(*SyncActionValue_LabelAssociationAction)(nil),                  // 126: waproto.SyncActionValue.LabelAssociationAction
 }
-var file_internal_waproto_waproto_proto_depIdxs = []int32{
+var file_waproto_proto_depIdxs = []int32{
 	0,   // 0: waproto.ADVDeviceIdentity.accountType:type_name -> waproto.ADVEncryptionType
 	0,   // 1: waproto.ADVDeviceIdentity.deviceType:type_name -> waproto.ADVEncryptionType
 	0,   // 2: waproto.ADVKeyIndexList.accountType:type_name -> waproto.ADVEncryptionType
 	0,   // 3: waproto.ADVSignedDeviceIdentityHMAC.accountType:type_name -> waproto.ADVEncryptionType
-	83,  // 4: waproto.DeviceProps.version:type_name -> waproto.DeviceProps.AppVersion
-	2,   // 5: waproto.DeviceProps.platformType:type_name -> waproto.DeviceProps.PlatformType
-	84,  // 6: waproto.DeviceProps.historySyncConfig:type_name -> waproto.DeviceProps.HistorySyncConfig
-	88,  // 7: waproto.ClientPayload.userAgent:type_name -> waproto.ClientPayload.UserAgent
-	89,  // 8: waproto.ClientPayload.webInfo:type_name -> waproto.ClientPayload.WebInfo
-	5,   // 9: waproto.ClientPayload.connectType:type_name -> waproto.ClientPayload.ConnectType
-	4,   // 10: waproto.ClientPayload.connectReason:type_name -> waproto.ClientPayload.ConnectReason
-	85,  // 11: waproto.ClientPayload.dnsSource:type_name -> waproto.ClientPayload.DNSSource
-	86,  // 12: waproto.ClientPayload.devicePairingData:type_name -> waproto.ClientPayload.DevicePairingRegistrationData
-	7,   // 13: waproto.ClientPayload.product:type_name -> waproto.ClientPayload.Product
-	6,   // 14: waproto.ClientPayload.iosAppExtension:type_name -> waproto.ClientPayload.IOSAppExtension
-	87,  // 15: waproto.ClientPayload.interopData:type_name -> waproto.ClientPayload.InteropData
-	8,   // 16: waproto.ClientPayload.trafficAnonymization:type_name -> waproto.ClientPayload.TrafficAnonymization
-	3,   // 17: waproto.ClientPayload.accountType:type_name -> waproto.ClientPayload.AccountType
-	60,  // 18: waproto.ExtendedTextMessage.contextInfo:type_name -> waproto.ContextInfo
-	41,  // 19: waproto.Message.senderKeyDistributionMessage:type_name -> waproto.SenderKeyDistributionMessage
-	31,  // 20: waproto.Message.imageMessage:type_name -> waproto.ImageMessage
-	38,  // 21: waproto.Message.contactMessage:type_name -> waproto.ContactMessage
-	36,  // 22: waproto.Message.locationMessage:type_name -> waproto.LocationMessage
-	28,  // 23: waproto.Message.extendedTextMessage:type_name -> waproto.ExtendedTextMessage
-	34,  // 24: waproto.Message.documentMessage:type_name -> waproto.DocumentMessage
-	33,  // 25: waproto.Message.audioMessage:type_name -> waproto.AudioMessage
-	32,  // 26: waproto.Message.videoMessage:type_name -> waproto.VideoMessage
-	52,  // 27: waproto.Message.protocolMessage:type_name -> waproto.ProtocolMessage
-	39,  // 28: waproto.Message.contactsArrayMessage:type_name -> waproto.ContactsArrayMessage
-	37,  // 29: waproto.Message.liveLocationMessage:type_name -> waproto.LiveLocationMessage
-	35,  // 30: waproto.Message.stickerMessage:type_name -> waproto.StickerMessage
-	63,  // 31: waproto.Message.deviceSentMessage:type_name -> waproto.DeviceSentMessage
-	61,  // 32: waproto.Message.messageContextInfo:type_name -> waproto.MessageContextInfo
-	40,  // 33: waproto.Message.reactionMessage:type_name -> waproto.ReactionMessage
-	42,  // 34: waproto.Message.pollCreationMessage:type_name -> waproto.PollCreationMessage
-	43,  // 35: waproto.Message.pollUpdateMessage:type_name -> waproto.PollUpdateMessage
-	48,  // 36: waproto.Message.templateMessage:type_name -> waproto.TemplateMessage
-	49,  // 37: waproto.Message.templateButtonReplyMessage:type_name -> waproto.TemplateButtonReplyMessage
-	46,  // 38: waproto.Message.listMessage:type_name -> waproto.ListMessage
-	47,  // 39: waproto.Message.listResponseMessage:type_name -> waproto.ListResponseMessage
-	44,  // 40: waproto.Message.buttonsMessage:type_name -> waproto.ButtonsMessage
-	45,  // 41: waproto.Message.buttonsResponseMessage:type_name -> waproto.ButtonsResponseMessage
-	50,  // 42: waproto.Message.interactiveMessage:type_name -> waproto.InteractiveMessage
-	51,  // 43: waproto.Message.interactiveResponseMessage:type_name -> waproto.InteractiveResponseMessage
-	30,  // 44: waproto.Message.viewOnceMessage:type_name -> waproto.FutureProofMessage
-	30,  // 45: waproto.Message.ephemeralMessage:type_name -> waproto.FutureProofMessage
-	30,  // 46: waproto.Message.documentWithCaptionMessage:type_name -> waproto.FutureProofMessage
-	30,  // 47: waproto.Message.viewOnceMessageV2:type_name -> waproto.FutureProofMessage
-	30,  // 48: waproto.Message.editedMessage:type_name -> waproto.FutureProofMessage
-	30,  // 49: waproto.Message.viewOnceMessageV2Extension:type_name -> waproto.FutureProofMessage
-	29,  // 50: waproto.FutureProofMessage.message:type_name -> waproto.Message
-	60,  // 51: waproto.ImageMessage.contextInfo:type_name -> waproto.ContextInfo
-	60,  // 52: waproto.VideoMessage.contextInfo:type_name -> waproto.ContextInfo
-	60,  // 53: waproto.AudioMessage.contextInfo:type_name -> waproto.ContextInfo
-	60,  // 54: waproto.DocumentMessage.contextInfo:type_name -> waproto.ContextInfo
-	60,  // 55: waproto.StickerMessage.contextInfo:type_name -> waproto.ContextInfo
-	60,  // 56: waproto.LocationMessage.contextInfo:type_name -> waproto.ContextInfo
-	60,  // 57: waproto.LiveLocationMessage.contextInfo:type_name -> waproto.ContextInfo
-	60,  // 58: waproto.ContactMessage.contextInfo:type_name -> waproto.ContextInfo
-	38,  // 59: waproto.ContactsArrayMessage.contacts:type_name -> waproto.ContactMessage
-	60,  // 60: waproto.ContactsArrayMessage.contextInfo:type_name -> waproto.ContextInfo
-	59,  // 61: waproto.ReactionMessage.key:type_name -> waproto.MessageKey
-	92,  // 62: waproto.PollCreationMessage.options:type_name -> waproto.PollCreationMessage.Option
-	60,  // 63: waproto.PollCreationMessage.contextInfo:type_name -> waproto.ContextInfo
-	59,  // 64: waproto.PollUpdateMessage.pollCreationMessageKey:type_name -> waproto.MessageKey
-	93,  // 65: waproto.PollUpdateMessage.vote:type_name -> waproto.PollUpdateMessage.PollEncValue
-	60,  // 66: waproto.ButtonsMessage.contextInfo:type_name -> waproto.ContextInfo
-	94,  // 67: waproto.ButtonsMessage.buttons:type_name -> waproto.ButtonsMessage.Button
-	14,  // 68: waproto.ButtonsMessage.headerType:type_name -> waproto.ButtonsMessage.HeaderType
-	60,  // 69: waproto.ButtonsResponseMessage.contextInfo:type_name -> waproto.ContextInfo
-	16,  // 70: waproto.ButtonsResponseMessage.type:type_name -> waproto.ButtonsResponseMessage.Type
-	17,  // 71: waproto.ListMessage.listType:type_name -> waproto.ListMessage.ListType
-	97,  // 72: waproto.ListMessage.sections:type_name -> waproto.ListMessage.Section
-	60,  // 73: waproto.ListMessage.contextInfo:type_name -> waproto.ContextInfo
-	18,  // 74: waproto.ListResponseMessage.listType:type_name -> waproto.ListResponseMessage.ListType
-	98,  // 75: waproto.ListResponseMessage.singleSelectReply:type_name -> waproto.ListResponseMessage.SingleSelectReply
-	60,  // 76: waproto.ListResponseMessage.contextInfo:type_name -> waproto.ContextInfo
-	60,  // 77: waproto.TemplateMessage.contextInfo:type_name -> waproto.ContextInfo
-	99,  // 78: waproto.TemplateMessage.hydratedTemplate:type_name -> waproto.TemplateMessage.HydratedFourRowTemplate
-	60,  // 79: waproto.TemplateButtonReplyMessage.contextInfo:type_name -> waproto.ContextInfo
-	106, // 80: waproto.InteractiveMessage.header:type_name -> waproto.InteractiveMessage.Header
-	104, // 81: waproto.InteractiveMessage.body:type_name -> waproto.InteractiveMessage.Body
-	105, // 82: waproto.InteractiveMessage.footer:type_name -> waproto.InteractiveMessage.Footer
-	107, // 83: waproto.InteractiveMessage.nativeFlowMessage:type_name -> waproto.InteractiveMessage.NativeFlowMessage
-	60,  // 84: waproto.InteractiveMessage.contextInfo:type_name -> waproto.ContextInfo
-	109, // 85: waproto.InteractiveResponseMessage.body:type_name -> waproto.InteractiveResponseMessage.Body
-	110, // 86: waproto.InteractiveResponseMessage.nativeFlowResponseMessage:type_name -> waproto.InteractiveResponseMessage.NativeFlowResponseMessage
-	60,  // 87: waproto.InteractiveResponseMessage.contextInfo:type_name -> waproto.ContextInfo
-	59,  // 88: waproto.ProtocolMessage.key:type_name -> waproto.MessageKey
-	19,  // 89: waproto.ProtocolMessage.type:type_name -> waproto.ProtocolMessage.Type
-	77,  // 90: waproto.ProtocolMessage.historySyncNotification:type_name -> waproto.HistorySyncNotification
-	57,  // 91: waproto.ProtocolMessage.appStateSyncKeyShare:type_name -> waproto.AppStateSyncKeyShare
-	58,  // 92: waproto.ProtocolMessage.appStateSyncKeyRequest:type_name -> waproto.AppStateSyncKeyRequest
-	29,  // 93: waproto.ProtocolMessage.editedMessage:type_name -> waproto.Message
-	54,  // 94: waproto.AppStateSyncKeyData.fingerprint:type_name -> waproto.AppStateSyncKeyFingerprint
-	53,  // 95: waproto.AppStateSyncKey.keyId:type_name -> waproto.AppStateSyncKeyId
-	55,  // 96: waproto.AppStateSyncKey.keyData:type_name -> waproto.AppStateSyncKeyData
-	56,  // 97: waproto.AppStateSyncKeyShare.keys:type_name -> waproto.AppStateSyncKey
-	53,  // 98: waproto.AppStateSyncKeyRequest.keyIds:type_name -> waproto.AppStateSyncKeyId
-	29,  // 99: waproto.ContextInfo.quotedMessage:type_name -> waproto.Message
-	62,  // 100: waproto.MessageContextInfo.deviceListMetadata:type_name -> waproto.DeviceListMetadata
-	0,   // 101: waproto.DeviceListMetadata.senderAccountType:type_name -> waproto.ADVEncryptionType
-	0,   // 102: waproto.DeviceListMetadata.receiverAccountType:type_name -> waproto.ADVEncryptionType
-	29,  // 103: waproto.DeviceSentMessage.message:type_name -> waproto.Message
-	67,  // 104: waproto.SyncdRecord.index:type_name -> waproto.SyncdIndex
-	68,  // 105: waproto.SyncdRecord.value:type_name -> waproto.SyncdValue
-	64,  // 106: waproto.SyncdRecord.keyId:type_name -> waproto.KeyId
-	20,  // 107: waproto.SyncdMutation.operation:type_name -> waproto.SyncdMutation.SyncdOperation
-	69,  // 108: waproto.SyncdMutation.record:type_name -> waproto.SyncdRecord
-	70,  // 109: waproto.SyncdMutations.mutations:type_name -> waproto.SyncdMutation
-	66,  // 110: waproto.SyncdPatch.version:type_name -> waproto.SyncdVersion
-	70,  // 111: waproto.SyncdPatch.mutations:type_name -> waproto.SyncdMutation
-	65,  // 112: waproto.SyncdPatch.externalMutations:type_name -> waproto.ExternalBlobReference
-	64,  // 113: waproto.SyncdPatch.keyId:type_name -> waproto.KeyId
-	66,  // 114: waproto.SyncdSnapshot.version:type_name -> waproto.SyncdVersion
-	69,  // 115: waproto.SyncdSnapshot.records:type_name -> waproto.SyncdRecord
-	64,  // 116: waproto.SyncdSnapshot.keyId:type_name -> waproto.KeyId
-	75,  // 117: waproto.SyncActionData.value:type_name -> waproto.SyncActionValue
-	111, // 118: waproto.SyncActionValue.starAction:type_name -> waproto.SyncActionValue.StarAction
-	118, // 119: waproto.SyncActionValue.contactAction:type_name -> waproto.SyncActionValue.ContactAction
-	119, // 120: waproto.SyncActionValue.muteAction:type_name -> waproto.SyncActionValue.MuteAction
-	120, // 121: waproto.SyncActionValue.pinAction:type_name -> waproto.SyncActionValue.PinAction
-	121, // 122: waproto.SyncActionValue.pushNameSetting:type_name -> waproto.SyncActionValue.PushNameSetting
-	123, // 123: waproto.SyncActionValue.labelEditAction:type_name -> waproto.SyncActionValue.LabelEditAction
-	124, // 124: waproto.SyncActionValue.labelAssociationAction:type_name -> waproto.SyncActionValue.LabelAssociationAction
-	122, // 125: waproto.SyncActionValue.archiveChatAction:type_name -> waproto.SyncActionValue.ArchiveChatAction
-	117, // 126: waproto.SyncActionValue.deleteMessageForMeAction:type_name -> waproto.SyncActionValue.DeleteMessageForMeAction
-	114, // 127: waproto.SyncActionValue.markChatAsReadAction:type_name -> waproto.SyncActionValue.MarkChatAsReadAction
-	115, // 128: waproto.SyncActionValue.clearChatAction:type_name -> waproto.SyncActionValue.ClearChatAction
-	116, // 129: waproto.SyncActionValue.deleteChatAction:type_name -> waproto.SyncActionValue.DeleteChatAction
-	1,   // 130: waproto.HistorySyncNotification.syncType:type_name -> waproto.HistorySyncType
-	1,   // 131: waproto.HistorySync.syncType:type_name -> waproto.HistorySyncType
-	79,  // 132: waproto.HistorySync.conversations:type_name -> waproto.Conversation
-	82,  // 133: waproto.HistorySync.statusV3Messages:type_name -> waproto.WebMessageInfo
-	81,  // 134: waproto.HistorySync.pushnames:type_name -> waproto.Pushname
-	80,  // 135: waproto.Conversation.messages:type_name -> waproto.HistorySyncMsg
-	82,  // 136: waproto.HistorySyncMsg.message:type_name -> waproto.WebMessageInfo
-	59,  // 137: waproto.WebMessageInfo.key:type_name -> waproto.MessageKey
-	29,  // 138: waproto.WebMessageInfo.message:type_name -> waproto.Message
-	21,  // 139: waproto.WebMessageInfo.status:type_name -> waproto.WebMessageInfo.Status
-	9,   // 140: waproto.ClientPayload.DNSSource.dnsMethod:type_name -> waproto.ClientPayload.DNSSource.DNSResolutionMethod
-	11,  // 141: waproto.ClientPayload.UserAgent.platform:type_name -> waproto.ClientPayload.UserAgent.Platform
-	90,  // 142: waproto.ClientPayload.UserAgent.appVersion:type_name -> waproto.ClientPayload.UserAgent.AppVersion
-	12,  // 143: waproto.ClientPayload.UserAgent.releaseChannel:type_name -> waproto.ClientPayload.UserAgent.ReleaseChannel
-	10,  // 144: waproto.ClientPayload.UserAgent.deviceType:type_name -> waproto.ClientPayload.UserAgent.DeviceType
-	91,  // 145: waproto.ClientPayload.WebInfo.webdPayload:type_name -> waproto.ClientPayload.WebInfo.WebdPayload
-	13,  // 146: waproto.ClientPayload.WebInfo.webSubPlatform:type_name -> waproto.ClientPayload.WebInfo.WebSubPlatform
-	95,  // 147: waproto.ButtonsMessage.Button.buttonText:type_name -> waproto.ButtonsMessage.Button.ButtonText
-	15,  // 148: waproto.ButtonsMessage.Button.type:type_name -> waproto.ButtonsMessage.Button.Type
-	96,  // 149: waproto.ListMessage.Section.rows:type_name -> waproto.ListMessage.Row
-	100, // 150: waproto.TemplateMessage.HydratedFourRowTemplate.hydratedButtons:type_name -> waproto.TemplateMessage.HydratedButton
-	101, // 151: waproto.TemplateMessage.HydratedButton.quickReplyButton:type_name -> waproto.TemplateMessage.HydratedButton.HydratedQuickReplyButton
-	102, // 152: waproto.TemplateMessage.HydratedButton.urlButton:type_name -> waproto.TemplateMessage.HydratedButton.HydratedURLButton
-	103, // 153: waproto.TemplateMessage.HydratedButton.callButton:type_name -> waproto.TemplateMessage.HydratedButton.HydratedCallButton
-	108, // 154: waproto.InteractiveMessage.NativeFlowMessage.buttons:type_name -> waproto.InteractiveMessage.NativeFlowMessage.NativeFlowButton
-	59,  // 155: waproto.SyncActionValue.SyncActionMessage.key:type_name -> waproto.MessageKey
-	112, // 156: waproto.SyncActionValue.SyncActionMessageRange.messages:type_name -> waproto.SyncActionValue.SyncActionMessage
-	113, // 157: waproto.SyncActionValue.MarkChatAsReadAction.messageRange:type_name -> waproto.SyncActionValue.SyncActionMessageRange
-	113, // 158: waproto.SyncActionValue.ClearChatAction.messageRange:type_name -> waproto.SyncActionValue.SyncActionMessageRange
-	113, // 159: waproto.SyncActionValue.DeleteChatAction.messageRange:type_name -> waproto.SyncActionValue.SyncActionMessageRange
-	160, // [160:160] is the sub-list for method output_type
-	160, // [160:160] is the sub-list for method input_type
-	160, // [160:160] is the sub-list for extension type_name
-	160, // [160:160] is the sub-list for extension extendee
-	0,   // [0:160] is the sub-list for field type_name
+	85,  // 4: waproto.DeviceProps.version:type_name -> waproto.DeviceProps.AppVersion
+	3,   // 5: waproto.DeviceProps.platformType:type_name -> waproto.DeviceProps.PlatformType
+	86,  // 6: waproto.DeviceProps.historySyncConfig:type_name -> waproto.DeviceProps.HistorySyncConfig
+	90,  // 7: waproto.ClientPayload.userAgent:type_name -> waproto.ClientPayload.UserAgent
+	91,  // 8: waproto.ClientPayload.webInfo:type_name -> waproto.ClientPayload.WebInfo
+	6,   // 9: waproto.ClientPayload.connectType:type_name -> waproto.ClientPayload.ConnectType
+	5,   // 10: waproto.ClientPayload.connectReason:type_name -> waproto.ClientPayload.ConnectReason
+	87,  // 11: waproto.ClientPayload.dnsSource:type_name -> waproto.ClientPayload.DNSSource
+	88,  // 12: waproto.ClientPayload.devicePairingData:type_name -> waproto.ClientPayload.DevicePairingRegistrationData
+	8,   // 13: waproto.ClientPayload.product:type_name -> waproto.ClientPayload.Product
+	7,   // 14: waproto.ClientPayload.iosAppExtension:type_name -> waproto.ClientPayload.IOSAppExtension
+	89,  // 15: waproto.ClientPayload.interopData:type_name -> waproto.ClientPayload.InteropData
+	9,   // 16: waproto.ClientPayload.trafficAnonymization:type_name -> waproto.ClientPayload.TrafficAnonymization
+	4,   // 17: waproto.ClientPayload.accountType:type_name -> waproto.ClientPayload.AccountType
+	62,  // 18: waproto.ExtendedTextMessage.contextInfo:type_name -> waproto.ContextInfo
+	43,  // 19: waproto.Message.senderKeyDistributionMessage:type_name -> waproto.SenderKeyDistributionMessage
+	33,  // 20: waproto.Message.imageMessage:type_name -> waproto.ImageMessage
+	40,  // 21: waproto.Message.contactMessage:type_name -> waproto.ContactMessage
+	38,  // 22: waproto.Message.locationMessage:type_name -> waproto.LocationMessage
+	29,  // 23: waproto.Message.extendedTextMessage:type_name -> waproto.ExtendedTextMessage
+	36,  // 24: waproto.Message.documentMessage:type_name -> waproto.DocumentMessage
+	35,  // 25: waproto.Message.audioMessage:type_name -> waproto.AudioMessage
+	34,  // 26: waproto.Message.videoMessage:type_name -> waproto.VideoMessage
+	54,  // 27: waproto.Message.protocolMessage:type_name -> waproto.ProtocolMessage
+	41,  // 28: waproto.Message.contactsArrayMessage:type_name -> waproto.ContactsArrayMessage
+	39,  // 29: waproto.Message.liveLocationMessage:type_name -> waproto.LiveLocationMessage
+	37,  // 30: waproto.Message.stickerMessage:type_name -> waproto.StickerMessage
+	65,  // 31: waproto.Message.deviceSentMessage:type_name -> waproto.DeviceSentMessage
+	63,  // 32: waproto.Message.messageContextInfo:type_name -> waproto.MessageContextInfo
+	42,  // 33: waproto.Message.reactionMessage:type_name -> waproto.ReactionMessage
+	44,  // 34: waproto.Message.pollCreationMessage:type_name -> waproto.PollCreationMessage
+	45,  // 35: waproto.Message.pollUpdateMessage:type_name -> waproto.PollUpdateMessage
+	50,  // 36: waproto.Message.templateMessage:type_name -> waproto.TemplateMessage
+	51,  // 37: waproto.Message.templateButtonReplyMessage:type_name -> waproto.TemplateButtonReplyMessage
+	48,  // 38: waproto.Message.listMessage:type_name -> waproto.ListMessage
+	49,  // 39: waproto.Message.listResponseMessage:type_name -> waproto.ListResponseMessage
+	46,  // 40: waproto.Message.buttonsMessage:type_name -> waproto.ButtonsMessage
+	47,  // 41: waproto.Message.buttonsResponseMessage:type_name -> waproto.ButtonsResponseMessage
+	52,  // 42: waproto.Message.interactiveMessage:type_name -> waproto.InteractiveMessage
+	53,  // 43: waproto.Message.interactiveResponseMessage:type_name -> waproto.InteractiveResponseMessage
+	32,  // 44: waproto.Message.viewOnceMessage:type_name -> waproto.FutureProofMessage
+	32,  // 45: waproto.Message.ephemeralMessage:type_name -> waproto.FutureProofMessage
+	32,  // 46: waproto.Message.documentWithCaptionMessage:type_name -> waproto.FutureProofMessage
+	32,  // 47: waproto.Message.viewOnceMessageV2:type_name -> waproto.FutureProofMessage
+	32,  // 48: waproto.Message.editedMessage:type_name -> waproto.FutureProofMessage
+	32,  // 49: waproto.Message.viewOnceMessageV2Extension:type_name -> waproto.FutureProofMessage
+	31,  // 50: waproto.Message.pinInChatMessage:type_name -> waproto.PinInChatMessage
+	61,  // 51: waproto.PinInChatMessage.key:type_name -> waproto.MessageKey
+	1,   // 52: waproto.PinInChatMessage.type:type_name -> waproto.PinInChatType
+	30,  // 53: waproto.FutureProofMessage.message:type_name -> waproto.Message
+	62,  // 54: waproto.ImageMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 55: waproto.VideoMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 56: waproto.AudioMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 57: waproto.DocumentMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 58: waproto.StickerMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 59: waproto.LocationMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 60: waproto.LiveLocationMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 61: waproto.ContactMessage.contextInfo:type_name -> waproto.ContextInfo
+	40,  // 62: waproto.ContactsArrayMessage.contacts:type_name -> waproto.ContactMessage
+	62,  // 63: waproto.ContactsArrayMessage.contextInfo:type_name -> waproto.ContextInfo
+	61,  // 64: waproto.ReactionMessage.key:type_name -> waproto.MessageKey
+	94,  // 65: waproto.PollCreationMessage.options:type_name -> waproto.PollCreationMessage.Option
+	62,  // 66: waproto.PollCreationMessage.contextInfo:type_name -> waproto.ContextInfo
+	61,  // 67: waproto.PollUpdateMessage.pollCreationMessageKey:type_name -> waproto.MessageKey
+	95,  // 68: waproto.PollUpdateMessage.vote:type_name -> waproto.PollUpdateMessage.PollEncValue
+	62,  // 69: waproto.ButtonsMessage.contextInfo:type_name -> waproto.ContextInfo
+	96,  // 70: waproto.ButtonsMessage.buttons:type_name -> waproto.ButtonsMessage.Button
+	15,  // 71: waproto.ButtonsMessage.headerType:type_name -> waproto.ButtonsMessage.HeaderType
+	62,  // 72: waproto.ButtonsResponseMessage.contextInfo:type_name -> waproto.ContextInfo
+	17,  // 73: waproto.ButtonsResponseMessage.type:type_name -> waproto.ButtonsResponseMessage.Type
+	18,  // 74: waproto.ListMessage.listType:type_name -> waproto.ListMessage.ListType
+	99,  // 75: waproto.ListMessage.sections:type_name -> waproto.ListMessage.Section
+	62,  // 76: waproto.ListMessage.contextInfo:type_name -> waproto.ContextInfo
+	19,  // 77: waproto.ListResponseMessage.listType:type_name -> waproto.ListResponseMessage.ListType
+	100, // 78: waproto.ListResponseMessage.singleSelectReply:type_name -> waproto.ListResponseMessage.SingleSelectReply
+	62,  // 79: waproto.ListResponseMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 80: waproto.TemplateMessage.contextInfo:type_name -> waproto.ContextInfo
+	101, // 81: waproto.TemplateMessage.hydratedTemplate:type_name -> waproto.TemplateMessage.HydratedFourRowTemplate
+	62,  // 82: waproto.TemplateButtonReplyMessage.contextInfo:type_name -> waproto.ContextInfo
+	108, // 83: waproto.InteractiveMessage.header:type_name -> waproto.InteractiveMessage.Header
+	106, // 84: waproto.InteractiveMessage.body:type_name -> waproto.InteractiveMessage.Body
+	107, // 85: waproto.InteractiveMessage.footer:type_name -> waproto.InteractiveMessage.Footer
+	109, // 86: waproto.InteractiveMessage.nativeFlowMessage:type_name -> waproto.InteractiveMessage.NativeFlowMessage
+	62,  // 87: waproto.InteractiveMessage.contextInfo:type_name -> waproto.ContextInfo
+	111, // 88: waproto.InteractiveResponseMessage.body:type_name -> waproto.InteractiveResponseMessage.Body
+	112, // 89: waproto.InteractiveResponseMessage.nativeFlowResponseMessage:type_name -> waproto.InteractiveResponseMessage.NativeFlowResponseMessage
+	62,  // 90: waproto.InteractiveResponseMessage.contextInfo:type_name -> waproto.ContextInfo
+	61,  // 91: waproto.ProtocolMessage.key:type_name -> waproto.MessageKey
+	20,  // 92: waproto.ProtocolMessage.type:type_name -> waproto.ProtocolMessage.Type
+	79,  // 93: waproto.ProtocolMessage.historySyncNotification:type_name -> waproto.HistorySyncNotification
+	59,  // 94: waproto.ProtocolMessage.appStateSyncKeyShare:type_name -> waproto.AppStateSyncKeyShare
+	60,  // 95: waproto.ProtocolMessage.appStateSyncKeyRequest:type_name -> waproto.AppStateSyncKeyRequest
+	30,  // 96: waproto.ProtocolMessage.editedMessage:type_name -> waproto.Message
+	56,  // 97: waproto.AppStateSyncKeyData.fingerprint:type_name -> waproto.AppStateSyncKeyFingerprint
+	55,  // 98: waproto.AppStateSyncKey.keyId:type_name -> waproto.AppStateSyncKeyId
+	57,  // 99: waproto.AppStateSyncKey.keyData:type_name -> waproto.AppStateSyncKeyData
+	58,  // 100: waproto.AppStateSyncKeyShare.keys:type_name -> waproto.AppStateSyncKey
+	55,  // 101: waproto.AppStateSyncKeyRequest.keyIds:type_name -> waproto.AppStateSyncKeyId
+	30,  // 102: waproto.ContextInfo.quotedMessage:type_name -> waproto.Message
+	64,  // 103: waproto.MessageContextInfo.deviceListMetadata:type_name -> waproto.DeviceListMetadata
+	0,   // 104: waproto.DeviceListMetadata.senderAccountType:type_name -> waproto.ADVEncryptionType
+	0,   // 105: waproto.DeviceListMetadata.receiverAccountType:type_name -> waproto.ADVEncryptionType
+	30,  // 106: waproto.DeviceSentMessage.message:type_name -> waproto.Message
+	69,  // 107: waproto.SyncdRecord.index:type_name -> waproto.SyncdIndex
+	70,  // 108: waproto.SyncdRecord.value:type_name -> waproto.SyncdValue
+	66,  // 109: waproto.SyncdRecord.keyId:type_name -> waproto.KeyId
+	21,  // 110: waproto.SyncdMutation.operation:type_name -> waproto.SyncdMutation.SyncdOperation
+	71,  // 111: waproto.SyncdMutation.record:type_name -> waproto.SyncdRecord
+	72,  // 112: waproto.SyncdMutations.mutations:type_name -> waproto.SyncdMutation
+	68,  // 113: waproto.SyncdPatch.version:type_name -> waproto.SyncdVersion
+	72,  // 114: waproto.SyncdPatch.mutations:type_name -> waproto.SyncdMutation
+	67,  // 115: waproto.SyncdPatch.externalMutations:type_name -> waproto.ExternalBlobReference
+	66,  // 116: waproto.SyncdPatch.keyId:type_name -> waproto.KeyId
+	68,  // 117: waproto.SyncdSnapshot.version:type_name -> waproto.SyncdVersion
+	71,  // 118: waproto.SyncdSnapshot.records:type_name -> waproto.SyncdRecord
+	66,  // 119: waproto.SyncdSnapshot.keyId:type_name -> waproto.KeyId
+	77,  // 120: waproto.SyncActionData.value:type_name -> waproto.SyncActionValue
+	113, // 121: waproto.SyncActionValue.starAction:type_name -> waproto.SyncActionValue.StarAction
+	120, // 122: waproto.SyncActionValue.contactAction:type_name -> waproto.SyncActionValue.ContactAction
+	121, // 123: waproto.SyncActionValue.muteAction:type_name -> waproto.SyncActionValue.MuteAction
+	122, // 124: waproto.SyncActionValue.pinAction:type_name -> waproto.SyncActionValue.PinAction
+	123, // 125: waproto.SyncActionValue.pushNameSetting:type_name -> waproto.SyncActionValue.PushNameSetting
+	125, // 126: waproto.SyncActionValue.labelEditAction:type_name -> waproto.SyncActionValue.LabelEditAction
+	126, // 127: waproto.SyncActionValue.labelAssociationAction:type_name -> waproto.SyncActionValue.LabelAssociationAction
+	124, // 128: waproto.SyncActionValue.archiveChatAction:type_name -> waproto.SyncActionValue.ArchiveChatAction
+	119, // 129: waproto.SyncActionValue.deleteMessageForMeAction:type_name -> waproto.SyncActionValue.DeleteMessageForMeAction
+	116, // 130: waproto.SyncActionValue.markChatAsReadAction:type_name -> waproto.SyncActionValue.MarkChatAsReadAction
+	117, // 131: waproto.SyncActionValue.clearChatAction:type_name -> waproto.SyncActionValue.ClearChatAction
+	118, // 132: waproto.SyncActionValue.deleteChatAction:type_name -> waproto.SyncActionValue.DeleteChatAction
+	2,   // 133: waproto.HistorySyncNotification.syncType:type_name -> waproto.HistorySyncType
+	2,   // 134: waproto.HistorySync.syncType:type_name -> waproto.HistorySyncType
+	81,  // 135: waproto.HistorySync.conversations:type_name -> waproto.Conversation
+	84,  // 136: waproto.HistorySync.statusV3Messages:type_name -> waproto.WebMessageInfo
+	83,  // 137: waproto.HistorySync.pushnames:type_name -> waproto.Pushname
+	82,  // 138: waproto.Conversation.messages:type_name -> waproto.HistorySyncMsg
+	84,  // 139: waproto.HistorySyncMsg.message:type_name -> waproto.WebMessageInfo
+	61,  // 140: waproto.WebMessageInfo.key:type_name -> waproto.MessageKey
+	30,  // 141: waproto.WebMessageInfo.message:type_name -> waproto.Message
+	22,  // 142: waproto.WebMessageInfo.status:type_name -> waproto.WebMessageInfo.Status
+	10,  // 143: waproto.ClientPayload.DNSSource.dnsMethod:type_name -> waproto.ClientPayload.DNSSource.DNSResolutionMethod
+	12,  // 144: waproto.ClientPayload.UserAgent.platform:type_name -> waproto.ClientPayload.UserAgent.Platform
+	92,  // 145: waproto.ClientPayload.UserAgent.appVersion:type_name -> waproto.ClientPayload.UserAgent.AppVersion
+	13,  // 146: waproto.ClientPayload.UserAgent.releaseChannel:type_name -> waproto.ClientPayload.UserAgent.ReleaseChannel
+	11,  // 147: waproto.ClientPayload.UserAgent.deviceType:type_name -> waproto.ClientPayload.UserAgent.DeviceType
+	93,  // 148: waproto.ClientPayload.WebInfo.webdPayload:type_name -> waproto.ClientPayload.WebInfo.WebdPayload
+	14,  // 149: waproto.ClientPayload.WebInfo.webSubPlatform:type_name -> waproto.ClientPayload.WebInfo.WebSubPlatform
+	97,  // 150: waproto.ButtonsMessage.Button.buttonText:type_name -> waproto.ButtonsMessage.Button.ButtonText
+	16,  // 151: waproto.ButtonsMessage.Button.type:type_name -> waproto.ButtonsMessage.Button.Type
+	98,  // 152: waproto.ListMessage.Section.rows:type_name -> waproto.ListMessage.Row
+	102, // 153: waproto.TemplateMessage.HydratedFourRowTemplate.hydratedButtons:type_name -> waproto.TemplateMessage.HydratedButton
+	103, // 154: waproto.TemplateMessage.HydratedButton.quickReplyButton:type_name -> waproto.TemplateMessage.HydratedButton.HydratedQuickReplyButton
+	104, // 155: waproto.TemplateMessage.HydratedButton.urlButton:type_name -> waproto.TemplateMessage.HydratedButton.HydratedURLButton
+	105, // 156: waproto.TemplateMessage.HydratedButton.callButton:type_name -> waproto.TemplateMessage.HydratedButton.HydratedCallButton
+	110, // 157: waproto.InteractiveMessage.NativeFlowMessage.buttons:type_name -> waproto.InteractiveMessage.NativeFlowMessage.NativeFlowButton
+	61,  // 158: waproto.SyncActionValue.SyncActionMessage.key:type_name -> waproto.MessageKey
+	114, // 159: waproto.SyncActionValue.SyncActionMessageRange.messages:type_name -> waproto.SyncActionValue.SyncActionMessage
+	115, // 160: waproto.SyncActionValue.MarkChatAsReadAction.messageRange:type_name -> waproto.SyncActionValue.SyncActionMessageRange
+	115, // 161: waproto.SyncActionValue.ClearChatAction.messageRange:type_name -> waproto.SyncActionValue.SyncActionMessageRange
+	115, // 162: waproto.SyncActionValue.DeleteChatAction.messageRange:type_name -> waproto.SyncActionValue.SyncActionMessageRange
+	163, // [163:163] is the sub-list for method output_type
+	163, // [163:163] is the sub-list for method input_type
+	163, // [163:163] is the sub-list for extension type_name
+	163, // [163:163] is the sub-list for extension extendee
+	0,   // [0:163] is the sub-list for field type_name
 }
 
-func init() { file_internal_waproto_waproto_proto_init() }
-func file_internal_waproto_waproto_proto_init() {
-	if File_internal_waproto_waproto_proto != nil {
+func init() { file_waproto_proto_init() }
+func file_waproto_proto_init() {
+	if File_waproto_proto != nil {
 		return
 	}
-	file_internal_waproto_waproto_proto_msgTypes[0].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[1].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[2].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[3].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[4].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[5].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[6].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[7].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[8].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[9].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[10].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[11].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[12].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[13].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[14].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[15].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[16].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[17].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[18].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[19].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[20].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[21].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[22].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[23].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[24].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[25].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[26].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[27].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[28].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[29].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[30].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[31].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[32].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[33].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[34].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[37].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[38].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[39].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[40].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[41].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[42].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[43].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[44].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[45].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[46].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[47].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[48].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[50].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[51].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[52].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[53].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[55].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[56].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[57].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[58].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[59].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[60].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[61].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[62].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[63].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[64].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[65].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[66].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[67].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[68].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[69].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[70].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[71].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[72].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[73].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[74].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[75].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[76].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[77].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[78].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[79].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[80].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[81].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[82].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[83].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[84].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[85].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[86].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[87].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[88].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[89].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[90].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[91].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[92].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[93].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[94].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[95].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[96].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[97].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[98].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[99].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[100].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[101].OneofWrappers = []any{}
-	file_internal_waproto_waproto_proto_msgTypes[102].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[0].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[1].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[2].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[3].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[4].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[5].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[6].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[7].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[8].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[9].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[10].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[11].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[12].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[13].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[14].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[15].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[16].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[17].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[18].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[19].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[20].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[21].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[22].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[23].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[24].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[25].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[26].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[27].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[28].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[29].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[30].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[31].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[32].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[33].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[34].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[35].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[38].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[39].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[40].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[41].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[42].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[43].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[44].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[45].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[46].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[47].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[48].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[49].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[51].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[52].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[53].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[54].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[56].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[57].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[58].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[59].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[60].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[61].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[62].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[63].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[64].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[65].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[66].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[67].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[68].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[69].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[70].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[71].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[72].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[73].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[74].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[75].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[76].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[77].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[78].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[79].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[80].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[81].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[82].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[83].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[84].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[85].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[86].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[87].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[88].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[89].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[90].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[91].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[92].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[93].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[94].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[95].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[96].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[97].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[98].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[99].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[100].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[101].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[102].OneofWrappers = []any{}
+	file_waproto_proto_msgTypes[103].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_internal_waproto_waproto_proto_rawDesc), len(file_internal_waproto_waproto_proto_rawDesc)),
-			NumEnums:      22,
-			NumMessages:   103,
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_waproto_proto_rawDesc), len(file_waproto_proto_rawDesc)),
+			NumEnums:      23,
+			NumMessages:   104,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_internal_waproto_waproto_proto_goTypes,
-		DependencyIndexes: file_internal_waproto_waproto_proto_depIdxs,
-		EnumInfos:         file_internal_waproto_waproto_proto_enumTypes,
-		MessageInfos:      file_internal_waproto_waproto_proto_msgTypes,
+		GoTypes:           file_waproto_proto_goTypes,
+		DependencyIndexes: file_waproto_proto_depIdxs,
+		EnumInfos:         file_waproto_proto_enumTypes,
+		MessageInfos:      file_waproto_proto_msgTypes,
 	}.Build()
-	File_internal_waproto_waproto_proto = out.File
-	file_internal_waproto_waproto_proto_goTypes = nil
-	file_internal_waproto_waproto_proto_depIdxs = nil
+	File_waproto_proto = out.File
+	file_waproto_proto_goTypes = nil
+	file_waproto_proto_depIdxs = nil
 }

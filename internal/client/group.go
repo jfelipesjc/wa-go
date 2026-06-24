@@ -441,6 +441,27 @@ func (c *Client) GroupAcceptInvite(ctx context.Context, code string) (string, er
 	return parseAcceptInvite(reply)
 }
 
+// GroupGetInviteInfo previews the group an invite code points to WITHOUT joining
+// (Baileys' groupGetInviteInfo): an <iq to=@g.us type=get xmlns=w:g2><invite
+// code=..></iq> whose reply carries the <group> metadata.
+func (c *Client) GroupGetInviteInfo(ctx context.Context, code string) (*GroupInfo, error) {
+	sess, ok := c.activeSession()
+	if !ok {
+		return nil, errors.New("client: not logged in (no active session)")
+	}
+	if code == "" {
+		return nil, errors.New("client: invite code required")
+	}
+	req := buildGroupQuery(c.nextIQID("wa-go-group-"), groupEndpoint, "get", []wire.Node{
+		{Tag: "invite", Attrs: map[string]string{"code": code}},
+	})
+	reply, err := c.sendIQ(ctx, sess, req)
+	if err != nil {
+		return nil, err
+	}
+	return parseGroupMetadata(reply)
+}
+
 // GroupSettingUpdate toggles a group setting. setting must be one of "announce"
 // (only admins can send), "not_announce" (everyone can send), "locked" (only
 // admins can edit group info) or "unlocked" (everyone can edit group info).

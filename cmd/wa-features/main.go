@@ -88,6 +88,21 @@ func run(db, recipient string, timeout time.Duration) error {
 					return err
 				})
 
+				// NOVOS (3 gaps): enviar enquete + preview de convite de grupo.
+				if recipient != "" {
+					step("SendPoll", func() error {
+						_, err := c.SendPoll(ctx, recipient, "wa-go enquete teste?", []string{"Sim", "Não", "Talvez"}, 1)
+						return err
+					})
+				}
+				step("GroupGetInviteInfo", func() error {
+					info, err := c.GroupGetInviteInfo(ctx, "HmGw3DvDXF4J3Aw9wz5R2w")
+					if err == nil && info != nil {
+						fmt.Printf("       └─ grupo do convite: %q (%d membros)\n", info.Subject, len(info.Participants))
+					}
+					return err
+				})
+
 				// APP-STATE RESYNC primeiro: estabelece a versão das coleções antes
 				// de qualquer mutação (archive/pin precisam da versão atual).
 				step("AppStateResync", func() error {

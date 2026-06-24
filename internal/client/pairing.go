@@ -416,6 +416,13 @@ func (c *Client) pairingCodeLoop(ctx context.Context, conn nodeConn, creds *stor
 				node.Tag, node.Attrs["type"], node.Attrs["id"], len(children(node)))
 			for _, ch := range children(node) {
 				fmt.Fprintf(debugOut, "[wa-go]   child <%s %v>\n", ch.Tag, ch.Attrs)
+				for _, gc := range children(ch) {
+					var sz string
+					if b, ok := gc.Content.([]byte); ok {
+						sz = fmt.Sprintf(" bytes[%d]", len(b))
+					}
+					fmt.Fprintf(debugOut, "[wa-go]     gchild <%s %v>%s\n", gc.Tag, gc.Attrs, sz)
+				}
 			}
 		}
 
@@ -430,9 +437,14 @@ func (c *Client) pairingCodeLoop(ctx context.Context, conn nodeConn, creds *stor
 			if _, ok := childByTag(node, "ping"); ok {
 				_ = send(iqResult(node.Attrs["id"], nil))
 			}
-		case isIQSet(node, "link_code_companion_reg"):
-			// companion_finish: derive the key bundle + advSecret and reply. The
-			// advSecret persisted here is what the following pair-success verifies.
+		case isIQSet(node, "link_code_companion_reg"),
+			node.Tag == "notification" && node.Attrs["type"] == "link_code_companion_reg":
+			// companion_finish: the phone's reply (stage=primary_hello) carries
+			// primary_identity_pub + the wrapped primary ephemeral. It arrives as a
+			// <notification> (not an <iq set>), so route both. Derive the key bundle
+			// + advSecret, send companion_finish, and ack the notification (the
+			// server withholds the follow-up pair-success otherwise). The advSecret
+			// persisted here is what the following pair-success verifies.
 			reply, ferr := c.finishCompanionPairing(node, creds, code)
 			if ferr != nil {
 				c.emit(DisconnectedEvent{Reason: "companion_finish: " + ferr.Error()})
@@ -440,6 +452,9 @@ func (c *Client) pairingCodeLoop(ctx context.Context, conn nodeConn, creds *stor
 			}
 			if err := send(reply); err != nil {
 				return false, fmt.Errorf("client: send companion_finish: %w", err)
+			}
+			if node.Tag == "notification" {
+				_ = send(stanzaAckNode(node, creds.Me))
 			}
 		case isPairSuccess(node):
 			// creds.AdvSecret was replaced by finishCompanionPairing; rebuild the

@@ -89,9 +89,12 @@ func TestEncodeDecodeSnapshotRoundTrip(t *testing.T) {
 	if err := proto.Unmarshal(patchBytes, &patch); err != nil {
 		t.Fatalf("unmarshal patch: %v", err)
 	}
-	if patch.GetVersion().GetVersion() != version+1 {
-		t.Errorf("patch version = %d, want %d", patch.GetVersion().GetVersion(), version+1)
+	// Uploaded patches omit the version (server assigns it); set it as the
+	// server would before re-decoding.
+	if patch.Version != nil {
+		t.Errorf("uploaded patch must not carry a version field")
 	}
+	patch.Version = &waproto.SyncdVersion{Version: proto.Uint64(version + 1)}
 	pres, err := DecodePatch(name, &patch, res.State, resolve)
 	if err != nil {
 		t.Fatalf("DecodePatch on snapshot state: %v", err)

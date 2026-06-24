@@ -84,9 +84,13 @@ func TestEncodeDecodeRoundTrip(t *testing.T) {
 	if err := proto.Unmarshal(patchBytes, &patch); err != nil {
 		t.Fatalf("unmarshal patch: %v", err)
 	}
-	if patch.GetVersion().GetVersion() != 1 {
-		t.Errorf("patch version = %d, want 1", patch.GetVersion().GetVersion())
+	// Uploaded patches omit the version (the server assigns it from the
+	// <collection version> attr). Verify it's absent, then set it as the server
+	// would before the patch is re-decoded on the download/resync path.
+	if patch.Version != nil {
+		t.Errorf("uploaded patch must not carry a version field; got %d", patch.GetVersion().GetVersion())
 	}
+	patch.Version = &waproto.SyncdVersion{Version: proto.Uint64(encState.Version)}
 
 	resolve := func(id string) ([]byte, bool) {
 		if id == keyIDB64 {

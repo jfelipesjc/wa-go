@@ -46,6 +46,7 @@ func run(db, recipient string, timeout time.Duration) error {
 	me := creds.Me
 	fmt.Printf("wa-features: db=%s me=%s recipient=%s\n", db, me, recipient)
 
+	client.EnableDebug(os.Stderr)
 	c := client.New(st)
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()

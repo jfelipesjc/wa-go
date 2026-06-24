@@ -14,6 +14,28 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+// groupParticipantJIDs fetches the group's metadata and returns the participant
+// JIDs to fan out to. It lets the convenience senders (SendText/SendImage/…)
+// accept a @g.us destination directly: they resolve the member list here instead
+// of requiring the caller to pass it. Prefers each participant's phone JID
+// (@s.whatsapp.net) for usync; falls back to whatever JID the metadata carries.
+func (c *Client) groupParticipantJIDs(ctx context.Context, groupJID string) ([]string, error) {
+	meta, err := c.GroupMetadata(ctx, groupJID)
+	if err != nil {
+		return nil, fmt.Errorf("client: group metadata for send: %w", err)
+	}
+	parts := make([]string, 0, len(meta.Participants))
+	for _, p := range meta.Participants {
+		if p.JID != "" {
+			parts = append(parts, p.JID)
+		}
+	}
+	if len(parts) == 0 {
+		return nil, fmt.Errorf("client: group %s has no resolvable participants", groupJID)
+	}
+	return parts, nil
+}
+
 // SendGroupText sends a text message to a group, given the group JID and the
 // list of member JIDs to fan out to.
 //

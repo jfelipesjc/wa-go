@@ -11,6 +11,13 @@ import (
 // id once the stanza has been written to the wire. It mirrors Baileys'
 // relayMessage for a plain conversation: WAProto.Message{conversation: text}.
 func (c *Client) SendText(ctx context.Context, toJID, text string) (string, error) {
+	if isGroupJID(toJID) {
+		parts, err := c.groupParticipantJIDs(ctx, toJID)
+		if err != nil {
+			return "", err
+		}
+		return c.sendGroupMessage(ctx, toJID, parts, buildTextMessage(text), sendOpts{pacerHint: len(text)})
+	}
 	return c.sendMessage(ctx, toJID, buildTextMessage(text), sendOpts{pacerHint: len(text)})
 }
 

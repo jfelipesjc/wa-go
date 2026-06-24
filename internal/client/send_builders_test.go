@@ -307,7 +307,7 @@ func TestBuildGroupMessageStanza_Structure(t *testing.T) {
 	skMsg := []byte("skmsg-content-ciphertext")
 	account := []byte("device-identity-blob")
 
-	stanza := buildGroupMessageStanza("MID1", groupJID, "text", participants, skMsg, account)
+	stanza := buildGroupMessageStanza("MID1", groupJID, "text", "", participants, skMsg, account)
 
 	if stanza.Tag != "message" || stanza.Attrs["to"] != groupJID || stanza.Attrs["type"] != "text" || stanza.Attrs["id"] != "MID1" {
 		t.Fatalf("stanza attrs wrong: %+v", stanza.Attrs)
@@ -337,7 +337,7 @@ func TestBuildGroupMessageStanza_Structure(t *testing.T) {
 // When no SKDM is being distributed (sender key already established), the stanza
 // has no <participants> and no device-identity, just the skmsg <enc>.
 func TestBuildGroupMessageStanza_NoDistribution(t *testing.T) {
-	stanza := buildGroupMessageStanza("MID2", "120363@g.us", "text", nil, []byte("ct"), []byte("acct"))
+	stanza := buildGroupMessageStanza("MID2", "120363@g.us", "text", "", nil, []byte("ct"), []byte("acct"))
 	if _, ok := childByTag(stanza, "participants"); ok {
 		t.Fatal("unexpected <participants>")
 	}

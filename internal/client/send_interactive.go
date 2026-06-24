@@ -25,7 +25,7 @@ type Button struct {
 // SendButtons sends a ButtonsMessage: a body text with up to three quick-reply
 // buttons and an optional footer.
 func (c *Client) SendButtons(ctx context.Context, toJID, text, footer string, buttons []Button) (string, error) {
-	return c.sendMessage(ctx, toJID, buildButtonsMessage(text, footer, buttons), sendOpts{pacerHint: len(text)})
+	return c.sendRouted(ctx, toJID, buildButtonsMessage(text, footer, buttons), sendOpts{pacerHint: len(text)})
 }
 
 // buildButtonsMessage is the pure constructor for a ButtonsMessage. The body is
@@ -70,7 +70,7 @@ type ListSection struct {
 // SendList sends a ListMessage: a body text and a button that opens a single-
 // select list grouped into sections.
 func (c *Client) SendList(ctx context.Context, toJID, text, buttonText string, sections []ListSection) (string, error) {
-	return c.sendMessage(ctx, toJID, buildListMessage(text, buttonText, sections), sendOpts{pacerHint: len(text)})
+	return c.sendRouted(ctx, toJID, buildListMessage(text, buttonText, sections), sendOpts{pacerHint: len(text)})
 }
 
 // buildListMessage is the pure constructor for a ListMessage.
@@ -106,7 +106,7 @@ func buildListMessage(text, buttonText string, sections []ListSection) *waproto.
 // four-row template. Callers compose the hydrated template (title/content/
 // footer + hydrated buttons) with the helpers below or directly with waproto.
 func (c *Client) SendTemplate(ctx context.Context, toJID string, hydrated *waproto.TemplateMessage_HydratedFourRowTemplate) (string, error) {
-	return c.sendMessage(ctx, toJID, buildTemplateMessage(hydrated), sendOpts{pacerHint: len(hydrated.GetHydratedContentText())})
+	return c.sendRouted(ctx, toJID, buildTemplateMessage(hydrated), sendOpts{pacerHint: len(hydrated.GetHydratedContentText())})
 }
 
 // buildTemplateMessage is the pure constructor wrapping a hydrated template in a
@@ -165,7 +165,7 @@ type NativeFlowButton struct {
 // SendInteractive sends an InteractiveMessage carrying a native-flow button set,
 // a body text and an optional footer.
 func (c *Client) SendInteractive(ctx context.Context, toJID, body, footer string, buttons []NativeFlowButton) (string, error) {
-	return c.sendMessage(ctx, toJID, buildInteractiveMessage(body, footer, buttons), sendOpts{pacerHint: len(body)})
+	return c.sendRouted(ctx, toJID, buildInteractiveMessage(body, footer, buttons), sendOpts{pacerHint: len(body)})
 }
 
 // buildInteractiveMessage is the pure constructor for an InteractiveMessage with
@@ -197,7 +197,7 @@ func buildInteractiveMessage(body, footer string, buttons []NativeFlowButton) *w
 // it, so the recipient can open the contained message only once. inner is a
 // fully-built WAProto.Message (typically media built via the media builders).
 func (c *Client) SendViewOnce(ctx context.Context, toJID string, inner *waproto.Message) (string, error) {
-	return c.sendMessage(ctx, toJID, wrapViewOnce(inner), sendOpts{stanzaType: "media"})
+	return c.sendRouted(ctx, toJID, wrapViewOnce(inner), sendOpts{stanzaType: "media"})
 }
 
 // wrapViewOnce is the pure constructor that embeds inner in a

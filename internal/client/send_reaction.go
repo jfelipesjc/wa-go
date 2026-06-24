@@ -13,7 +13,7 @@ import (
 // message being reacted to (its remoteJid/id/fromMe and, in groups, the
 // participant). Mirrors Baileys' ReactionMessage relay.
 func (c *Client) SendReaction(ctx context.Context, toJID string, targetKey *waproto.MessageKey, emoji string) (string, error) {
-	return c.sendMessage(ctx, toJID, buildReactionMessage(targetKey, emoji, time.Now()), sendOpts{})
+	return c.sendRouted(ctx, toJID, buildReactionMessage(targetKey, emoji, time.Now()), sendOpts{})
 }
 
 // buildReactionMessage is the pure constructor for a ReactionMessage. The

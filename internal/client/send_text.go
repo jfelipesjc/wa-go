@@ -11,14 +11,7 @@ import (
 // id once the stanza has been written to the wire. It mirrors Baileys'
 // relayMessage for a plain conversation: WAProto.Message{conversation: text}.
 func (c *Client) SendText(ctx context.Context, toJID, text string) (string, error) {
-	if isGroupJID(toJID) {
-		parts, err := c.groupParticipantJIDs(ctx, toJID)
-		if err != nil {
-			return "", err
-		}
-		return c.sendGroupMessage(ctx, toJID, parts, buildTextMessage(text), sendOpts{pacerHint: len(text)})
-	}
-	return c.sendMessage(ctx, toJID, buildTextMessage(text), sendOpts{pacerHint: len(text)})
+	return c.sendRouted(ctx, toJID, buildTextMessage(text), sendOpts{pacerHint: len(text)})
 }
 
 // SendTextReply sends a text reply quoting an earlier message. It builds an
@@ -31,14 +24,14 @@ func (c *Client) SendText(ctx context.Context, toJID, text string) (string, erro
 // participant); quotedMsg is the original message body that gets embedded as
 // ContextInfo.quotedMessage so clients can render the reply preview.
 func (c *Client) SendTextReply(ctx context.Context, toJID, text string, quotedKey *waproto.MessageKey, quotedMsg *waproto.Message) (string, error) {
-	return c.sendMessage(ctx, toJID, buildTextReplyMessage(text, quotedKey, quotedMsg), sendOpts{pacerHint: len(text)})
+	return c.sendRouted(ctx, toJID, buildTextReplyMessage(text, quotedKey, quotedMsg), sendOpts{pacerHint: len(text)})
 }
 
 // SendTextMention sends a text that @-mentions the given JIDs. The mentioned
 // JIDs are listed in ContextInfo.mentionedJid (Baileys' mentions option); the
 // text itself should contain the matching "@<number>" tokens.
 func (c *Client) SendTextMention(ctx context.Context, toJID, text string, mentions []string) (string, error) {
-	return c.sendMessage(ctx, toJID, buildTextMentionMessage(text, mentions), sendOpts{pacerHint: len(text)})
+	return c.sendRouted(ctx, toJID, buildTextMentionMessage(text, mentions), sendOpts{pacerHint: len(text)})
 }
 
 // buildTextMessage is the pure constructor for a plain conversation message.

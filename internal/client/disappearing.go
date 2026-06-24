@@ -54,7 +54,7 @@ func (c *Client) SetDisappearingMessages(ctx context.Context, jid string, durati
 	if isGroupJID(jid) {
 		return "", c.setGroupEphemeral(ctx, jid, secs)
 	}
-	return c.sendMessage(ctx, jid, buildEphemeralSettingMessage(secs, time.Now()), sendOpts{})
+	return c.sendRouted(ctx, jid, buildEphemeralSettingMessage(secs, time.Now()), sendOpts{})
 }
 
 // buildEphemeralSettingMessage is the pure constructor for the 1:1 disappearing

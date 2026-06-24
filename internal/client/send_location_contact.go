@@ -17,7 +17,7 @@ import (
 // the coordinates in decimal degrees; name and address are optional labels shown
 // in the location card.
 func (c *Client) SendLocation(ctx context.Context, toJID string, lat, lng float64, name, address string) (string, error) {
-	return c.sendMessage(ctx, toJID, buildLocationMessage(lat, lng, name, address), sendOpts{})
+	return c.sendRouted(ctx, toJID, buildLocationMessage(lat, lng, name, address), sendOpts{})
 }
 
 // buildLocationMessage is the pure constructor for a LocationMessage. Optional
@@ -39,7 +39,7 @@ func buildLocationMessage(lat, lng float64, name, address string) *waproto.Messa
 // SendContact sends a ContactMessage carrying a single vCard. displayName is the
 // name shown for the contact; vcard is the raw vCard (VCF) text.
 func (c *Client) SendContact(ctx context.Context, toJID, displayName, vcard string) (string, error) {
-	return c.sendMessage(ctx, toJID, buildContactMessage(displayName, vcard), sendOpts{})
+	return c.sendRouted(ctx, toJID, buildContactMessage(displayName, vcard), sendOpts{})
 }
 
 // buildContactMessage is the pure constructor for a ContactMessage.

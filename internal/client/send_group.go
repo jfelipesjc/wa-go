@@ -151,7 +151,7 @@ func (c *Client) sendGroupMessage(ctx context.Context, groupJID string, particip
 	if stanzaType == "" {
 		stanzaType = "text"
 	}
-	stanza := buildGroupMessageStanza(msgID, groupJID, stanzaType, participantNodes, skMsg, sess.creds.Account)
+	stanza := buildGroupMessageStanza(msgID, groupJID, stanzaType, opts.mediaType, participantNodes, skMsg, sess.creds.Account)
 	if err := sess.send(stanza); err != nil {
 		return "", fmt.Errorf("client: send group message: %w", err)
 	}
@@ -211,7 +211,7 @@ func buildSenderKeyDistributionMessage(groupJID string, skdm *signal.SenderKeyDi
 //
 // This matches Baileys' group relay: the per-device <participants> carry the
 // SenderKeyDistributionMessage, and the single skmsg <enc> carries the content.
-func buildGroupMessageStanza(msgID, groupJID, stanzaType string, participants []wire.Node, skMsg, account []byte) wire.Node {
+func buildGroupMessageStanza(msgID, groupJID, stanzaType, mediaType string, participants []wire.Node, skMsg, account []byte) wire.Node {
 	var content []wire.Node
 	if len(participants) > 0 {
 		content = append(content, wire.Node{
@@ -220,9 +220,15 @@ func buildGroupMessageStanza(msgID, groupJID, stanzaType string, participants []
 			Content: participants,
 		})
 	}
+	skEncAttrs := map[string]string{"v": "2", "type": "skmsg"}
+	if mediaType != "" {
+		// Media in a group rides the same sender-key <enc type=skmsg>; the server
+		// still needs the mediatype attr to route/keep it (mirrors the 1:1 enc).
+		skEncAttrs["mediatype"] = mediaType
+	}
 	content = append(content, wire.Node{
 		Tag:     "enc",
-		Attrs:   map[string]string{"v": "2", "type": "skmsg"},
+		Attrs:   skEncAttrs,
 		Content: append([]byte(nil), skMsg...),
 	})
 	if len(account) > 0 && participantsHavePkmsg(participants) {

@@ -125,6 +125,22 @@ func (c *Client) sendMessage(ctx context.Context, toJID string, msg *waproto.Mes
 	return msgID, nil
 }
 
+// sendRouted dispatches a built message to the right transport based on the
+// destination: a `@g.us` JID goes through sendGroupMessage (sender keys), with
+// the participant list resolved from group metadata; everything else goes 1:1
+// via sendMessage. Every public Send* helper routes through here so groups work
+// uniformly for text, media, reaction, location, edit, etc.
+func (c *Client) sendRouted(ctx context.Context, toJID string, msg *waproto.Message, opts sendOpts) (string, error) {
+	if isGroupJID(toJID) {
+		parts, err := c.groupParticipantJIDs(ctx, toJID)
+		if err != nil {
+			return "", err
+		}
+		return c.sendGroupMessage(ctx, toJID, parts, msg, opts)
+	}
+	return c.sendMessage(ctx, toJID, msg, opts)
+}
+
 // assertSessions ensures a session exists for every device, fetching prekey
 // bundles + running X3DH for those that don't (Baileys' assertSessions).
 func (c *Client) assertSessions(ctx context.Context, sess *session, devices []deviceJID) error {

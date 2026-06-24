@@ -122,7 +122,7 @@ func (c *Client) SendImage(ctx context.Context, toJID string, data []byte, opts 
 	if err != nil {
 		return "", err
 	}
-	return c.sendMessage(ctx, toJID, buildImageMessage(info, opts), sendOpts{stanzaType: "media", mediaType: "image", pacerHint: len(opts.Caption)})
+	return c.sendRouted(ctx, toJID, buildImageMessage(info, opts), sendOpts{stanzaType: "media", mediaType: "image", pacerHint: len(opts.Caption)})
 }
 
 // SendVideo encrypts data as a video, (uploads it,) and sends a VideoMessage.
@@ -131,7 +131,7 @@ func (c *Client) SendVideo(ctx context.Context, toJID string, data []byte, opts 
 	if err != nil {
 		return "", err
 	}
-	return c.sendMessage(ctx, toJID, buildVideoMessage(info, opts), sendOpts{stanzaType: "media", mediaType: "video", pacerHint: len(opts.Caption)})
+	return c.sendRouted(ctx, toJID, buildVideoMessage(info, opts), sendOpts{stanzaType: "media", mediaType: "video", pacerHint: len(opts.Caption)})
 }
 
 // SendAudio encrypts data as audio, (uploads it,) and sends an AudioMessage.
@@ -140,7 +140,7 @@ func (c *Client) SendAudio(ctx context.Context, toJID string, data []byte, opts 
 	if err != nil {
 		return "", err
 	}
-	return c.sendMessage(ctx, toJID, buildAudioMessage(info, opts), sendOpts{stanzaType: "media", mediaType: audioMediaType(opts)})
+	return c.sendRouted(ctx, toJID, buildAudioMessage(info, opts), sendOpts{stanzaType: "media", mediaType: audioMediaType(opts)})
 }
 
 // SendDocument encrypts data as a document, (uploads it,) and sends a
@@ -150,7 +150,7 @@ func (c *Client) SendDocument(ctx context.Context, toJID string, data []byte, op
 	if err != nil {
 		return "", err
 	}
-	return c.sendMessage(ctx, toJID, buildDocumentMessage(info, opts), sendOpts{stanzaType: "media", mediaType: "document", pacerHint: len(opts.Caption)})
+	return c.sendRouted(ctx, toJID, buildDocumentMessage(info, opts), sendOpts{stanzaType: "media", mediaType: "document", pacerHint: len(opts.Caption)})
 }
 
 // SendSticker encrypts data as a sticker (image media type, per Baileys) and
@@ -161,7 +161,7 @@ func (c *Client) SendSticker(ctx context.Context, toJID string, data []byte, opt
 	if err != nil {
 		return "", err
 	}
-	return c.sendMessage(ctx, toJID, buildStickerMessage(info, opts), sendOpts{stanzaType: "media", mediaType: "sticker"})
+	return c.sendRouted(ctx, toJID, buildStickerMessage(info, opts), sendOpts{stanzaType: "media", mediaType: "sticker"})
 }
 
 // audioMediaType returns the enc `mediatype` for an audio send: "ptt" for a

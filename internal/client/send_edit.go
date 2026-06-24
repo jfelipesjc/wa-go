@@ -12,14 +12,14 @@ import (
 // type MESSAGE_EDIT whose key points at the original message and whose
 // editedMessage carries the replacement content, mirroring Baileys' edit relay.
 func (c *Client) EditText(ctx context.Context, toJID string, targetKey *waproto.MessageKey, newText string) (string, error) {
-	return c.sendMessage(ctx, toJID, buildEditMessage(targetKey, newText, time.Now()), sendOpts{pacerHint: len(newText)})
+	return c.sendRouted(ctx, toJID, buildEditMessage(targetKey, newText, time.Now()), sendOpts{pacerHint: len(newText)})
 }
 
 // DeleteMessage revokes (deletes for everyone) a previously sent message. It
 // sends a ProtocolMessage of type REVOKE keyed to the target message, matching
 // Baileys' delete relay.
 func (c *Client) DeleteMessage(ctx context.Context, toJID string, targetKey *waproto.MessageKey) (string, error) {
-	return c.sendMessage(ctx, toJID, buildRevokeMessage(targetKey), sendOpts{})
+	return c.sendRouted(ctx, toJID, buildRevokeMessage(targetKey), sendOpts{})
 }
 
 // buildEditMessage is the pure constructor for a MESSAGE_EDIT ProtocolMessage.

@@ -301,8 +301,8 @@ func TestBuildGroupMessageStanza_Structure(t *testing.T) {
 	const groupJID = "120363000000000000@g.us"
 	// Two participant SKDM nodes; one carries a pkmsg so device-identity attaches.
 	participants := []wire.Node{
-		toEncNode("5551111111@s.whatsapp.net", "pkmsg", []byte("skdm-ct-1")),
-		toEncNode("5552222222@s.whatsapp.net", "msg", []byte("skdm-ct-2")),
+		toEncNode("5551111111@s.whatsapp.net", "pkmsg", "", []byte("skdm-ct-1")),
+		toEncNode("5552222222@s.whatsapp.net", "msg", "", []byte("skdm-ct-2")),
 	}
 	skMsg := []byte("skmsg-content-ciphertext")
 	account := []byte("device-identity-blob")

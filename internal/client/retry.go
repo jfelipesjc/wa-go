@@ -262,7 +262,7 @@ func (c *Client) handleRetryReceipt(ctx context.Context, sess *session, node wir
 	if err != nil {
 		return err
 	}
-	participantNodes, err := c.encryptForDevices(sess.creds, []deviceJID{dev}, plaintext)
+	participantNodes, err := c.encryptForDevices(sess.creds, []deviceJID{dev}, plaintext, "")
 	if err != nil {
 		return err
 	}

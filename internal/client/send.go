@@ -39,6 +39,11 @@ type sendOpts struct {
 	// "text" (Baileys uses "text" for chat content and "media" for media; we
 	// keep "text" as the safe default, matching the original SendText).
 	stanzaType string
+
+	// mediaType, when set (e.g. "image"/"video"/"audio"/"document"/"sticker"),
+	// is stamped as the `mediatype` attribute on every <enc> node — required for
+	// media messages (Baileys getMediaType). Empty for non-media.
+	mediaType string
 }
 
 // sendMessage is the shared 1:1 send core that SendText and every other 1:1
@@ -98,7 +103,7 @@ func (c *Client) sendMessage(ctx context.Context, toJID string, msg *waproto.Mes
 		return "", err
 	}
 
-	participantNodes, err := c.encryptForDevices(sess.creds, devices, plaintext)
+	participantNodes, err := c.encryptForDevices(sess.creds, devices, plaintext, opts.mediaType)
 	if err != nil {
 		return "", err
 	}
@@ -146,7 +151,7 @@ func (c *Client) assertSessions(ctx context.Context, sess *session, devices []de
 // encryptForDevices encrypts the padded plaintext for each device with its
 // session cipher, persisting the advanced session, and returns the
 // <to jid><enc v=2 type=...> participant nodes (Baileys' createParticipantNodes).
-func (c *Client) encryptForDevices(creds *store.Creds, devices []deviceJID, plaintext []byte) ([]wire.Node, error) {
+func (c *Client) encryptForDevices(creds *store.Creds, devices []deviceJID, plaintext []byte, mediaType string) ([]wire.Node, error) {
 	var nodes []wire.Node
 	var firstErr error
 	for _, d := range devices {
@@ -191,7 +196,7 @@ func (c *Client) encryptForDevices(creds *store.Creds, devices []deviceJID, plai
 			}
 			continue
 		}
-		nodes = append(nodes, toEncNode(d.JID, ct.Type, ct.Serialized))
+		nodes = append(nodes, toEncNode(d.JID, ct.Type, mediaType, ct.Serialized))
 	}
 	if len(nodes) == 0 && firstErr != nil {
 		return nil, firstErr
@@ -200,15 +205,22 @@ func (c *Client) encryptForDevices(creds *store.Creds, devices []deviceJID, plai
 }
 
 // toEncNode builds a <to jid=...><enc v=2 type=...>ciphertext</enc></to> node, as
-// Baileys' createParticipantNodes does per recipient device.
-func toEncNode(jid, encType string, ciphertext []byte) wire.Node {
+// Baileys' createParticipantNodes does per recipient device. mediaType, when
+// non-empty (e.g. "image"), is added as the enc's `mediatype` attribute —
+// Baileys sets it (relayMessage extraAttrs) for every media message, and the
+// server drops/withholds a media <message> whose <enc> lacks it.
+func toEncNode(jid, encType, mediaType string, ciphertext []byte) wire.Node {
+	encAttrs := map[string]string{"v": "2", "type": encType}
+	if mediaType != "" {
+		encAttrs["mediatype"] = mediaType
+	}
 	return wire.Node{
 		Tag:   "to",
 		Attrs: map[string]string{"jid": jid},
 		Content: []wire.Node{
 			{
 				Tag:     "enc",
-				Attrs:   map[string]string{"v": "2", "type": encType},
+				Attrs:   encAttrs,
 				Content: append([]byte(nil), ciphertext...),
 			},
 		},

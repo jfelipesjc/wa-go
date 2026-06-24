@@ -152,7 +152,7 @@ func (c *Client) relayStatus(ctx context.Context, msg *waproto.Message, recipien
 	if err := c.assertSessions(ctx, sess, devices); err != nil {
 		return "", err
 	}
-	participantNodes, err := c.encryptForDevices(sess.creds, devices, plaintext)
+	participantNodes, err := c.encryptForDevices(sess.creds, devices, plaintext, "")
 	if err != nil {
 		return "", err
 	}

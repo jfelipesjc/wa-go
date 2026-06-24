@@ -115,7 +115,7 @@ func (c *Client) sendGroupMessage(ctx context.Context, groupJID string, particip
 		if err != nil {
 			return "", err
 		}
-		participantNodes, err = c.encryptForDevices(sess.creds, devices, skdmPlain)
+		participantNodes, err = c.encryptForDevices(sess.creds, devices, skdmPlain, "")
 		if err != nil {
 			return "", err
 		}

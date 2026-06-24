@@ -157,6 +157,7 @@ type Manager struct {
 type managed struct {
 	name    string
 	factory func() Session
+	cancel  context.CancelFunc // stops this instance's supervisor (set at launch)
 
 	mu    sync.Mutex
 	state State
@@ -277,10 +278,30 @@ func (m *Manager) AddFactory(name string, factory func() Session) (*ManagedClien
 	mc := &ManagedClient{name: name, m: m}
 	// If Start already ran, launch the new instance immediately.
 	if m.started && m.cancel != nil {
-		m.wg.Add(1)
-		go m.supervise(m.ctxRef, mg)
+		m.launch(mg)
 	}
 	return mc, nil
+}
+
+// Remove stops and unregisters a single instance: it cancels that instance's
+// supervisor (which ends its connection and event pump) and drops it from the
+// registry, so it no longer appears in Status and frees its resources. Returns
+// an error if the instance is unknown. The instance's Store is owned by the
+// caller (the API backend closes it after Remove).
+func (m *Manager) Remove(name string) error {
+	m.mu.Lock()
+	mg, ok := m.instances[name]
+	if !ok {
+		m.mu.Unlock()
+		return fmt.Errorf("manager: instance %q not found", name)
+	}
+	delete(m.instances, name)
+	cancel := mg.cancel
+	m.mu.Unlock()
+	if cancel != nil {
+		cancel() // supervise sees ctx.Done(), closes the session, returns
+	}
+	return nil
 }
 
 // Start launches every registered instance concurrently under ctx. It returns
@@ -305,9 +326,20 @@ func (m *Manager) Start(ctx context.Context) {
 	m.mu.Unlock()
 
 	for _, mg := range insts {
-		m.wg.Add(1)
-		go m.supervise(root, mg)
+		m.launch(mg)
 	}
+}
+
+// launch starts an instance's supervisor under a per-instance context derived
+// from the manager root, recording the cancel func so Remove can stop just this
+// instance. Caller must hold no lock that conflicts with mg/m mutation; it is
+// invoked from Start (after unlock) and AddFactory (under m.mu). m.ctxRef must be
+// set (m.started true).
+func (m *Manager) launch(mg *managed) {
+	ctx, cancel := context.WithCancel(m.ctxRef)
+	mg.cancel = cancel
+	m.wg.Add(1)
+	go m.supervise(ctx, mg)
 }
 
 // supervise runs the connect/backoff loop for one instance until ctx is done.

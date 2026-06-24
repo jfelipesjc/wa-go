@@ -126,6 +126,37 @@ func TestManager_AllReachLoggedIn(t *testing.T) {
 	m.Stop()
 }
 
+// --- Test: Remove stops + unregisters a single instance ---
+
+func TestManager_RemoveOneInstance(t *testing.T) {
+	m := New(WithBackoff(noWaitBackoff))
+	for i := 0; i < 3; i++ {
+		if _, err := m.AddSession(nameFor(i), newFakeSession()); err != nil {
+			t.Fatalf("AddSession(%s): %v", nameFor(i), err)
+		}
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	m.Start(ctx)
+	waitFor(t, func() bool { return len(m.Status()) == 3 }, "3 instances up")
+
+	// Remove the middle one; the other two stay.
+	if err := m.Remove(nameFor(1)); err != nil {
+		t.Fatalf("Remove: %v", err)
+	}
+	waitFor(t, func() bool {
+		st := m.Status()
+		_, gone := st[nameFor(1)]
+		return len(st) == 2 && !gone
+	}, "instance removed from Status")
+
+	// Removing an unknown instance errors.
+	if err := m.Remove("ghost"); err == nil {
+		t.Fatalf("Remove(ghost) = nil, want error")
+	}
+	m.Stop()
+}
+
 // --- Test 2: aggregated events carry the right instance name ---
 
 func TestManager_AggregatedEventsHaveName(t *testing.T) {

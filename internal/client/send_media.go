@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/felipeleal/wa-go/internal/media"
 	"github.com/felipeleal/wa-go/internal/waproto"
@@ -67,12 +68,13 @@ var ErrMediaUploadNotConfigured = errors.New("client: media upload not configure
 
 // mediaSendInfo bundles everything the protobuf builders need after encryption.
 type mediaSendInfo struct {
-	mediaKey      [32]byte
-	fileSha256    [32]byte
-	fileEncSha256 [32]byte
-	fileLength    uint64
-	directPath    string
-	url           string
+	mediaKey          [32]byte
+	fileSha256        [32]byte
+	fileEncSha256     [32]byte
+	fileLength        uint64
+	directPath        string
+	url               string
+	mediaKeyTimestamp int64
 }
 
 // prepareMedia generates a random media key, encrypts the plaintext for the
@@ -104,12 +106,13 @@ func (c *Client) prepareMedia(ctx context.Context, data []byte, mediaType media.
 	}
 
 	return &mediaSendInfo{
-		mediaKey:      mediaKey,
-		fileSha256:    fileSha,
-		fileEncSha256: fileEncSha,
-		fileLength:    uint64(len(data)),
-		directPath:    directPath,
-		url:           url,
+		mediaKey:          mediaKey,
+		fileSha256:        fileSha,
+		fileEncSha256:     fileEncSha,
+		fileLength:        uint64(len(data)),
+		directPath:        directPath,
+		url:               url,
+		mediaKeyTimestamp: time.Now().Unix(),
 	}, nil
 }
 
@@ -165,12 +168,13 @@ func (c *Client) SendSticker(ctx context.Context, toJID string, data []byte, opt
 
 func buildImageMessage(info *mediaSendInfo, opts MediaOpts) *waproto.Message {
 	im := &waproto.ImageMessage{
-		MediaKey:      info.mediaKey[:],
-		FileSha256:    info.fileSha256[:],
-		FileEncSha256: info.fileEncSha256[:],
-		FileLength:    proto.Uint64(info.fileLength),
-		DirectPath:    proto.String(info.directPath),
-		Url:           proto.String(info.url),
+		MediaKey:          info.mediaKey[:],
+		FileSha256:        info.fileSha256[:],
+		FileEncSha256:     info.fileEncSha256[:],
+		FileLength:        proto.Uint64(info.fileLength),
+		DirectPath:        proto.String(info.directPath),
+		Url:               proto.String(info.url),
+		MediaKeyTimestamp: proto.Int64(info.mediaKeyTimestamp),
 	}
 	if opts.Mimetype != "" {
 		im.Mimetype = proto.String(opts.Mimetype)
@@ -195,12 +199,13 @@ func buildImageMessage(info *mediaSendInfo, opts MediaOpts) *waproto.Message {
 
 func buildVideoMessage(info *mediaSendInfo, opts MediaOpts) *waproto.Message {
 	vm := &waproto.VideoMessage{
-		MediaKey:      info.mediaKey[:],
-		FileSha256:    info.fileSha256[:],
-		FileEncSha256: info.fileEncSha256[:],
-		FileLength:    proto.Uint64(info.fileLength),
-		DirectPath:    proto.String(info.directPath),
-		Url:           proto.String(info.url),
+		MediaKey:          info.mediaKey[:],
+		FileSha256:        info.fileSha256[:],
+		FileEncSha256:     info.fileEncSha256[:],
+		FileLength:        proto.Uint64(info.fileLength),
+		DirectPath:        proto.String(info.directPath),
+		Url:               proto.String(info.url),
+		MediaKeyTimestamp: proto.Int64(info.mediaKeyTimestamp),
 	}
 	if opts.Mimetype != "" {
 		vm.Mimetype = proto.String(opts.Mimetype)
@@ -228,12 +233,13 @@ func buildVideoMessage(info *mediaSendInfo, opts MediaOpts) *waproto.Message {
 
 func buildAudioMessage(info *mediaSendInfo, opts MediaOpts) *waproto.Message {
 	am := &waproto.AudioMessage{
-		MediaKey:      info.mediaKey[:],
-		FileSha256:    info.fileSha256[:],
-		FileEncSha256: info.fileEncSha256[:],
-		FileLength:    proto.Uint64(info.fileLength),
-		DirectPath:    proto.String(info.directPath),
-		Url:           proto.String(info.url),
+		MediaKey:          info.mediaKey[:],
+		FileSha256:        info.fileSha256[:],
+		FileEncSha256:     info.fileEncSha256[:],
+		FileLength:        proto.Uint64(info.fileLength),
+		DirectPath:        proto.String(info.directPath),
+		Url:               proto.String(info.url),
+		MediaKeyTimestamp: proto.Int64(info.mediaKeyTimestamp),
 	}
 	if opts.Mimetype != "" {
 		am.Mimetype = proto.String(opts.Mimetype)
@@ -252,12 +258,13 @@ func buildAudioMessage(info *mediaSendInfo, opts MediaOpts) *waproto.Message {
 
 func buildDocumentMessage(info *mediaSendInfo, opts MediaOpts) *waproto.Message {
 	dm := &waproto.DocumentMessage{
-		MediaKey:      info.mediaKey[:],
-		FileSha256:    info.fileSha256[:],
-		FileEncSha256: info.fileEncSha256[:],
-		FileLength:    proto.Uint64(info.fileLength),
-		DirectPath:    proto.String(info.directPath),
-		Url:           proto.String(info.url),
+		MediaKey:          info.mediaKey[:],
+		FileSha256:        info.fileSha256[:],
+		FileEncSha256:     info.fileEncSha256[:],
+		FileLength:        proto.Uint64(info.fileLength),
+		DirectPath:        proto.String(info.directPath),
+		Url:               proto.String(info.url),
+		MediaKeyTimestamp: proto.Int64(info.mediaKeyTimestamp),
 	}
 	if opts.Mimetype != "" {
 		dm.Mimetype = proto.String(opts.Mimetype)
@@ -282,12 +289,13 @@ func buildDocumentMessage(info *mediaSendInfo, opts MediaOpts) *waproto.Message 
 
 func buildStickerMessage(info *mediaSendInfo, opts MediaOpts) *waproto.Message {
 	sm := &waproto.StickerMessage{
-		MediaKey:      info.mediaKey[:],
-		FileSha256:    info.fileSha256[:],
-		FileEncSha256: info.fileEncSha256[:],
-		FileLength:    proto.Uint64(info.fileLength),
-		DirectPath:    proto.String(info.directPath),
-		Url:           proto.String(info.url),
+		MediaKey:          info.mediaKey[:],
+		FileSha256:        info.fileSha256[:],
+		FileEncSha256:     info.fileEncSha256[:],
+		FileLength:        proto.Uint64(info.fileLength),
+		DirectPath:        proto.String(info.directPath),
+		Url:               proto.String(info.url),
+		MediaKeyTimestamp: proto.Int64(info.mediaKeyTimestamp),
 	}
 	if opts.Mimetype != "" {
 		sm.Mimetype = proto.String(opts.Mimetype)

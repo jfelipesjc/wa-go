@@ -192,9 +192,13 @@ func TestChatModifyUsesResyncedVersion(t *testing.T) {
 	c.active = sess
 	c.mu.Unlock()
 
+	// ChatModify resyncs before mutating, so it sends two iqs (resync, then the
+	// SET patch). Ack every iq: the resync gets an empty result (no <sync> -> a
+	// harmless ignored error, version stays at the seeded 5), the SET succeeds.
 	go func() {
-		req := <-capCh
-		c.deliverIQ(wire.Node{Tag: "iq", Attrs: map[string]string{"id": req.Attrs["id"], "type": "result"}})
+		for req := range capCh {
+			c.deliverIQ(wire.Node{Tag: "iq", Attrs: map[string]string{"id": req.Attrs["id"], "type": "result"}})
+		}
 	}()
 
 	if err := c.ArchiveChat(context.Background(), testChatJID, true); err != nil {
@@ -233,9 +237,11 @@ func TestChatModifyLoadsKeyFromStore(t *testing.T) {
 	c.active = sess
 	c.mu.Unlock()
 
+	// ChatModify resyncs before mutating -> two iqs (resync + SET); ack both.
 	go func() {
-		req := <-capCh
-		c.deliverIQ(wire.Node{Tag: "iq", Attrs: map[string]string{"id": req.Attrs["id"], "type": "result"}})
+		for req := range capCh {
+			c.deliverIQ(wire.Node{Tag: "iq", Attrs: map[string]string{"id": req.Attrs["id"], "type": "result"}})
+		}
 	}()
 
 	if err := c.PinChat(context.Background(), testChatJID, true); err != nil {

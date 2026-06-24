@@ -336,6 +336,14 @@ func (c *Client) ChatModify(ctx context.Context, jid string, action ChatAction) 
 		return fmt.Errorf("client: encode app patch: %w", err)
 	}
 
+	// The UPLOADED SyncdPatch must NOT carry a version field — the server assigns
+	// it from the <collection version=> attr; a present version made it reject the
+	// upload with 400 bad-request (Baileys' encodeSyncdPatch omits it). EncodePatch
+	// keeps the version for the decode/round-trip path, so strip it only here.
+	if stripped, serr := stripPatchVersion(patchBytes); serr == nil {
+		patchBytes = stripped
+	}
+
 	req := buildAppStatePatchIQ(c.nextIQID("wa-go-appstate-"), action.collection, prevVersion, patchBytes)
 	if _, err := c.sendIQ(ctx, sess, req); err != nil {
 		return err
@@ -360,6 +368,19 @@ func (c *Client) ChatModify(ctx context.Context, jid string, action ChatAction) 
 //
 // version is the collection's current (pre-increment) version, matching Baileys'
 // `(state.version - 1)` attribute.
+// stripPatchVersion returns the marshaled SyncdPatch with its version field
+// removed (the upload format — the server assigns the version from the
+// <collection version=> attr). EncodePatch keeps the version for the
+// decode/round-trip path; this clears it just for the wire.
+func stripPatchVersion(patchBytes []byte) ([]byte, error) {
+	var p waproto.SyncdPatch
+	if err := proto.Unmarshal(patchBytes, &p); err != nil {
+		return nil, err
+	}
+	p.Version = nil
+	return proto.Marshal(&p)
+}
+
 func buildAppStatePatchIQ(id, collection string, version uint64, patchBytes []byte) wire.Node {
 	return wire.Node{
 		Tag: "iq",

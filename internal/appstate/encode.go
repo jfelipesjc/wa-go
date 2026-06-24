@@ -131,11 +131,8 @@ func EncodePatch(name string, version uint64, keyIDB64 string, keys MutationKeys
 	snapshotMac := generateSnapshotMac(next.Hash, newVersion, name, keys.SnapshotMacKey)
 	patchMac := generatePatchMac(snapshotMac, valueMacs, newVersion, name, keys.PatchMacKey)
 
-	// NOTE: the uploaded SyncdPatch must NOT carry a version field — the server
-	// assigns the version from the <collection version=> attr. Baileys'
-	// encodeSyncdPatch omits it; including it made the server reject the upload
-	// (400 bad-request). The version still feeds the patchMac via newVersion.
 	patch := &waproto.SyncdPatch{
+		Version:     &waproto.SyncdVersion{Version: proto.Uint64(newVersion)},
 		Mutations:   syncdMuts,
 		SnapshotMac: snapshotMac,
 		PatchMac:    patchMac,

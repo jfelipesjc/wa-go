@@ -76,20 +76,34 @@ func testClientWithAppState(t *testing.T) (*Client, func(run func() error) wire.
 	exec := func(run func() error) wire.Node {
 		errCh := make(chan error, 1)
 		go func() { errCh <- run() }()
-		// The send func publishes the node; deliver a success reply for its id.
-		var captured wire.Node
-		select {
-		case captured = <-capturedCh:
-		case <-time.After(2 * time.Second):
-			t.Fatal("timed out waiting for iq to be sent")
+		// ChatModify resyncs the collection before mutating (Baileys' appPatch),
+		// so it sends TWO iqs: the resync first, then the SET patch. Ack each one
+		// with a result reply (the resync result lacks <sync>, so ResyncAppState
+		// returns a harmless ignored error) and return the SET iq (the one with a
+		// <patch> child) for the caller's assertions.
+		var setIQ wire.Node
+		for {
+			select {
+			case captured := <-capturedCh:
+				c.deliverIQ(wire.Node{Tag: "iq", Attrs: map[string]string{
+					"id": captured.Attrs["id"], "type": "result",
+				}})
+				if sync, ok := childByTag(captured, "sync"); ok {
+					if coll, ok := childByTag(sync, "collection"); ok {
+						if _, ok := childByTag(coll, "patch"); ok {
+							setIQ = captured
+						}
+					}
+				}
+			case err := <-errCh:
+				if err != nil {
+					t.Fatalf("action error: %v", err)
+				}
+				return setIQ
+			case <-time.After(3 * time.Second):
+				t.Fatal("timed out waiting for iq to be sent")
+			}
 		}
-		c.deliverIQ(wire.Node{Tag: "iq", Attrs: map[string]string{
-			"id": captured.Attrs["id"], "type": "result",
-		}})
-		if err := <-errCh; err != nil {
-			t.Fatalf("action error: %v", err)
-		}
-		return captured
 	}
 	return c, exec
 }
@@ -149,6 +163,9 @@ func TestChatModifyRoundTripDecode(t *testing.T) {
 	if err := proto.Unmarshal(patchBytes, &patch); err != nil {
 		t.Fatalf("unmarshal patch: %v", err)
 	}
+	// Uploaded patches omit the version (the server assigns it from the
+	// <collection version> attr); re-add it (fresh state -> 1) before decoding.
+	patch.Version = &waproto.SyncdVersion{Version: proto.Uint64(1)}
 
 	rawKey := make([]byte, 32)
 	for i := range rawKey {

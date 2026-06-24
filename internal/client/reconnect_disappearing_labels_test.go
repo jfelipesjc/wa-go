@@ -316,6 +316,7 @@ func TestAddChatLabelRoundTripDecode(t *testing.T) {
 	if err := proto.Unmarshal(patchBytes, &patch); err != nil {
 		t.Fatalf("unmarshal patch: %v", err)
 	}
+	patch.Version = &waproto.SyncdVersion{Version: proto.Uint64(1)}
 
 	rawKey := make([]byte, 32)
 	for i := range rawKey {
@@ -361,6 +362,7 @@ func TestEditLabelRoundTripDecode(t *testing.T) {
 	if err := proto.Unmarshal(patchBytes, &patch); err != nil {
 		t.Fatalf("unmarshal patch: %v", err)
 	}
+	patch.Version = &waproto.SyncdVersion{Version: proto.Uint64(1)}
 	rawKey := make([]byte, 32)
 	for i := range rawKey {
 		rawKey[i] = byte(i + 1)

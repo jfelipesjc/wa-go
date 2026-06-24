@@ -41,6 +41,10 @@ func (c *Client) sendIQ(ctx context.Context, sess *session, req wire.Node) (wire
 			return wire.Node{}, errors.New("client: connection closed before iq reply")
 		}
 		if reply.Attrs["type"] == "error" {
+			if ec, ok := childByTag(reply, "error"); ok {
+				return reply, fmt.Errorf("client: iq %s error: code=%q text=%q",
+					id, ec.Attrs["code"], ec.Attrs["text"])
+			}
 			return reply, fmt.Errorf("client: iq %s returned error", id)
 		}
 		return reply, nil

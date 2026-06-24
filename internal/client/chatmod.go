@@ -302,6 +302,12 @@ func (c *Client) ChatModify(ctx context.Context, jid string, action ChatAction) 
 	if !ok {
 		return errors.New("client: not logged in (no active session)")
 	}
+	// Resync the collection first so we patch on top of the server's CURRENT
+	// version (Baileys' appPatch resyncs before every mutation). Without it our
+	// prevVersion is stale (0) and the server rejects the upload ("iq returned
+	// error"). Best-effort: a resync hiccup shouldn't hard-block the mutation.
+	_ = c.ResyncAppState(ctx, []string{action.collection}, false)
+
 	rawKey, keyIDB64, err := c.ensureKey()
 	if err != nil {
 		return err

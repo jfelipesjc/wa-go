@@ -87,6 +87,12 @@ func run(db, recipient string, timeout time.Duration) error {
 					return err
 				})
 
+				// APP-STATE RESYNC primeiro: estabelece a versão das coleções antes
+				// de qualquer mutação (archive/pin precisam da versão atual).
+				step("AppStateResync", func() error {
+					return c.ResyncAppState(ctx, []string{"regular_high", "regular_low", "critical_block"}, true)
+				})
+
 				// APP-STATE write: arquivar e desarquivar um chat (o mais usado).
 				if recipient != "" {
 					step("ArchiveChat(on/off)", func() error {
@@ -123,10 +129,6 @@ func run(db, recipient string, timeout time.Duration) error {
 					})
 				}
 
-				// APP-STATE RESYNC por último (puxa coleções; pode ser lento).
-				step("AppStateResync", func() error {
-					return c.ResyncAppState(ctx, []string{"regular_high"}, true)
-				})
 				_ = me
 
 				fmt.Println("=== fim ===")

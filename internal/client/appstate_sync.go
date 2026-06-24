@@ -112,13 +112,18 @@ func (c *Client) keyResolver(rawKey []byte) appstate.KeyResolver {
 // For each collection the requested version is the one currently held in the
 // unified state (0 if unknown), so the server returns only newer patches.
 func (c *Client) buildResyncIQ(collections []string, fresh bool) wire.Node {
-	returnSnapshot := "false"
-	if fresh {
-		returnSnapshot = "true"
-	}
 	collNodes := make([]wire.Node, 0, len(collections))
 	for _, col := range collections {
 		ver := c.AppStateCollectionState(col).Version
+		// return_snapshot is true when forcing a fresh sync OR when we have no
+		// version yet (Baileys: shouldForceSnapshot || !state.version).
+		returnSnapshot := "false"
+		if fresh || ver == 0 {
+			returnSnapshot = "true"
+		}
+		// Baileys' <collection> is a LEAF (name/version/return_snapshot attrs, no
+		// children). A stray <patch/> child made the server reject/stall the
+		// w:sync:app:state iq (resync timed out).
 		collNodes = append(collNodes, wire.Node{
 			Tag: "collection",
 			Attrs: map[string]string{
@@ -126,7 +131,6 @@ func (c *Client) buildResyncIQ(collections []string, fresh bool) wire.Node {
 				"version":         uintToStr(ver),
 				"return_snapshot": returnSnapshot,
 			},
-			Content: []wire.Node{{Tag: "patch", Attrs: map[string]string{}}},
 		})
 	}
 	return wire.Node{

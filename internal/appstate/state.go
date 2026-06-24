@@ -58,7 +58,14 @@ func (s *HashState) clone() *HashState {
 // whatsapp-rust-bridge's generateContentMac (note: it differs from older
 // Baileys JS, which mapped SET->0x01 / REMOVE->0x02).
 func generateContentMac(op waproto.SyncdMutation_SyncdOperation, data, keyID, key []byte) []byte {
-	opByte := byte(op)
+	// WhatsApp's MAC op byte is 1-based: SET→0x01, REMOVE→0x02 (Baileys'
+	// generateMac). Using the raw proto enum value (SET=0, REMOVE=1) made every
+	// value MAC disagree with the server — resync decode failed "invalid value
+	// mac" and our outgoing mutations were rejected ("iq returned error").
+	opByte := byte(0x01)
+	if op == waproto.SyncdMutation_REMOVE {
+		opByte = 0x02
+	}
 	keyData := make([]byte, 1+len(keyID))
 	keyData[0] = opByte
 	copy(keyData[1:], keyID)

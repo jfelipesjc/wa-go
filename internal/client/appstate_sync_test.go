@@ -112,8 +112,9 @@ func TestResyncAppStateAppliesPatch(t *testing.T) {
 	if cn.Attrs["return_snapshot"] != "true" {
 		t.Fatalf("return_snapshot = %q, want true", cn.Attrs["return_snapshot"])
 	}
-	if _, ok := childByTag(cn, "patch"); !ok {
-		t.Fatal("collection missing empty <patch>")
+	// The <collection> is a leaf (no <patch> child) — Baileys' resync iq format.
+	if _, ok := childByTag(cn, "patch"); ok {
+		t.Fatal("collection should not carry a <patch> child (server stalls)")
 	}
 
 	// Reply with the patch wrapped in <iq result><sync><collection><patches>.

@@ -393,6 +393,11 @@ message Message {
     optional FutureProofMessage editedMessage = 58;
     optional FutureProofMessage viewOnceMessageV2Extension = 59;
     optional PinInChatMessage pinInChatMessage = 63;
+
+    // ptvMessage (Push-To-Video / round video note) reuses VideoMessage; the
+    // distinct field slot (93, from upstream) is what renders it as a circular
+    // auto-playing note instead of a normal video player.
+    optional VideoMessage ptvMessage = 93;
 }
 
 // PinInChatMessage pins/unpins a specific message in a chat (Message.pinInChatMessage).

@@ -134,6 +134,27 @@ func (c *Client) SendVideo(ctx context.Context, toJID string, data []byte, opts 
 	return c.sendRouted(ctx, toJID, buildVideoMessage(info, opts), sendOpts{stanzaType: "media", mediaType: "video", pacerHint: len(opts.Caption)})
 }
 
+// SendPtv encrypts data as a video and sends it as a PTV (Push-To-Video / round
+// video note): same media pipeline as SendVideo, but the payload rides in
+// Message.ptvMessage so clients render it as a circular auto-playing note.
+func (c *Client) SendPtv(ctx context.Context, toJID string, data []byte, opts MediaOpts) (string, error) {
+	info, err := c.prepareMedia(ctx, data, media.Video, opts)
+	if err != nil {
+		return "", err
+	}
+	vm := buildVideoMessage(info, opts).GetVideoMessage()
+	msg := &waproto.Message{PtvMessage: vm}
+	return c.sendRouted(ctx, toJID, msg, sendOpts{stanzaType: "media", mediaType: "ptv", pacerHint: len(opts.Caption)})
+}
+
+// SendPtvBytes is the convenience form of SendPtv (mimetype only).
+func (c *Client) SendPtvBytes(ctx context.Context, toJID string, data []byte, mimetype string) (string, error) {
+	if mimetype == "" {
+		mimetype = "video/mp4"
+	}
+	return c.SendPtv(ctx, toJID, data, MediaOpts{Mimetype: mimetype})
+}
+
 // SendAudio encrypts data as audio, (uploads it,) and sends an AudioMessage.
 func (c *Client) SendAudio(ctx context.Context, toJID string, data []byte, opts MediaOpts) (string, error) {
 	info, err := c.prepareMedia(ctx, data, media.Audio, opts)

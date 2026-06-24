@@ -2269,8 +2269,12 @@ type Message struct {
 	EditedMessage              *FutureProofMessage `protobuf:"bytes,58,opt,name=editedMessage,proto3,oneof" json:"editedMessage,omitempty"`
 	ViewOnceMessageV2Extension *FutureProofMessage `protobuf:"bytes,59,opt,name=viewOnceMessageV2Extension,proto3,oneof" json:"viewOnceMessageV2Extension,omitempty"`
 	PinInChatMessage           *PinInChatMessage   `protobuf:"bytes,63,opt,name=pinInChatMessage,proto3,oneof" json:"pinInChatMessage,omitempty"`
-	unknownFields              protoimpl.UnknownFields
-	sizeCache                  protoimpl.SizeCache
+	// ptvMessage (Push-To-Video / round video note) reuses VideoMessage; the
+	// distinct field slot (93, from upstream) is what renders it as a circular
+	// auto-playing note instead of a normal video player.
+	PtvMessage    *VideoMessage `protobuf:"bytes,93,opt,name=ptvMessage,proto3,oneof" json:"ptvMessage,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Message) Reset() {
@@ -2530,6 +2534,13 @@ func (x *Message) GetViewOnceMessageV2Extension() *FutureProofMessage {
 func (x *Message) GetPinInChatMessage() *PinInChatMessage {
 	if x != nil {
 		return x.PinInChatMessage
+	}
+	return nil
+}
+
+func (x *Message) GetPtvMessage() *VideoMessage {
+	if x != nil {
+		return x.PtvMessage
 	}
 	return nil
 }
@@ -10118,7 +10129,7 @@ const file_waproto_proto_rawDesc = "" +
 	"\f_descriptionB\b\n" +
 	"\x06_titleB\x10\n" +
 	"\x0e_jpegThumbnailB\x0e\n" +
-	"\f_contextInfo\"\xa2\x1a\n" +
+	"\f_contextInfo\"\xed\x1a\n" +
 	"\aMessage\x12'\n" +
 	"\fconversation\x18\x01 \x01(\tH\x00R\fconversation\x88\x01\x01\x12n\n" +
 	"\x1csenderKeyDistributionMessage\x18\x02 \x01(\v2%.waproto.SenderKeyDistributionMessageH\x01R\x1csenderKeyDistributionMessage\x88\x01\x01\x12>\n" +
@@ -10153,7 +10164,10 @@ const file_waproto_proto_rawDesc = "" +
 	"\x11viewOnceMessageV2\x187 \x01(\v2\x1b.waproto.FutureProofMessageH\x1dR\x11viewOnceMessageV2\x88\x01\x01\x12F\n" +
 	"\reditedMessage\x18: \x01(\v2\x1b.waproto.FutureProofMessageH\x1eR\reditedMessage\x88\x01\x01\x12`\n" +
 	"\x1aviewOnceMessageV2Extension\x18; \x01(\v2\x1b.waproto.FutureProofMessageH\x1fR\x1aviewOnceMessageV2Extension\x88\x01\x01\x12J\n" +
-	"\x10pinInChatMessage\x18? \x01(\v2\x19.waproto.PinInChatMessageH R\x10pinInChatMessage\x88\x01\x01B\x0f\n" +
+	"\x10pinInChatMessage\x18? \x01(\v2\x19.waproto.PinInChatMessageH R\x10pinInChatMessage\x88\x01\x01\x12:\n" +
+	"\n" +
+	"ptvMessage\x18] \x01(\v2\x15.waproto.VideoMessageH!R\n" +
+	"ptvMessage\x88\x01\x01B\x0f\n" +
 	"\r_conversationB\x1f\n" +
 	"\x1d_senderKeyDistributionMessageB\x0f\n" +
 	"\r_imageMessageB\x11\n" +
@@ -10186,7 +10200,8 @@ const file_waproto_proto_rawDesc = "" +
 	"\x12_viewOnceMessageV2B\x10\n" +
 	"\x0e_editedMessageB\x1d\n" +
 	"\x1b_viewOnceMessageV2ExtensionB\x13\n" +
-	"\x11_pinInChatMessage\"\xc9\x01\n" +
+	"\x11_pinInChatMessageB\r\n" +
+	"\v_ptvMessage\"\xc9\x01\n" +
 	"\x10PinInChatMessage\x12*\n" +
 	"\x03key\x18\x01 \x01(\v2\x13.waproto.MessageKeyH\x00R\x03key\x88\x01\x01\x12/\n" +
 	"\x04type\x18\x02 \x01(\x0e2\x16.waproto.PinInChatTypeH\x01R\x04type\x88\x01\x01\x121\n" +
@@ -11415,123 +11430,124 @@ var file_waproto_proto_depIdxs = []int32{
 	32,  // 48: waproto.Message.editedMessage:type_name -> waproto.FutureProofMessage
 	32,  // 49: waproto.Message.viewOnceMessageV2Extension:type_name -> waproto.FutureProofMessage
 	31,  // 50: waproto.Message.pinInChatMessage:type_name -> waproto.PinInChatMessage
-	61,  // 51: waproto.PinInChatMessage.key:type_name -> waproto.MessageKey
-	1,   // 52: waproto.PinInChatMessage.type:type_name -> waproto.PinInChatType
-	30,  // 53: waproto.FutureProofMessage.message:type_name -> waproto.Message
-	62,  // 54: waproto.ImageMessage.contextInfo:type_name -> waproto.ContextInfo
-	62,  // 55: waproto.VideoMessage.contextInfo:type_name -> waproto.ContextInfo
-	62,  // 56: waproto.AudioMessage.contextInfo:type_name -> waproto.ContextInfo
-	62,  // 57: waproto.DocumentMessage.contextInfo:type_name -> waproto.ContextInfo
-	62,  // 58: waproto.StickerMessage.contextInfo:type_name -> waproto.ContextInfo
-	62,  // 59: waproto.LocationMessage.contextInfo:type_name -> waproto.ContextInfo
-	62,  // 60: waproto.LiveLocationMessage.contextInfo:type_name -> waproto.ContextInfo
-	62,  // 61: waproto.ContactMessage.contextInfo:type_name -> waproto.ContextInfo
-	40,  // 62: waproto.ContactsArrayMessage.contacts:type_name -> waproto.ContactMessage
-	62,  // 63: waproto.ContactsArrayMessage.contextInfo:type_name -> waproto.ContextInfo
-	61,  // 64: waproto.ReactionMessage.key:type_name -> waproto.MessageKey
-	94,  // 65: waproto.PollCreationMessage.options:type_name -> waproto.PollCreationMessage.Option
-	62,  // 66: waproto.PollCreationMessage.contextInfo:type_name -> waproto.ContextInfo
-	61,  // 67: waproto.PollUpdateMessage.pollCreationMessageKey:type_name -> waproto.MessageKey
-	95,  // 68: waproto.PollUpdateMessage.vote:type_name -> waproto.PollUpdateMessage.PollEncValue
-	62,  // 69: waproto.ButtonsMessage.contextInfo:type_name -> waproto.ContextInfo
-	96,  // 70: waproto.ButtonsMessage.buttons:type_name -> waproto.ButtonsMessage.Button
-	15,  // 71: waproto.ButtonsMessage.headerType:type_name -> waproto.ButtonsMessage.HeaderType
-	62,  // 72: waproto.ButtonsResponseMessage.contextInfo:type_name -> waproto.ContextInfo
-	17,  // 73: waproto.ButtonsResponseMessage.type:type_name -> waproto.ButtonsResponseMessage.Type
-	18,  // 74: waproto.ListMessage.listType:type_name -> waproto.ListMessage.ListType
-	99,  // 75: waproto.ListMessage.sections:type_name -> waproto.ListMessage.Section
-	62,  // 76: waproto.ListMessage.contextInfo:type_name -> waproto.ContextInfo
-	19,  // 77: waproto.ListResponseMessage.listType:type_name -> waproto.ListResponseMessage.ListType
-	100, // 78: waproto.ListResponseMessage.singleSelectReply:type_name -> waproto.ListResponseMessage.SingleSelectReply
-	62,  // 79: waproto.ListResponseMessage.contextInfo:type_name -> waproto.ContextInfo
-	62,  // 80: waproto.TemplateMessage.contextInfo:type_name -> waproto.ContextInfo
-	101, // 81: waproto.TemplateMessage.hydratedTemplate:type_name -> waproto.TemplateMessage.HydratedFourRowTemplate
-	62,  // 82: waproto.TemplateButtonReplyMessage.contextInfo:type_name -> waproto.ContextInfo
-	108, // 83: waproto.InteractiveMessage.header:type_name -> waproto.InteractiveMessage.Header
-	106, // 84: waproto.InteractiveMessage.body:type_name -> waproto.InteractiveMessage.Body
-	107, // 85: waproto.InteractiveMessage.footer:type_name -> waproto.InteractiveMessage.Footer
-	109, // 86: waproto.InteractiveMessage.nativeFlowMessage:type_name -> waproto.InteractiveMessage.NativeFlowMessage
-	62,  // 87: waproto.InteractiveMessage.contextInfo:type_name -> waproto.ContextInfo
-	111, // 88: waproto.InteractiveResponseMessage.body:type_name -> waproto.InteractiveResponseMessage.Body
-	112, // 89: waproto.InteractiveResponseMessage.nativeFlowResponseMessage:type_name -> waproto.InteractiveResponseMessage.NativeFlowResponseMessage
-	62,  // 90: waproto.InteractiveResponseMessage.contextInfo:type_name -> waproto.ContextInfo
-	61,  // 91: waproto.ProtocolMessage.key:type_name -> waproto.MessageKey
-	20,  // 92: waproto.ProtocolMessage.type:type_name -> waproto.ProtocolMessage.Type
-	79,  // 93: waproto.ProtocolMessage.historySyncNotification:type_name -> waproto.HistorySyncNotification
-	59,  // 94: waproto.ProtocolMessage.appStateSyncKeyShare:type_name -> waproto.AppStateSyncKeyShare
-	60,  // 95: waproto.ProtocolMessage.appStateSyncKeyRequest:type_name -> waproto.AppStateSyncKeyRequest
-	30,  // 96: waproto.ProtocolMessage.editedMessage:type_name -> waproto.Message
-	56,  // 97: waproto.AppStateSyncKeyData.fingerprint:type_name -> waproto.AppStateSyncKeyFingerprint
-	55,  // 98: waproto.AppStateSyncKey.keyId:type_name -> waproto.AppStateSyncKeyId
-	57,  // 99: waproto.AppStateSyncKey.keyData:type_name -> waproto.AppStateSyncKeyData
-	58,  // 100: waproto.AppStateSyncKeyShare.keys:type_name -> waproto.AppStateSyncKey
-	55,  // 101: waproto.AppStateSyncKeyRequest.keyIds:type_name -> waproto.AppStateSyncKeyId
-	30,  // 102: waproto.ContextInfo.quotedMessage:type_name -> waproto.Message
-	64,  // 103: waproto.MessageContextInfo.deviceListMetadata:type_name -> waproto.DeviceListMetadata
-	0,   // 104: waproto.DeviceListMetadata.senderAccountType:type_name -> waproto.ADVEncryptionType
-	0,   // 105: waproto.DeviceListMetadata.receiverAccountType:type_name -> waproto.ADVEncryptionType
-	30,  // 106: waproto.DeviceSentMessage.message:type_name -> waproto.Message
-	69,  // 107: waproto.SyncdRecord.index:type_name -> waproto.SyncdIndex
-	70,  // 108: waproto.SyncdRecord.value:type_name -> waproto.SyncdValue
-	66,  // 109: waproto.SyncdRecord.keyId:type_name -> waproto.KeyId
-	21,  // 110: waproto.SyncdMutation.operation:type_name -> waproto.SyncdMutation.SyncdOperation
-	71,  // 111: waproto.SyncdMutation.record:type_name -> waproto.SyncdRecord
-	72,  // 112: waproto.SyncdMutations.mutations:type_name -> waproto.SyncdMutation
-	68,  // 113: waproto.SyncdPatch.version:type_name -> waproto.SyncdVersion
-	72,  // 114: waproto.SyncdPatch.mutations:type_name -> waproto.SyncdMutation
-	67,  // 115: waproto.SyncdPatch.externalMutations:type_name -> waproto.ExternalBlobReference
-	66,  // 116: waproto.SyncdPatch.keyId:type_name -> waproto.KeyId
-	68,  // 117: waproto.SyncdSnapshot.version:type_name -> waproto.SyncdVersion
-	71,  // 118: waproto.SyncdSnapshot.records:type_name -> waproto.SyncdRecord
-	66,  // 119: waproto.SyncdSnapshot.keyId:type_name -> waproto.KeyId
-	77,  // 120: waproto.SyncActionData.value:type_name -> waproto.SyncActionValue
-	113, // 121: waproto.SyncActionValue.starAction:type_name -> waproto.SyncActionValue.StarAction
-	120, // 122: waproto.SyncActionValue.contactAction:type_name -> waproto.SyncActionValue.ContactAction
-	121, // 123: waproto.SyncActionValue.muteAction:type_name -> waproto.SyncActionValue.MuteAction
-	122, // 124: waproto.SyncActionValue.pinAction:type_name -> waproto.SyncActionValue.PinAction
-	123, // 125: waproto.SyncActionValue.pushNameSetting:type_name -> waproto.SyncActionValue.PushNameSetting
-	125, // 126: waproto.SyncActionValue.labelEditAction:type_name -> waproto.SyncActionValue.LabelEditAction
-	126, // 127: waproto.SyncActionValue.labelAssociationAction:type_name -> waproto.SyncActionValue.LabelAssociationAction
-	124, // 128: waproto.SyncActionValue.archiveChatAction:type_name -> waproto.SyncActionValue.ArchiveChatAction
-	119, // 129: waproto.SyncActionValue.deleteMessageForMeAction:type_name -> waproto.SyncActionValue.DeleteMessageForMeAction
-	116, // 130: waproto.SyncActionValue.markChatAsReadAction:type_name -> waproto.SyncActionValue.MarkChatAsReadAction
-	117, // 131: waproto.SyncActionValue.clearChatAction:type_name -> waproto.SyncActionValue.ClearChatAction
-	118, // 132: waproto.SyncActionValue.deleteChatAction:type_name -> waproto.SyncActionValue.DeleteChatAction
-	2,   // 133: waproto.HistorySyncNotification.syncType:type_name -> waproto.HistorySyncType
-	2,   // 134: waproto.HistorySync.syncType:type_name -> waproto.HistorySyncType
-	81,  // 135: waproto.HistorySync.conversations:type_name -> waproto.Conversation
-	84,  // 136: waproto.HistorySync.statusV3Messages:type_name -> waproto.WebMessageInfo
-	83,  // 137: waproto.HistorySync.pushnames:type_name -> waproto.Pushname
-	82,  // 138: waproto.Conversation.messages:type_name -> waproto.HistorySyncMsg
-	84,  // 139: waproto.HistorySyncMsg.message:type_name -> waproto.WebMessageInfo
-	61,  // 140: waproto.WebMessageInfo.key:type_name -> waproto.MessageKey
-	30,  // 141: waproto.WebMessageInfo.message:type_name -> waproto.Message
-	22,  // 142: waproto.WebMessageInfo.status:type_name -> waproto.WebMessageInfo.Status
-	10,  // 143: waproto.ClientPayload.DNSSource.dnsMethod:type_name -> waproto.ClientPayload.DNSSource.DNSResolutionMethod
-	12,  // 144: waproto.ClientPayload.UserAgent.platform:type_name -> waproto.ClientPayload.UserAgent.Platform
-	92,  // 145: waproto.ClientPayload.UserAgent.appVersion:type_name -> waproto.ClientPayload.UserAgent.AppVersion
-	13,  // 146: waproto.ClientPayload.UserAgent.releaseChannel:type_name -> waproto.ClientPayload.UserAgent.ReleaseChannel
-	11,  // 147: waproto.ClientPayload.UserAgent.deviceType:type_name -> waproto.ClientPayload.UserAgent.DeviceType
-	93,  // 148: waproto.ClientPayload.WebInfo.webdPayload:type_name -> waproto.ClientPayload.WebInfo.WebdPayload
-	14,  // 149: waproto.ClientPayload.WebInfo.webSubPlatform:type_name -> waproto.ClientPayload.WebInfo.WebSubPlatform
-	97,  // 150: waproto.ButtonsMessage.Button.buttonText:type_name -> waproto.ButtonsMessage.Button.ButtonText
-	16,  // 151: waproto.ButtonsMessage.Button.type:type_name -> waproto.ButtonsMessage.Button.Type
-	98,  // 152: waproto.ListMessage.Section.rows:type_name -> waproto.ListMessage.Row
-	102, // 153: waproto.TemplateMessage.HydratedFourRowTemplate.hydratedButtons:type_name -> waproto.TemplateMessage.HydratedButton
-	103, // 154: waproto.TemplateMessage.HydratedButton.quickReplyButton:type_name -> waproto.TemplateMessage.HydratedButton.HydratedQuickReplyButton
-	104, // 155: waproto.TemplateMessage.HydratedButton.urlButton:type_name -> waproto.TemplateMessage.HydratedButton.HydratedURLButton
-	105, // 156: waproto.TemplateMessage.HydratedButton.callButton:type_name -> waproto.TemplateMessage.HydratedButton.HydratedCallButton
-	110, // 157: waproto.InteractiveMessage.NativeFlowMessage.buttons:type_name -> waproto.InteractiveMessage.NativeFlowMessage.NativeFlowButton
-	61,  // 158: waproto.SyncActionValue.SyncActionMessage.key:type_name -> waproto.MessageKey
-	114, // 159: waproto.SyncActionValue.SyncActionMessageRange.messages:type_name -> waproto.SyncActionValue.SyncActionMessage
-	115, // 160: waproto.SyncActionValue.MarkChatAsReadAction.messageRange:type_name -> waproto.SyncActionValue.SyncActionMessageRange
-	115, // 161: waproto.SyncActionValue.ClearChatAction.messageRange:type_name -> waproto.SyncActionValue.SyncActionMessageRange
-	115, // 162: waproto.SyncActionValue.DeleteChatAction.messageRange:type_name -> waproto.SyncActionValue.SyncActionMessageRange
-	163, // [163:163] is the sub-list for method output_type
-	163, // [163:163] is the sub-list for method input_type
-	163, // [163:163] is the sub-list for extension type_name
-	163, // [163:163] is the sub-list for extension extendee
-	0,   // [0:163] is the sub-list for field type_name
+	34,  // 51: waproto.Message.ptvMessage:type_name -> waproto.VideoMessage
+	61,  // 52: waproto.PinInChatMessage.key:type_name -> waproto.MessageKey
+	1,   // 53: waproto.PinInChatMessage.type:type_name -> waproto.PinInChatType
+	30,  // 54: waproto.FutureProofMessage.message:type_name -> waproto.Message
+	62,  // 55: waproto.ImageMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 56: waproto.VideoMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 57: waproto.AudioMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 58: waproto.DocumentMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 59: waproto.StickerMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 60: waproto.LocationMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 61: waproto.LiveLocationMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 62: waproto.ContactMessage.contextInfo:type_name -> waproto.ContextInfo
+	40,  // 63: waproto.ContactsArrayMessage.contacts:type_name -> waproto.ContactMessage
+	62,  // 64: waproto.ContactsArrayMessage.contextInfo:type_name -> waproto.ContextInfo
+	61,  // 65: waproto.ReactionMessage.key:type_name -> waproto.MessageKey
+	94,  // 66: waproto.PollCreationMessage.options:type_name -> waproto.PollCreationMessage.Option
+	62,  // 67: waproto.PollCreationMessage.contextInfo:type_name -> waproto.ContextInfo
+	61,  // 68: waproto.PollUpdateMessage.pollCreationMessageKey:type_name -> waproto.MessageKey
+	95,  // 69: waproto.PollUpdateMessage.vote:type_name -> waproto.PollUpdateMessage.PollEncValue
+	62,  // 70: waproto.ButtonsMessage.contextInfo:type_name -> waproto.ContextInfo
+	96,  // 71: waproto.ButtonsMessage.buttons:type_name -> waproto.ButtonsMessage.Button
+	15,  // 72: waproto.ButtonsMessage.headerType:type_name -> waproto.ButtonsMessage.HeaderType
+	62,  // 73: waproto.ButtonsResponseMessage.contextInfo:type_name -> waproto.ContextInfo
+	17,  // 74: waproto.ButtonsResponseMessage.type:type_name -> waproto.ButtonsResponseMessage.Type
+	18,  // 75: waproto.ListMessage.listType:type_name -> waproto.ListMessage.ListType
+	99,  // 76: waproto.ListMessage.sections:type_name -> waproto.ListMessage.Section
+	62,  // 77: waproto.ListMessage.contextInfo:type_name -> waproto.ContextInfo
+	19,  // 78: waproto.ListResponseMessage.listType:type_name -> waproto.ListResponseMessage.ListType
+	100, // 79: waproto.ListResponseMessage.singleSelectReply:type_name -> waproto.ListResponseMessage.SingleSelectReply
+	62,  // 80: waproto.ListResponseMessage.contextInfo:type_name -> waproto.ContextInfo
+	62,  // 81: waproto.TemplateMessage.contextInfo:type_name -> waproto.ContextInfo
+	101, // 82: waproto.TemplateMessage.hydratedTemplate:type_name -> waproto.TemplateMessage.HydratedFourRowTemplate
+	62,  // 83: waproto.TemplateButtonReplyMessage.contextInfo:type_name -> waproto.ContextInfo
+	108, // 84: waproto.InteractiveMessage.header:type_name -> waproto.InteractiveMessage.Header
+	106, // 85: waproto.InteractiveMessage.body:type_name -> waproto.InteractiveMessage.Body
+	107, // 86: waproto.InteractiveMessage.footer:type_name -> waproto.InteractiveMessage.Footer
+	109, // 87: waproto.InteractiveMessage.nativeFlowMessage:type_name -> waproto.InteractiveMessage.NativeFlowMessage
+	62,  // 88: waproto.InteractiveMessage.contextInfo:type_name -> waproto.ContextInfo
+	111, // 89: waproto.InteractiveResponseMessage.body:type_name -> waproto.InteractiveResponseMessage.Body
+	112, // 90: waproto.InteractiveResponseMessage.nativeFlowResponseMessage:type_name -> waproto.InteractiveResponseMessage.NativeFlowResponseMessage
+	62,  // 91: waproto.InteractiveResponseMessage.contextInfo:type_name -> waproto.ContextInfo
+	61,  // 92: waproto.ProtocolMessage.key:type_name -> waproto.MessageKey
+	20,  // 93: waproto.ProtocolMessage.type:type_name -> waproto.ProtocolMessage.Type
+	79,  // 94: waproto.ProtocolMessage.historySyncNotification:type_name -> waproto.HistorySyncNotification
+	59,  // 95: waproto.ProtocolMessage.appStateSyncKeyShare:type_name -> waproto.AppStateSyncKeyShare
+	60,  // 96: waproto.ProtocolMessage.appStateSyncKeyRequest:type_name -> waproto.AppStateSyncKeyRequest
+	30,  // 97: waproto.ProtocolMessage.editedMessage:type_name -> waproto.Message
+	56,  // 98: waproto.AppStateSyncKeyData.fingerprint:type_name -> waproto.AppStateSyncKeyFingerprint
+	55,  // 99: waproto.AppStateSyncKey.keyId:type_name -> waproto.AppStateSyncKeyId
+	57,  // 100: waproto.AppStateSyncKey.keyData:type_name -> waproto.AppStateSyncKeyData
+	58,  // 101: waproto.AppStateSyncKeyShare.keys:type_name -> waproto.AppStateSyncKey
+	55,  // 102: waproto.AppStateSyncKeyRequest.keyIds:type_name -> waproto.AppStateSyncKeyId
+	30,  // 103: waproto.ContextInfo.quotedMessage:type_name -> waproto.Message
+	64,  // 104: waproto.MessageContextInfo.deviceListMetadata:type_name -> waproto.DeviceListMetadata
+	0,   // 105: waproto.DeviceListMetadata.senderAccountType:type_name -> waproto.ADVEncryptionType
+	0,   // 106: waproto.DeviceListMetadata.receiverAccountType:type_name -> waproto.ADVEncryptionType
+	30,  // 107: waproto.DeviceSentMessage.message:type_name -> waproto.Message
+	69,  // 108: waproto.SyncdRecord.index:type_name -> waproto.SyncdIndex
+	70,  // 109: waproto.SyncdRecord.value:type_name -> waproto.SyncdValue
+	66,  // 110: waproto.SyncdRecord.keyId:type_name -> waproto.KeyId
+	21,  // 111: waproto.SyncdMutation.operation:type_name -> waproto.SyncdMutation.SyncdOperation
+	71,  // 112: waproto.SyncdMutation.record:type_name -> waproto.SyncdRecord
+	72,  // 113: waproto.SyncdMutations.mutations:type_name -> waproto.SyncdMutation
+	68,  // 114: waproto.SyncdPatch.version:type_name -> waproto.SyncdVersion
+	72,  // 115: waproto.SyncdPatch.mutations:type_name -> waproto.SyncdMutation
+	67,  // 116: waproto.SyncdPatch.externalMutations:type_name -> waproto.ExternalBlobReference
+	66,  // 117: waproto.SyncdPatch.keyId:type_name -> waproto.KeyId
+	68,  // 118: waproto.SyncdSnapshot.version:type_name -> waproto.SyncdVersion
+	71,  // 119: waproto.SyncdSnapshot.records:type_name -> waproto.SyncdRecord
+	66,  // 120: waproto.SyncdSnapshot.keyId:type_name -> waproto.KeyId
+	77,  // 121: waproto.SyncActionData.value:type_name -> waproto.SyncActionValue
+	113, // 122: waproto.SyncActionValue.starAction:type_name -> waproto.SyncActionValue.StarAction
+	120, // 123: waproto.SyncActionValue.contactAction:type_name -> waproto.SyncActionValue.ContactAction
+	121, // 124: waproto.SyncActionValue.muteAction:type_name -> waproto.SyncActionValue.MuteAction
+	122, // 125: waproto.SyncActionValue.pinAction:type_name -> waproto.SyncActionValue.PinAction
+	123, // 126: waproto.SyncActionValue.pushNameSetting:type_name -> waproto.SyncActionValue.PushNameSetting
+	125, // 127: waproto.SyncActionValue.labelEditAction:type_name -> waproto.SyncActionValue.LabelEditAction
+	126, // 128: waproto.SyncActionValue.labelAssociationAction:type_name -> waproto.SyncActionValue.LabelAssociationAction
+	124, // 129: waproto.SyncActionValue.archiveChatAction:type_name -> waproto.SyncActionValue.ArchiveChatAction
+	119, // 130: waproto.SyncActionValue.deleteMessageForMeAction:type_name -> waproto.SyncActionValue.DeleteMessageForMeAction
+	116, // 131: waproto.SyncActionValue.markChatAsReadAction:type_name -> waproto.SyncActionValue.MarkChatAsReadAction
+	117, // 132: waproto.SyncActionValue.clearChatAction:type_name -> waproto.SyncActionValue.ClearChatAction
+	118, // 133: waproto.SyncActionValue.deleteChatAction:type_name -> waproto.SyncActionValue.DeleteChatAction
+	2,   // 134: waproto.HistorySyncNotification.syncType:type_name -> waproto.HistorySyncType
+	2,   // 135: waproto.HistorySync.syncType:type_name -> waproto.HistorySyncType
+	81,  // 136: waproto.HistorySync.conversations:type_name -> waproto.Conversation
+	84,  // 137: waproto.HistorySync.statusV3Messages:type_name -> waproto.WebMessageInfo
+	83,  // 138: waproto.HistorySync.pushnames:type_name -> waproto.Pushname
+	82,  // 139: waproto.Conversation.messages:type_name -> waproto.HistorySyncMsg
+	84,  // 140: waproto.HistorySyncMsg.message:type_name -> waproto.WebMessageInfo
+	61,  // 141: waproto.WebMessageInfo.key:type_name -> waproto.MessageKey
+	30,  // 142: waproto.WebMessageInfo.message:type_name -> waproto.Message
+	22,  // 143: waproto.WebMessageInfo.status:type_name -> waproto.WebMessageInfo.Status
+	10,  // 144: waproto.ClientPayload.DNSSource.dnsMethod:type_name -> waproto.ClientPayload.DNSSource.DNSResolutionMethod
+	12,  // 145: waproto.ClientPayload.UserAgent.platform:type_name -> waproto.ClientPayload.UserAgent.Platform
+	92,  // 146: waproto.ClientPayload.UserAgent.appVersion:type_name -> waproto.ClientPayload.UserAgent.AppVersion
+	13,  // 147: waproto.ClientPayload.UserAgent.releaseChannel:type_name -> waproto.ClientPayload.UserAgent.ReleaseChannel
+	11,  // 148: waproto.ClientPayload.UserAgent.deviceType:type_name -> waproto.ClientPayload.UserAgent.DeviceType
+	93,  // 149: waproto.ClientPayload.WebInfo.webdPayload:type_name -> waproto.ClientPayload.WebInfo.WebdPayload
+	14,  // 150: waproto.ClientPayload.WebInfo.webSubPlatform:type_name -> waproto.ClientPayload.WebInfo.WebSubPlatform
+	97,  // 151: waproto.ButtonsMessage.Button.buttonText:type_name -> waproto.ButtonsMessage.Button.ButtonText
+	16,  // 152: waproto.ButtonsMessage.Button.type:type_name -> waproto.ButtonsMessage.Button.Type
+	98,  // 153: waproto.ListMessage.Section.rows:type_name -> waproto.ListMessage.Row
+	102, // 154: waproto.TemplateMessage.HydratedFourRowTemplate.hydratedButtons:type_name -> waproto.TemplateMessage.HydratedButton
+	103, // 155: waproto.TemplateMessage.HydratedButton.quickReplyButton:type_name -> waproto.TemplateMessage.HydratedButton.HydratedQuickReplyButton
+	104, // 156: waproto.TemplateMessage.HydratedButton.urlButton:type_name -> waproto.TemplateMessage.HydratedButton.HydratedURLButton
+	105, // 157: waproto.TemplateMessage.HydratedButton.callButton:type_name -> waproto.TemplateMessage.HydratedButton.HydratedCallButton
+	110, // 158: waproto.InteractiveMessage.NativeFlowMessage.buttons:type_name -> waproto.InteractiveMessage.NativeFlowMessage.NativeFlowButton
+	61,  // 159: waproto.SyncActionValue.SyncActionMessage.key:type_name -> waproto.MessageKey
+	114, // 160: waproto.SyncActionValue.SyncActionMessageRange.messages:type_name -> waproto.SyncActionValue.SyncActionMessage
+	115, // 161: waproto.SyncActionValue.MarkChatAsReadAction.messageRange:type_name -> waproto.SyncActionValue.SyncActionMessageRange
+	115, // 162: waproto.SyncActionValue.ClearChatAction.messageRange:type_name -> waproto.SyncActionValue.SyncActionMessageRange
+	115, // 163: waproto.SyncActionValue.DeleteChatAction.messageRange:type_name -> waproto.SyncActionValue.SyncActionMessageRange
+	164, // [164:164] is the sub-list for method output_type
+	164, // [164:164] is the sub-list for method input_type
+	164, // [164:164] is the sub-list for extension type_name
+	164, // [164:164] is the sub-list for extension extendee
+	0,   // [0:164] is the sub-list for field type_name
 }
 
 func init() { file_waproto_proto_init() }

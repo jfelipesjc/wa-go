@@ -111,6 +111,29 @@ func parseMessage(m *waproto.Message) MessageEvent {
 		}
 		applyContext(&ev, vm.GetContextInfo())
 
+	case m.GetPtvMessage() != nil:
+		// PTV (round video note) reuses VideoMessage; surface it as video media so
+		// it can be downloaded/decrypted the same way.
+		pv := m.GetPtvMessage()
+		ev.Type = MessageVideo
+		ev.Text = pv.GetCaption()
+		ev.Media = &MediaInfo{
+			Kind:          MediaVideo,
+			Mimetype:      pv.GetMimetype(),
+			Caption:       pv.GetCaption(),
+			FileLength:    pv.GetFileLength(),
+			MediaKey:      pv.GetMediaKey(),
+			DirectPath:    pv.GetDirectPath(),
+			URL:           pv.GetUrl(),
+			FileSha256:    pv.GetFileSha256(),
+			FileEncSha256: pv.GetFileEncSha256(),
+			Width:         pv.GetWidth(),
+			Height:        pv.GetHeight(),
+			Seconds:       pv.GetSeconds(),
+			Thumbnail:     pv.GetJpegThumbnail(),
+		}
+		applyContext(&ev, pv.GetContextInfo())
+
 	case m.GetAudioMessage() != nil:
 		am := m.GetAudioMessage()
 		ev.Type = MessageAudio

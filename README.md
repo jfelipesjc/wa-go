@@ -12,10 +12,10 @@ Decomposto em 9 sub-projetos. Specs e planos em `docs/superpowers/`.
 |---|---|---|
 | 0 | Capture harness (golden traces da Baileys real) | ✅ feito |
 | 1 | Wire layer (framing + Noise XX + binary-node codec) | ✅ feito |
-| 2 | Pairing/Auth (multi-device, QR + código, storage) | ✅ feito (pareamento real validado) |
+| 2 | Pairing/Auth (multi-device, QR + código, storage) | ✅ feito — **QR + pairing-code provados LIVE** |
 | 3 | Signal/E2E (X3DH, Double Ratchet) — cripto 1:1 do zero | ✅ cripto provada (golden vectors byte-a-byte + 7 msgs reais decifradas live) |
-| 4 | Messaging 1:1 (receber+enviar) | ✅ bidirecional provado (ADM↔wa-go via Evolution) |
-| 4+ | Grupos (sender keys), mídia (cripto+transfer), todos os tipos de msg | ✅ feito (offline) |
+| 4 | Messaging 1:1 (receber+enviar) | ✅ bidirecional provado LIVE — **texto + mídia + reação** (ADM↔wa-go via Evolution) |
+| 4+ | Grupos (sender keys), mídia (cripto+transfer), todos os tipos de msg | ✅ mídia provada LIVE; grupos feitos offline (live pendente) |
 | 5 | App-state sync (LTHash) — decode+encode+resync | ✅ feito (offline) |
 | 6 | Control layer (fingerprint, SendPacer, hooks de frame) | ✅ feito (offline; default reproduz fixture) |
 | 7 | Instance manager (multi-sessão) | ✅ feito (offline; -race 50 instâncias) |
@@ -25,15 +25,23 @@ Decomposto em 9 sub-projetos. Specs e planos em `docs/superpowers/`.
 > [`../wa-evolution`](../wa-evolution), que importa
 > `github.com/felipeleal/wa-go/wa` (fachada pública, estilo `index.ts`).
 >
-> **Pareamento:** QR (provado live) e **pairing-code** por código de 8 chars
-> (cripto pronta+validada; estágio final `companion_finish` é live-pending — ver
-> `docs/superpowers/specs/2026-06-22-pairing-code-design.md`).
+> **Pareamento:** QR **e pairing-code (código de 8 chars) ambos PROVADOS LIVE**
+> (2026-06-23/24): o fluxo completo companion_hello → primary_hello →
+> companion_finish → pair-success → login foi validado de ponta a ponta no
+> WhatsApp real (w4b). `cmd/wa-paircode` pareia sozinho.
 
 ## Cobertura de features (offline, 418 testes, suite -race verde)
 
 **Mensagens:** texto, reply, menção, imagem/vídeo/áudio/documento/sticker (cripto + upload/download HTTP), localização, contato, reação, editar, apagar, enquete; recebimento parseia todos os tipos (eventos ricos). **Grupos:** sender keys (E2E), enviar/receber, metadata, criar, add/remover/promover/rebaixar, assunto/descrição, sair, convite, settings, comunidades/sub-grupos. **App-state:** LTHash decode+encode, arquivar/fixar/mutar/marcar lido/favoritar/limpar/apagar chat, resync. **Perfil/privacidade:** nome/status/foto, fetch status/foto, privacy settings, bloquear/desbloquear, blocklist. **Outros:** presença/digitando/recibo de leitura/subscribe, chamadas (parse+reject+evento), status/stories, business (perfil/catálogo/pedido), onWhatsApp, newsletters (criar/seguir/mute/metadata), history sync (download+decode). **Infra:** multi-sessão (instance manager), fingerprint por instância, cadência humana (pacer), hooks de frame bruto.
 
-> ⚠️ **Live pendente:** o código de rede (envio real, upload/download de mídia, resync, grupos) está completo e testado **offline** (golden vectors byte-a-byte + round-trips). A validação **ao vivo** contra o WhatsApp real foi deixada para um lote gentil posterior (1:1 texto já foi provado ponta a ponta).
+> ✅ **Provado LIVE (2026-06-23/24):** pareamento (QR + código), receber, **enviar
+> texto + imagem (mídia) + reação** — todos validados ponta a ponta contra o
+> WhatsApp real (wa-go ↔ ADM via Evolution). Inclui os fixes de estabilidade
+> (re-upload de pre-keys / unlink 401) e de history-sync (pkmsg com prekey
+> consumido). ⚠️ **Ainda só offline (golden vectors + round-trips), live pendente:**
+> grupos (sender keys), app-state resync, status/stories, newsletters,
+> perfil/privacidade. Lição operacional: NÃO re-parear/remover a mesma conta em
+> loop — queima o device-management e o servidor para de relayar os envios.
 
 ### #0 + #1 entregues
 

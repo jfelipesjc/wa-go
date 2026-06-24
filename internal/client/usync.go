@@ -110,6 +110,70 @@ func usyncDeviceQueryNode(id, sid string, jids []string) wire.Node {
 	}
 }
 
+// usyncStatusQueryNode builds a usync query with the STATUS protocol (Baileys'
+// USyncStatusProtocol): the modern way to fetch a contact's "about"/status text.
+// The deprecated <iq xmlns=status> we used before no longer gets a reply.
+//
+//	<iq to=@s.whatsapp.net type=get xmlns=usync id=...>
+//	  <usync context=message mode=query sid=.. last=true index=0>
+//	    <query><status/></query>
+//	    <list><user jid=.../></list>
+//	  </usync>
+//	</iq>
+func usyncStatusQueryNode(id, sid string, jids []string) wire.Node {
+	users := make([]wire.Node, len(jids))
+	for i, jid := range jids {
+		users[i] = wire.Node{Tag: "user", Attrs: map[string]string{"jid": jid}}
+	}
+	return wire.Node{
+		Tag: "iq",
+		Attrs: map[string]string{
+			"to": sWhatsAppNet, "type": "get", "xmlns": "usync", "id": id,
+		},
+		Content: []wire.Node{{
+			Tag: "usync",
+			Attrs: map[string]string{
+				"context": "message", "mode": "query", "sid": sid, "last": "true", "index": "0",
+			},
+			Content: []wire.Node{
+				{Tag: "query", Attrs: map[string]string{}, Content: []wire.Node{
+					{Tag: "status", Attrs: map[string]string{}},
+				}},
+				{Tag: "list", Attrs: map[string]string{}, Content: users},
+			},
+		}},
+	}
+}
+
+// parseUSyncStatus pulls the first user's status text from a usync status result:
+// <usync><list><user jid=..><status t=..>text</status></user></list>. A 401 code
+// on <status> means "no status set" (returned as empty). Returns "" if absent.
+func parseUSyncStatus(reply wire.Node) string {
+	usync, ok := childByTag(reply, "usync")
+	if !ok {
+		return ""
+	}
+	list, ok := childByTag(usync, "list")
+	if !ok {
+		return ""
+	}
+	user, ok := childByTag(list, "user")
+	if !ok {
+		return ""
+	}
+	st, ok := childByTag(user, "status")
+	if !ok {
+		return ""
+	}
+	if b, ok := st.Content.([]byte); ok {
+		return string(b)
+	}
+	if s, ok := st.Content.(string); ok {
+		return s
+	}
+	return ""
+}
+
 // parseUSyncDevices extracts the device list from a usync result, mirroring
 // USyncDeviceProtocol.parser + extractDeviceJids: each <list><user jid=...> holds
 // a <devices><device-list><device id=.. key-index=..>. Device 0 (the phone) is

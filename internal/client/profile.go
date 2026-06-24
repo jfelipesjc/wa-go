@@ -264,11 +264,13 @@ func (c *Client) FetchStatus(ctx context.Context, jid string) (string, error) {
 	if !ok {
 		return "", errors.New("client: FetchStatus requires a live session")
 	}
-	reply, err := c.sendIQ(ctx, sess, fetchStatusNode(c.nextIQID("status"), jid))
+	// Modern path: usync STATUS protocol. The old <iq xmlns=status> is deprecated
+	// and gets no reply (timed out).
+	reply, err := c.sendIQ(ctx, sess, usyncStatusQueryNode(c.nextIQID("wa-go-usync-"), c.nextIQID(""), []string{jid}))
 	if err != nil {
 		return "", err
 	}
-	return parseFetchStatus(reply), nil
+	return parseUSyncStatus(reply), nil
 }
 
 // profilePicTarget returns the target attr for a picture iq: empty when jid is

@@ -163,6 +163,31 @@ func TestManager_RemoveOneInstance(t *testing.T) {
 	m.Stop()
 }
 
+// --- Test: Remove concurrent with Start is race-free (mg.cancel under lock) ---
+
+func TestManager_RemoveConcurrentWithStart(t *testing.T) {
+	m := New(WithBackoff(noWaitBackoff))
+	for i := 0; i < 20; i++ {
+		if _, err := m.AddSession(nameFor(i), newFakeSession()); err != nil {
+			t.Fatalf("AddSession: %v", err)
+		}
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	// Remove a subset concurrently with Start — this is the window where launch
+	// writes mg.cancel while Remove reads it. Run under -race to catch regressions.
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() { defer wg.Done(); m.Start(ctx) }()
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func(n int) { defer wg.Done(); _ = m.Remove(nameFor(n)) }(i)
+	}
+	wg.Wait()
+	waitFor(t, func() bool { return len(m.Status()) <= 20 }, "manager settled")
+	m.Stop()
+}
+
 // --- Test: terminal disconnect (401/device_removed) stops the retry loop ---
 
 func TestManager_TerminalDisconnectStopsRetry(t *testing.T) {

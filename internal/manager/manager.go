@@ -168,6 +168,18 @@ type managed struct {
 	terminal bool    // set when the account was unlinked (401/device_removed): stop retrying
 }
 
+func (mg *managed) setCancel(c context.CancelFunc) {
+	mg.mu.Lock()
+	mg.cancel = c
+	mg.mu.Unlock()
+}
+
+func (mg *managed) getCancel() context.CancelFunc {
+	mg.mu.Lock()
+	defer mg.mu.Unlock()
+	return mg.cancel
+}
+
 func (mg *managed) setTerminal(v bool) {
 	mg.mu.Lock()
 	mg.terminal = v
@@ -185,7 +197,10 @@ func (mg *managed) isTerminal() bool {
 // a permanent state where reconnecting just loops on 401, so the supervisor must
 // stop and the instance needs a fresh pair.
 func isTerminalDisconnect(reason string) bool {
-	for _, s := range []string{"device_removed", "login failure", "loggedOut", "logged out"} {
+	// Only genuinely terminal signals: device unlinked / logged out / auth-rejected
+	// (401/403). Generic "login failure: <code>" with transient codes (e.g. 503
+	// service-unavailable) must fall through to backoff/retry, not stop forever.
+	for _, s := range []string{"device_removed", "loggedOut", "logged out", "failure: 401", "failure: 403"} {
 		if strings.Contains(reason, s) {
 			return true
 		}
@@ -343,9 +358,8 @@ func (m *Manager) Remove(name string) error {
 		return fmt.Errorf("manager: instance %q not found", name)
 	}
 	delete(m.instances, name)
-	cancel := mg.cancel
 	m.mu.Unlock()
-	if cancel != nil {
+	if cancel := mg.getCancel(); cancel != nil {
 		cancel() // supervise sees ctx.Done(), closes the session, returns
 	}
 	return nil
@@ -384,7 +398,7 @@ func (m *Manager) Start(ctx context.Context) {
 // set (m.started true).
 func (m *Manager) launch(mg *managed) {
 	ctx, cancel := context.WithCancel(m.ctxRef)
-	mg.cancel = cancel
+	mg.setCancel(cancel) // guarded by mg.mu so Remove's read is race-free
 	m.wg.Add(1)
 	go m.supervise(ctx, mg)
 }

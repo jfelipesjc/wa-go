@@ -31,11 +31,10 @@
 //	  </iq>
 //	reply: <iq ...><picture url=... .../></iq>
 //
-// updateProfileName in Baileys goes through app-state (chatModify
-// pushNameSetting), which is not available in this build. UpdateProfileName here
-// advertises the push name via an <presence type=available name=...> stanza —
-// the same channel WhatsApp uses to carry the device's display name — which is
-// the supported non-app-state path.
+// updateProfileName goes through app-state exactly like Baileys' chatModify
+// (pushNameSetting): a SET mutation in collection critical_block at index
+// ["setting_pushName"], apiVersion 1. This persists the name on the account and
+// syncs to the primary phone (a transient presence push name does not).
 //
 // fetchStatus in Baileys uses a USync status query. Here FetchStatus uses the
 // simpler per-jid status iq form the server also accepts:
@@ -49,7 +48,9 @@ import (
 	"context"
 	"errors"
 
+	"github.com/felipeleal/wa-go/internal/waproto"
 	"github.com/felipeleal/wa-go/internal/wire"
+	"google.golang.org/protobuf/proto"
 )
 
 // updateProfileStatusNode builds the set-status iq:
@@ -186,8 +187,12 @@ func presenceNameNode(me, name string) wire.Node {
 	return wire.Node{Tag: "presence", Attrs: attrs}
 }
 
-// UpdateProfileName sets the device's display (push) name by advertising it on
-// an available-presence stanza.
+// UpdateProfileName changes the account display name the SAME way the official
+// WhatsApp Web client does: a `pushNameSetting` app-state mutation (collection
+// critical_block, index ["setting_pushName"], apiVersion 1). This persists on the
+// account and syncs to the primary phone — unlike a transient presence push name.
+// It also broadcasts the name via presence (immediate contact-facing update) and
+// persists it to the local creds.
 func (c *Client) UpdateProfileName(ctx context.Context, name string) error {
 	if name == "" {
 		return errors.New("client: UpdateProfileName requires a non-empty name")
@@ -196,7 +201,24 @@ func (c *Client) UpdateProfileName(ctx context.Context, name string) error {
 	if !ok {
 		return errors.New("client: UpdateProfileName requires a live session")
 	}
-	return sess.send(presenceNameNode(sess.creds.Me, name))
+	if err := c.ChatModify(ctx, "", ChatAction{
+		collection: collCriticalBlock,
+		apiVersion: 1,
+		index:      []string{"setting_pushName"},
+		value: &waproto.SyncActionValue{
+			PushNameSetting: &waproto.SyncActionValue_PushNameSetting{Name: proto.String(name)},
+		},
+	}); err != nil {
+		return err
+	}
+	// Broadcast as the available-presence push name too (immediate, contact-facing).
+	_ = sess.send(presenceNameNode(sess.creds.Me, name))
+	if creds, ok, err := c.store.LoadCreds(); err == nil && ok && creds != nil {
+		creds.PushName = name
+		_ = c.store.SaveCreds(creds)
+	}
+	sess.creds.PushName = name
+	return nil
 }
 
 // UpdateProfileStatus sets the account's status (about) text.

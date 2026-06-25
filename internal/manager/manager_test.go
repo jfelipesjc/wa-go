@@ -163,6 +163,34 @@ func TestManager_RemoveOneInstance(t *testing.T) {
 	m.Stop()
 }
 
+// --- Test: terminal disconnect (401/device_removed) stops the retry loop ---
+
+func TestManager_TerminalDisconnectStopsRetry(t *testing.T) {
+	var attempts int32
+	factory, count := recreatingFake(func(ctx context.Context, attempt int32, emit func(client.Event)) error {
+		atomic.AddInt32(&attempts, 1)
+		// Simulate WhatsApp unlinking the device: emit a terminal disconnect then end.
+		emit(client.DisconnectedEvent{Reason: "login failure: 401"})
+		return nil
+	})
+	_ = count
+	m := New(WithBackoff(noWaitBackoff))
+	if _, err := m.AddFactory("dead", factory); err != nil {
+		t.Fatalf("AddFactory: %v", err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	m.Start(ctx)
+
+	// The supervisor must stop after the terminal disconnect, not loop on 401.
+	waitFor(t, func() bool { return m.Status()["dead"] == StateDisconnected }, "instance reaches terminal Disconnected")
+	time.Sleep(80 * time.Millisecond) // give a transient loop a chance to (wrongly) retry
+	if n := atomic.LoadInt32(&attempts); n != 1 {
+		t.Fatalf("connect attempts = %d, want 1 (no retry after terminal unlink)", n)
+	}
+	m.Stop()
+}
+
 // --- Test 2: aggregated events carry the right instance name ---
 
 func TestManager_AggregatedEventsHaveName(t *testing.T) {

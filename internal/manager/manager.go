@@ -29,6 +29,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"strings"
 	"sync"
 	"time"
 
@@ -161,9 +162,35 @@ type managed struct {
 	cancel     context.CancelFunc // stops this instance's supervisor (set at launch)
 	pairNumber string             // if set, connect via pairing code for this number (not QR)
 
-	mu    sync.Mutex
-	state State
-	live  Session // current connected session (for SendText), nil otherwise
+	mu       sync.Mutex
+	state    State
+	live     Session // current connected session (for SendText), nil otherwise
+	terminal bool    // set when the account was unlinked (401/device_removed): stop retrying
+}
+
+func (mg *managed) setTerminal(v bool) {
+	mg.mu.Lock()
+	mg.terminal = v
+	mg.mu.Unlock()
+}
+
+func (mg *managed) isTerminal() bool {
+	mg.mu.Lock()
+	defer mg.mu.Unlock()
+	return mg.terminal
+}
+
+// isTerminalDisconnect reports whether a DisconnectedEvent reason means the
+// account was unlinked by WhatsApp (device removed / login failure / replaced) —
+// a permanent state where reconnecting just loops on 401, so the supervisor must
+// stop and the instance needs a fresh pair.
+func isTerminalDisconnect(reason string) bool {
+	for _, s := range []string{"device_removed", "login failure", "loggedOut", "logged out"} {
+		if strings.Contains(reason, s) {
+			return true
+		}
+	}
+	return false
 }
 
 func (mg *managed) setState(s State) {
@@ -419,6 +446,14 @@ func (m *Manager) supervise(ctx context.Context, mg *managed) {
 			return
 		}
 
+		// Account was unlinked (device removed / 401): stop — retrying just loops
+		// on 401. The instance stays registered as disconnected; a fresh pair
+		// (delete + recreate, or a re-pair) is required.
+		if mg.isTerminal() {
+			mg.setState(StateDisconnected)
+			return
+		}
+
 		// Connection dropped: back off, then retry.
 		mg.setState(StateBackoff)
 		wait := m.backoff(attempt)
@@ -448,6 +483,11 @@ func (m *Manager) pump(ctx context.Context, mg *managed, sess Session, done, set
 			mg.setState(next)
 			if next == StateConnected || next == StateLoggedIn {
 				markSettled()
+			}
+			// A login-failure / device-removed disconnect is terminal: flag it so
+			// supervise stops retrying instead of looping on 401.
+			if d, ok := ev.(client.DisconnectedEvent); ok && isTerminalDisconnect(d.Reason) {
+				mg.setTerminal(true)
 			}
 			m.forward(ctx, InstanceEvent{Name: mg.name, Event: ev})
 		case <-ctx.Done():

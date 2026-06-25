@@ -27,6 +27,23 @@ func (c *Client) SendTextReply(ctx context.Context, toJID, text string, quotedKe
 	return c.sendRouted(ctx, toJID, buildTextReplyMessage(text, quotedKey, quotedMsg), sendOpts{pacerHint: len(text)})
 }
 
+// SendTextReplyTo is a convenience over SendTextReply that builds the quoted
+// message key + body from plain values, so callers (e.g. an external service)
+// don't need the waproto types. quotedText becomes a minimal conversation body
+// for the reply preview. quotedParticipant may be "" (1:1 chats).
+func (c *Client) SendTextReplyTo(ctx context.Context, toJID, text, quotedID, quotedRemoteJID string, quotedFromMe bool, quotedText, quotedParticipant string) (string, error) {
+	key := &waproto.MessageKey{
+		Id:        proto.String(quotedID),
+		RemoteJid: proto.String(quotedRemoteJID),
+		FromMe:    proto.Bool(quotedFromMe),
+	}
+	if quotedParticipant != "" {
+		key.Participant = proto.String(quotedParticipant)
+	}
+	msg := &waproto.Message{Conversation: proto.String(quotedText)}
+	return c.SendTextReply(ctx, toJID, text, key, msg)
+}
+
 // SendTextMention sends a text that @-mentions the given JIDs. The mentioned
 // JIDs are listed in ContextInfo.mentionedJid (Baileys' mentions option); the
 // text itself should contain the matching "@<number>" tokens.

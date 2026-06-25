@@ -169,6 +169,12 @@ type managed struct {
 	done     chan struct{} // closed when the current supervisor goroutine exits (for Restart)
 }
 
+func (mg *managed) getPairNumber() string {
+	mg.mu.Lock()
+	defer mg.mu.Unlock()
+	return mg.pairNumber
+}
+
 func (mg *managed) setCancel(c context.CancelFunc) {
 	mg.mu.Lock()
 	mg.cancel = c
@@ -366,6 +372,26 @@ func (m *Manager) Remove(name string) error {
 	return nil
 }
 
+// SetPairingNumber switches an instance between QR pairing (number == "") and
+// pairing-CODE for the given number, reconnecting so the new mode takes effect.
+// A no-op (no reconnect) if the mode is already what's requested.
+func (m *Manager) SetPairingNumber(name, number string) error {
+	m.mu.Lock()
+	mg, ok := m.instances[name]
+	m.mu.Unlock()
+	if !ok {
+		return fmt.Errorf("manager: instance %q not found", name)
+	}
+	mg.mu.Lock()
+	changed := mg.pairNumber != number
+	mg.pairNumber = number
+	mg.mu.Unlock()
+	if changed {
+		return m.Restart(name)
+	}
+	return nil
+}
+
 // Restart reconnects an instance: it stops the current supervisor (if running),
 // waits for it to exit, clears the terminal flag, and relaunches a fresh
 // supervisor. This is how a terminally-disconnected instance (device_removed/401,
@@ -484,8 +510,8 @@ func (m *Manager) supervise(ctx context.Context, mg *managed, done chan struct{}
 		// connect via pairing code (emits a PairingCodeEvent with the 8-char code);
 		// ConnectWithPairingCode logs in normally once the instance is registered,
 		// so reconnects after pairing are unaffected.
-		if mg.pairNumber != "" {
-			_ = sess.ConnectWithPairingCode(ctx, mg.pairNumber)
+		if pn := mg.getPairNumber(); pn != "" {
+			_ = sess.ConnectWithPairingCode(ctx, pn)
 		} else {
 			_ = sess.Connect(ctx)
 		}

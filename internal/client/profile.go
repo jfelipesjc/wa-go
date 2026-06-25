@@ -48,9 +48,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/felipeleal/wa-go/internal/waproto"
 	"github.com/felipeleal/wa-go/internal/wire"
-	"google.golang.org/protobuf/proto"
 )
 
 // updateProfileStatusNode builds the set-status iq:
@@ -187,12 +185,17 @@ func presenceNameNode(me, name string) wire.Node {
 	return wire.Node{Tag: "presence", Attrs: attrs}
 }
 
-// UpdateProfileName changes the account display name the SAME way the official
-// WhatsApp Web client does: a `pushNameSetting` app-state mutation (collection
-// critical_block, index ["setting_pushName"], apiVersion 1). This persists on the
-// account and syncs to the primary phone — unlike a transient presence push name.
-// It also broadcasts the name via presence (immediate contact-facing update) and
-// persists it to the local creds.
+// UpdateProfileName advertises the device's display (push) name via an
+// available-presence stanza — the safe, non-destructive path. It is also
+// persisted to the local creds so the UI reflects it.
+//
+// NOTE: the app-state `pushNameSetting` mutation (collection critical_block) that
+// the official web client uses is NOT used here: our current app-state encoding
+// for that high-security collection is rejected by the server and triggers a
+// device unlink (conflict:device_removed). Until that path is implemented and
+// validated correctly, we keep the presence-only behaviour, which never unlinks
+// the session. The push name propagates to contacts but does not rewrite the
+// primary phone's profile name.
 func (c *Client) UpdateProfileName(ctx context.Context, name string) error {
 	if name == "" {
 		return errors.New("client: UpdateProfileName requires a non-empty name")
@@ -201,18 +204,9 @@ func (c *Client) UpdateProfileName(ctx context.Context, name string) error {
 	if !ok {
 		return errors.New("client: UpdateProfileName requires a live session")
 	}
-	if err := c.ChatModify(ctx, "", ChatAction{
-		collection: collCriticalBlock,
-		apiVersion: 1,
-		index:      []string{"setting_pushName"},
-		value: &waproto.SyncActionValue{
-			PushNameSetting: &waproto.SyncActionValue_PushNameSetting{Name: proto.String(name)},
-		},
-	}); err != nil {
+	if err := sess.send(presenceNameNode(sess.creds.Me, name)); err != nil {
 		return err
 	}
-	// Broadcast as the available-presence push name too (immediate, contact-facing).
-	_ = sess.send(presenceNameNode(sess.creds.Me, name))
 	if creds, ok, err := c.store.LoadCreds(); err == nil && ok && creds != nil {
 		creds.PushName = name
 		_ = c.store.SaveCreds(creds)

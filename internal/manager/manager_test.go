@@ -216,6 +216,39 @@ func TestManager_TerminalDisconnectStopsRetry(t *testing.T) {
 	m.Stop()
 }
 
+// --- Test: Restart revives a terminally-stopped instance ---
+
+func TestManager_RestartRevivesTerminal(t *testing.T) {
+	var attempts int32
+	factory, _ := recreatingFake(func(ctx context.Context, attempt int32, emit func(client.Event)) error {
+		n := atomic.AddInt32(&attempts, 1)
+		if n == 1 {
+			emit(client.DisconnectedEvent{Reason: "login failure: 401"}) // terminal: stops
+			return nil
+		}
+		emit(client.LoggedInEvent{}) // after restart: connect succeeds
+		<-ctx.Done()
+		return ctx.Err()
+	})
+	m := New(WithBackoff(noWaitBackoff))
+	if _, err := m.AddFactory("inst", factory); err != nil {
+		t.Fatalf("AddFactory: %v", err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	m.Start(ctx)
+	waitFor(t, func() bool { return m.Status()["inst"] == StateDisconnected }, "terminal stop")
+
+	if err := m.Restart("inst"); err != nil {
+		t.Fatalf("Restart: %v", err)
+	}
+	waitFor(t, func() bool { return m.Status()["inst"] == StateLoggedIn }, "revived after restart")
+	if n := atomic.LoadInt32(&attempts); n < 2 {
+		t.Fatalf("attempts = %d, want >=2 (restart relaunched)", n)
+	}
+	m.Stop()
+}
+
 // --- Test 2: aggregated events carry the right instance name ---
 
 func TestManager_AggregatedEventsHaveName(t *testing.T) {

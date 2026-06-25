@@ -164,8 +164,9 @@ type managed struct {
 
 	mu       sync.Mutex
 	state    State
-	live     Session // current connected session (for SendText), nil otherwise
-	terminal bool    // set when the account was unlinked (401/device_removed): stop retrying
+	live     Session       // current connected session (for SendText), nil otherwise
+	terminal bool          // set when the account was unlinked (401/device_removed): stop retrying
+	done     chan struct{} // closed when the current supervisor goroutine exits (for Restart)
 }
 
 func (mg *managed) setCancel(c context.CancelFunc) {
@@ -365,6 +366,37 @@ func (m *Manager) Remove(name string) error {
 	return nil
 }
 
+// Restart reconnects an instance: it stops the current supervisor (if running),
+// waits for it to exit, clears the terminal flag, and relaunches a fresh
+// supervisor. This is how a terminally-disconnected instance (device_removed/401,
+// whose retry loop was stopped) is brought back to attempt pairing/login again.
+func (m *Manager) Restart(name string) error {
+	m.mu.Lock()
+	mg, ok := m.instances[name]
+	started := m.started && m.cancel != nil
+	m.mu.Unlock()
+	if !ok {
+		return fmt.Errorf("manager: instance %q not found", name)
+	}
+	if !started {
+		return nil // nothing to (re)start until Start runs
+	}
+	mg.mu.Lock()
+	cancel, done := mg.cancel, mg.done
+	mg.mu.Unlock()
+	if cancel != nil {
+		cancel()
+	}
+	if done != nil {
+		select {
+		case <-done: // old supervisor finished
+		case <-time.After(5 * time.Second):
+		}
+	}
+	m.launch(mg) // fresh context + done; terminal reset inside launch
+	return nil
+}
+
 // Start launches every registered instance concurrently under ctx. It returns
 // immediately; supervisors run in the background until ctx is cancelled or Stop.
 func (m *Manager) Start(ctx context.Context) {
@@ -398,14 +430,20 @@ func (m *Manager) Start(ctx context.Context) {
 // set (m.started true).
 func (m *Manager) launch(mg *managed) {
 	ctx, cancel := context.WithCancel(m.ctxRef)
-	mg.setCancel(cancel) // guarded by mg.mu so Remove's read is race-free
+	done := make(chan struct{})
+	mg.mu.Lock()
+	mg.cancel = cancel // guarded by mg.mu so Remove's read is race-free
+	mg.done = done
+	mg.terminal = false // a fresh launch is not terminal
+	mg.mu.Unlock()
 	m.wg.Add(1)
-	go m.supervise(ctx, mg)
+	go m.supervise(ctx, mg, done)
 }
 
 // supervise runs the connect/backoff loop for one instance until ctx is done.
-func (m *Manager) supervise(ctx context.Context, mg *managed) {
+func (m *Manager) supervise(ctx context.Context, mg *managed, done chan struct{}) {
 	defer m.wg.Done()
+	defer close(done) // signal Restart that this supervisor has exited
 
 	// Acquire a concurrency slot for the initial connect; released once the
 	// instance reaches a steady state (logged in or after first attempt) so

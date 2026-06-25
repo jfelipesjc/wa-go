@@ -68,6 +68,12 @@ func (f *fakeSession) Connect(ctx context.Context) error {
 	return ctx.Err()
 }
 
+// ConnectWithPairingCode mirrors Connect for the fake (the pairing-code path is
+// exercised at the client layer; the manager only needs to select between them).
+func (f *fakeSession) ConnectWithPairingCode(ctx context.Context, phoneNumber string) error {
+	return f.Connect(ctx)
+}
+
 func (f *fakeSession) Events() <-chan client.Event { return f.events }
 
 func (f *fakeSession) SendText(ctx context.Context, to, text string) (string, error) {

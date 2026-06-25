@@ -41,6 +41,7 @@ import (
 // disconnect) and closes Events() before returning.
 type Session interface {
 	Connect(ctx context.Context) error
+	ConnectWithPairingCode(ctx context.Context, phoneNumber string) error
 	Events() <-chan client.Event
 	SendText(ctx context.Context, to, text string) (string, error)
 }
@@ -155,9 +156,10 @@ type Manager struct {
 
 // managed is the Manager's internal per-instance runtime state.
 type managed struct {
-	name    string
-	factory func() Session
-	cancel  context.CancelFunc // stops this instance's supervisor (set at launch)
+	name       string
+	factory    func() Session
+	cancel     context.CancelFunc // stops this instance's supervisor (set at launch)
+	pairNumber string             // if set, connect via pairing code for this number (not QR)
 
 	mu    sync.Mutex
 	state State
@@ -250,6 +252,18 @@ func (m *Manager) Add(name string, st store.Store) (*ManagedClient, error) {
 	return m.AddFactory(name, func() Session { return client.New(st) })
 }
 
+// AddPaired is like Add but pairs via PAIRING CODE for the given phone number
+// (instead of QR): the supervisor connects with ConnectWithPairingCode, which
+// emits a PairingCodeEvent carrying the 8-char code to type on the phone. Once
+// the instance is registered, subsequent reconnects just log in (the number is
+// then a no-op). number should be the full international number, digits only.
+func (m *Manager) AddPaired(name string, st store.Store, number string) (*ManagedClient, error) {
+	if st == nil {
+		return nil, errors.New("manager: nil store")
+	}
+	return m.addFactory(name, func() Session { return client.New(st) }, number)
+}
+
 // AddSession registers an instance backed by a fixed Session (used in tests and
 // for one-shot sessions; a single dropped Connect cannot be re-created from it,
 // so prefer Add/AddFactory for reconnection).
@@ -262,6 +276,12 @@ func (m *Manager) AddSession(name string, s Session) (*ManagedClient, error) {
 
 // AddFactory registers an instance whose Session is produced fresh per attempt.
 func (m *Manager) AddFactory(name string, factory func() Session) (*ManagedClient, error) {
+	return m.addFactory(name, factory, "")
+}
+
+// addFactory is the shared registration core. pairNumber != "" makes the
+// supervisor connect via pairing code for that number instead of QR.
+func (m *Manager) addFactory(name string, factory func() Session, pairNumber string) (*ManagedClient, error) {
 	if name == "" {
 		return nil, errors.New("manager: empty instance name")
 	}
@@ -273,7 +293,7 @@ func (m *Manager) AddFactory(name string, factory func() Session) (*ManagedClien
 	if _, exists := m.instances[name]; exists {
 		return nil, fmt.Errorf("manager: instance %q already registered", name)
 	}
-	mg := &managed{name: name, factory: factory, state: StateIdle}
+	mg := &managed{name: name, factory: factory, state: StateIdle, pairNumber: pairNumber}
 	m.instances[name] = mg
 	mc := &ManagedClient{name: name, m: m}
 	// If Start already ran, launch the new instance immediately.
@@ -381,8 +401,15 @@ func (m *Manager) supervise(ctx context.Context, mg *managed) {
 			release()
 		}()
 
-		// Connect blocks until the connection ends.
-		_ = sess.Connect(ctx)
+		// Connect blocks until the connection ends. When a pairing number is set we
+		// connect via pairing code (emits a PairingCodeEvent with the 8-char code);
+		// ConnectWithPairingCode logs in normally once the instance is registered,
+		// so reconnects after pairing are unaffected.
+		if mg.pairNumber != "" {
+			_ = sess.ConnectWithPairingCode(ctx, mg.pairNumber)
+		} else {
+			_ = sess.Connect(ctx)
+		}
 		<-pumpDone // session's Events() is closed by Connect; pump has drained it
 		release()  // ensure released even if never settled (e.g. immediate drop)
 		mg.setLive(nil)

@@ -72,6 +72,7 @@ type Event = client.Event
 
 type (
 	QREvent                      = client.QREvent
+	PairingCodeEvent             = client.PairingCodeEvent
 	PairSuccessEvent             = client.PairSuccessEvent
 	LoggedInEvent                = client.LoggedInEvent
 	DisconnectedEvent            = client.DisconnectedEvent

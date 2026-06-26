@@ -1,84 +1,198 @@
 # wa-go
 
-Reimplementação do protocolo WhatsApp Web (estilo Baileys) em Go, **do zero** — sem
-whatsmeow. Objetivo: controle total (fingerprint de device, cadência humana de envio,
-multi-conta leve, acesso a frames brutos) e, no fim, aposentar o Evolution API.
+[![CI](https://github.com/jfelipesjc/wa-go/actions/workflows/ci.yml/badge.svg)](https://github.com/jfelipesjc/wa-go/actions/workflows/ci.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/jfelipesjc/wa-go/wa.svg)](https://pkg.go.dev/github.com/jfelipesjc/wa-go/wa)
+[![Go](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go)](https://go.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Decomposto em 9 sub-projetos. Specs e planos em `docs/superpowers/`.
+A **WhatsApp Web (multi-device) protocol stack written from scratch in Go** —
+**no whatsmeow, no Baileys**. The wire framing, the Noise handshake, the Signal
+E2E layer (X3DH + Double Ratchet), group sender keys, app-state (LTHash), media
+crypto — all reimplemented to get **full control**: device fingerprint, human
+send cadence, lightweight multi-account, and access to raw frames.
+
+Think of it as **Baileys, in Go, built from the bytes up**. The `wa/` package is
+the public entry point (the equivalent of Baileys' `index.ts`).
+
+```go
+import "github.com/jfelipesjc/wa-go/wa"
+```
+
+## Why build it from scratch?
+
+Existing Go options wrap a fixed feature set and a fixed fingerprint. Rebuilding
+the protocol — validated **byte-for-byte against golden traces captured from real
+Baileys** — buys things a wrapper can't:
+
+- **Fingerprint control** — own the device props, client payload, and version.
+- **Cadence control** — a send-pacer models human timing instead of bursting.
+- **Raw frame hooks** — inspect/modify nodes pre-encrypt and post-decrypt.
+- **Lightweight multi-session** — many numbers in one process, supervised.
+- **Zero-CGO storage** — SQLite via `modernc.org/sqlite`, so static builds.
 
 ## Status
 
-| # | Sub-projeto | Status |
-|---|---|---|
-| 0 | Capture harness (golden traces da Baileys real) | ✅ feito |
-| 1 | Wire layer (framing + Noise XX + binary-node codec) | ✅ feito |
-| 2 | Pairing/Auth (multi-device, QR + código, storage) | ✅ feito — **QR + pairing-code provados LIVE** |
-| 3 | Signal/E2E (X3DH, Double Ratchet) — cripto 1:1 do zero | ✅ cripto provada (golden vectors byte-a-byte + 7 msgs reais decifradas live) |
-| 4 | Messaging 1:1 (receber+enviar) | ✅ bidirecional provado LIVE — **texto + mídia + reação** (ADM↔wa-go via Evolution) |
-| 4+ | Grupos (sender keys), mídia (cripto+transfer), todos os tipos de msg | ✅ mídia provada LIVE; grupos feitos offline (live pendente) |
-| 5 | App-state sync (LTHash) — decode+encode+resync | ✅ feito (offline) |
-| 6 | Control layer (fingerprint, SendPacer, hooks de frame) | ✅ feito (offline; default reproduz fixture) |
-| 7 | Instance manager (multi-sessão) | ✅ feito (offline; -race 50 instâncias) |
-| 8 | Evolution-compat (HTTP/WS) | ✅ **projeto separado [`wa-evolution`](../wa-evolution)** (importa esta lib via fachada `wa/`) |
+Decomposed into 9 sub-projects (specs in `docs/superpowers/`):
 
-> **Esta é a biblioteca** (a "Baileys"). O serviço estilo Evolution está em
-> [`../wa-evolution`](../wa-evolution), que importa
-> `github.com/felipeleal/wa-go/wa` (fachada pública, estilo `index.ts`).
->
-> **Pareamento:** QR **e pairing-code (código de 8 chars) ambos PROVADOS LIVE**
-> (2026-06-23/24): o fluxo completo companion_hello → primary_hello →
-> companion_finish → pair-success → login foi validado de ponta a ponta no
-> WhatsApp real (w4b). `cmd/wa-paircode` pareia sozinho.
+| # | Sub-project | Status |
+|---|-------------|--------|
+| 0 | Capture harness (golden traces from real Baileys) | ✅ |
+| 1 | Wire layer (framing · Noise XX · binary-node codec) | ✅ |
+| 2 | Pairing/Auth (multi-device, QR **+ pairing-code**) | ✅ **proven live** |
+| 3 | Signal/E2E (X3DH · Double Ratchet) from scratch | ✅ proven live (golden vectors + real msgs decrypted) |
+| 4 | Messaging 1:1 (send + receive) | ✅ **proven live** — text + media + reaction |
+| 4+ | Groups (sender keys), media crypto+transfer, all msg types | ✅ media proven live; groups offline |
+| 5 | App-state sync (LTHash) — decode/encode/resync | ✅ offline |
+| 6 | Control layer (fingerprint · SendPacer · frame hooks) | ✅ offline |
+| 7 | Instance manager (multi-session) | ✅ offline (`-race`, 50 instances) |
+| 8 | Evolution-compat HTTP/WS | ✅ separate repo → [**wa-evolution**](https://github.com/jfelipesjc/wa-evolution) |
 
-## Cobertura de features (offline, 418 testes, suite -race verde)
+### Proven *live* vs *offline*
 
-**Mensagens:** texto, reply, menção, imagem/vídeo/áudio/documento/sticker (cripto + upload/download HTTP), localização, contato, reação, editar, apagar, enquete; recebimento parseia todos os tipos (eventos ricos). **Grupos:** sender keys (E2E), enviar/receber, metadata, criar, add/remover/promover/rebaixar, assunto/descrição, sair, convite, settings, comunidades/sub-grupos. **App-state:** LTHash decode+encode, arquivar/fixar/mutar/marcar lido/favoritar/limpar/apagar chat, resync. **Perfil/privacidade:** nome/status/foto, fetch status/foto, privacy settings, bloquear/desbloquear, blocklist. **Outros:** presença/digitando/recibo de leitura/subscribe, chamadas (parse+reject+evento), status/stories, business (perfil/catálogo/pedido), onWhatsApp, newsletters (criar/seguir/mute/metadata), history sync (download+decode). **Infra:** multi-sessão (instance manager), fingerprint por instância, cadência humana (pacer), hooks de frame bruto.
+This distinction is tracked honestly:
 
-> ✅ **Provado LIVE (2026-06-23/24):** pareamento (QR + código), receber, **enviar
-> texto + imagem (mídia) + reação** — todos validados ponta a ponta contra o
-> WhatsApp real (wa-go ↔ ADM via Evolution). Inclui os fixes de estabilidade
-> (re-upload de pre-keys / unlink 401) e de history-sync (pkmsg com prekey
-> consumido). ⚠️ **Ainda só offline (golden vectors + round-trips), live pendente:**
-> grupos (sender keys), app-state resync, status/stories, newsletters,
-> perfil/privacidade. Lição operacional: NÃO re-parear/remover a mesma conta em
-> loop — queima o device-management e o servidor para de relayar os envios.
+- **Proven live** = exercised end-to-end against **real WhatsApp**: pairing
+  (QR + code), receiving, and sending **text + image + reaction**.
+- **Offline** = code is complete and **passes its tests**, but those tests are
+  golden-vector / round-trip, **not yet smoke-tested against a live account**:
+  groups (sender keys), app-state resync, profile/privacy, status, newsletters,
+  business, calls.
 
-### #0 + #1 entregues
+> "Offline" does **not** mean untested — it means tested without the network.
+> See the test suite: **440+ tests, `-race` green.**
 
-- **Harness** (`harness/`): instrumenta a Baileys real, captura `connect_pair` (handshake
-  Noise + ephemeral + nodes) e gera bateria sintética de 19 nodes cobrindo todos os
-  caminhos do codec. Traces em `testdata/traces/`.
-- **Wire** (`internal/wire/`): framing 3-byte BE, dicionário de tokens (236 single +
-  1024 double), codec `DecodeNode`/`EncodeNode` (round-trip 19/19 estrutural), handshake
-  `Noise_XX_25519_AESGCM_SHA256`, e `Conn` (SendNode/ReadNode).
-- **Validação decisiva:** o handshake roda contra o trace real e decifra o frame
-  `pair-device` (698 B) do WhatsApp até decodificar o node idêntico ao capturado.
-  `go test ./...` = 26/26 verde.
+## Feature coverage
 
-## Rodar
+**Messages:** text, reply, mention, image/video/audio/document/sticker (crypto +
+HTTP up/download), location, contact, reaction, edit, delete, poll, view-once,
+buttons/list/template/interactive; receive parses every type into rich events.
+**Groups & communities:** sender-key E2E send/receive, create, add/remove/
+promote/demote, subject/description, invites, settings, ephemeral, sub-groups.
+**App-state:** archive/pin/mute/read/star/clear/delete chat, labels, resync.
+**Profile/privacy:** name/status/picture, fetch status/picture, privacy
+settings, block/unblock/blocklist. **Status/Newsletters/Business:** text status,
+channel create/follow/admin, business profile/catalog/orders. **Other:**
+presence/typing/receipts, calls (offer/reject/terminate), onWhatsApp, history
+sync. **Infra:** multi-session manager, per-instance fingerprint, send pacer,
+raw frame hooks. → Full API on [pkg.go.dev](https://pkg.go.dev/github.com/jfelipesjc/wa-go/wa).
+
+## Install
 
 ```sh
-export PATH=$PATH:/usr/local/go/bin
-go test ./...            # suíte offline (unit + #1 + #2)
-go run ./cmd/wiredump    # replay do trace, decodifica o pair-device (sem rede)
+go get github.com/jfelipesjc/wa-go@latest
 ```
 
-### Pareamento (#2)
+## Quick start
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/jfelipesjc/wa-go/wa"
+)
+
+func main() {
+	store, err := wa.OpenStore("./creds.db") // SQLite; reused on next run
+	if err != nil {
+		panic(err)
+	}
+	c := wa.NewClient(store)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	go c.Connect(ctx) // pairs via QR (if needed), then logs in
+
+	for ev := range c.Events() {
+		switch ev := ev.(type) {
+		case wa.QREvent:
+			fmt.Println("scan in WhatsApp > Linked devices:\n", ev.Code)
+		case wa.LoggedInEvent:
+			fmt.Println("logged in")
+			c.SendText(ctx, "5512999999999@s.whatsapp.net", "hello from wa-go")
+		case wa.MessageEvent:
+			if !ev.IsGroup {
+				fmt.Printf("← %s: %s\n", ev.From, ev.Text)
+			}
+		case wa.DisconnectedEvent:
+			fmt.Println("disconnected:", ev.Reason)
+		}
+	}
+}
+```
+
+## Pairing
+
+Two ready-to-run commands (use an **isolated, sacrificial number** — see below):
 
 ```sh
-# Teste ao vivo (conecta ao WhatsApp REAL, emite QR, NÃO pareia / NÃO usa número):
-go test -tags live ./internal/client/ -run TestLive_EmitsQR -v
-
-# Pareamento interativo real (só com chip sacrificial isolado):
+# QR — renders a QR in the terminal to scan
 go run ./cmd/wa-pair -db ./wa-pair.creds.db -timeout 120s
-# renderiza o QR no terminal; escaneie em WhatsApp > Aparelhos conectados.
+
+# Pairing code — prints an 8-char code to type in WhatsApp > Linked devices
+go run ./cmd/wa-paircode -phone 5512999998888 -db ./paircode.creds.db
 ```
 
-## Recapturar traces (opcional)
+Both flows (`companion_hello → primary_hello → companion_finish → pair-success →
+login`) are validated end-to-end against real WhatsApp.
 
-Requer Node + `cd harness && npm i`. `node harness/capture.mjs` conecta ao WhatsApp real
-até o QR (não precisa de número) e regrava `testdata/traces/connect_pair/`.
-`node harness/gen_codec_battery.mjs` regenera a bateria do codec (offline).
+## Multi-session
 
-> ⚠️ Conexão ao WhatsApp **real** pelo código Go só a partir do #2, e só com chip
-> sacrificial isolado. Ver `docs/superpowers/specs/` e `docs/superpowers/decisions.md`.
+```sh
+go run ./cmd/wa-manager -dir ./sessions -concurrency 8
+```
+
+`wa.NewManager()` supervises many `Client`s with auto-reconnect and exponential
+backoff, aggregating every instance's events into one stream.
+
+## Architecture
+
+```
+wa/                 public facade (type aliases over internal/)
+internal/
+  wire/             3-byte framing, token dictionary, node codec, Noise XX
+  signal/           X3DH, Double Ratchet, sender keys
+  keys/  store/     key material + SQLite persistence
+  client/           connection, send/receive, groups, app-state, profile…
+  appstate/         LTHash decode/encode/resync
+  media/            media crypto + HTTP transfer
+  control/          fingerprint, SendPacer, frame hooks
+  manager/          multi-session supervisor
+  waproto/          protobuf schema subset (regenerate via `go generate`)
+```
+
+## Development
+
+```sh
+go test ./...            # offline suite (unit + golden vectors + round-trips)
+go test -race ./...      # what CI runs
+go run ./cmd/wiredump    # replay a trace, decode the pair-device frame (no net)
+```
+
+Regenerate the protobuf after editing `internal/waproto/waproto.proto`:
+
+```sh
+go generate ./internal/waproto/    # needs protoc + protoc-gen-go v1.36.x
+```
+
+Re-capture golden traces (optional, needs Node): `cd harness && npm i &&
+node harness/capture.mjs` connects to real WhatsApp up to the QR (no number
+needed) and rewrites `testdata/traces/`.
+
+## ⚠️ Operational note
+
+Connecting from Go talks to **real WhatsApp**. Use an **isolated, sacrificial
+number**, and **do not re-pair / remove the same account in a loop** — that burns
+the account's device-management and the server stops relaying your sends.
+
+## Relationship to wa-evolution
+
+This is **the library**. An Evolution-API-style multi-instance HTTP service that
+imports it lives in [**wa-evolution**](https://github.com/jfelipesjc/wa-evolution).
+
+## License
+
+[MIT](LICENSE) © José Felipe Leal

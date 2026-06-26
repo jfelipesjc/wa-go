@@ -41,8 +41,8 @@ Decomposed into 9 sub-projects (specs in `docs/superpowers/`):
 | 2 | Pairing/Auth (multi-device, QR **+ pairing-code**) | ✅ **proven live** |
 | 3 | Signal/E2E (X3DH · Double Ratchet) from scratch | ✅ proven live (golden vectors + real msgs decrypted) |
 | 4 | Messaging 1:1 (send + receive) | ✅ **proven live** — text + media + reaction |
-| 4+ | Groups (sender keys), media crypto+transfer, all msg types | ✅ media proven live; groups offline |
-| 5 | App-state sync (LTHash) — decode/encode/resync | ✅ offline |
+| 4+ | Groups (sender keys), media crypto+transfer, all msg types | ✅ **proven live** — create + sender-key send + receive; participant mgmt offline |
+| 5 | App-state sync (LTHash) — decode/encode/resync | ✅ `archiveChat` **proven live**; pin/mute/resync offline |
 | 6 | Control layer (fingerprint · SendPacer · frame hooks) | ✅ offline |
 | 7 | Instance manager (multi-session) | ✅ offline (`-race`, 50 instances) |
 | 8 | Evolution-compat HTTP/WS | ✅ separate repo → [**wa-evolution**](https://github.com/jfelipesjc/wa-evolution) |
@@ -52,11 +52,15 @@ Decomposed into 9 sub-projects (specs in `docs/superpowers/`):
 This distinction is tracked honestly:
 
 - **Proven live** = exercised end-to-end against **real WhatsApp**: pairing
-  (QR + code), receiving, and sending **text + image + reaction**.
+  (QR **and** pairing-code — the latter fully automated via ADB), **receiving**
+  (1:1 between two real numbers, delivered via webhook) and **sending** text +
+  image + reaction, **group create + sender-key send**, `archiveChat`
+  (app-state), and privacy-settings fetch.
 - **Offline** = code is complete and **passes its tests**, but those tests are
   golden-vector / round-trip, **not yet smoke-tested against a live account**:
-  groups (sender keys), app-state resync, profile/privacy, status, newsletters,
-  business, calls.
+  group participant management (add/remove/promote), app-state pin/mute/resync,
+  profile/privacy **writes**, status/stories, newsletters, business, calls, and
+  media **receive**.
 
 > "Offline" does **not** mean untested — it means tested without the network.
 > See the test suite: **440+ tests, `-race` green.**

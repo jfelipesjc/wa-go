@@ -20,7 +20,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 func main() {

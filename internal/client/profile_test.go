@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/felipeleal/wa-go/internal/store"
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 func attr(t *testing.T, n wire.Node, k, want string) {

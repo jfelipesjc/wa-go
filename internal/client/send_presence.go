@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // PresenceState is the global presence advertised via SendPresence.

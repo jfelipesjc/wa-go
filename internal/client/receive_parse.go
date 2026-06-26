@@ -1,6 +1,6 @@
 package client
 
-import "github.com/felipeleal/wa-go/internal/waproto"
+import "github.com/jfelipesjc/wa-go/internal/waproto"
 
 // This file turns a decoded (decrypted + unpadded) WAProto.Message into a rich
 // MessageEvent. It mirrors the content oneof Baileys handles in

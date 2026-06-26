@@ -55,7 +55,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // ProductCreateInput holds the fields Baileys' productCreate accepts. Mirrors

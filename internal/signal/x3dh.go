@@ -3,7 +3,7 @@ package signal
 import (
 	"errors"
 
-	"github.com/felipeleal/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/keys"
 )
 
 // discontinuityBytes is the 0xFF*32 prefix libsignal prepends to the X3DH master

@@ -49,7 +49,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // buildCallOffer builds the (skeleton) outbound call-offer stanza. me is the

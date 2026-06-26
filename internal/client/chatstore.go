@@ -4,7 +4,7 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/felipeleal/wa-go/internal/waproto"
+	"github.com/jfelipesjc/wa-go/internal/waproto"
 )
 
 // Chat is the materialized state of a single conversation, distilled from a

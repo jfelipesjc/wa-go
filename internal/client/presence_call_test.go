@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipeleal/wa-go/internal/store"
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // drainFor collects events for up to d, returning the first event of the matching

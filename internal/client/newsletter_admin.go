@@ -40,7 +40,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // xmlnsNewsletter is the namespace for the plain-iq newsletter transport

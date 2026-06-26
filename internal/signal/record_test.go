@@ -3,7 +3,7 @@ package signal
 import (
 	"testing"
 
-	"github.com/felipeleal/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/keys"
 )
 
 // Test 5: SessionRecord serialize/deserialize round-trip, including a live

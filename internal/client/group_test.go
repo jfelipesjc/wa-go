@@ -3,7 +3,7 @@ package client
 import (
 	"testing"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 const testGroupJID = "120363000000000000@g.us"

@@ -1,4 +1,4 @@
-module github.com/felipeleal/wa-go
+module github.com/jfelipesjc/wa-go
 
 go 1.22.2
 

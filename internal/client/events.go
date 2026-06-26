@@ -1,8 +1,8 @@
 package client
 
 import (
-	"github.com/felipeleal/wa-go/internal/waproto"
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/waproto"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // This file defines the rich incoming-message event surface produced by the

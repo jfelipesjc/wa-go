@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // groupEndpoint is the destination for group-wide queries that are not scoped to

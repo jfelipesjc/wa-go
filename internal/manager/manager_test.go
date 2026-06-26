@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipeleal/wa-go/internal/client"
+	"github.com/jfelipesjc/wa-go/internal/client"
 )
 
 // --- fake session ---

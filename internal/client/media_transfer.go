@@ -17,7 +17,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/felipeleal/wa-go/internal/media"
+	"github.com/jfelipesjc/wa-go/internal/media"
 )
 
 // liveMediaUploader is the concrete mediaUploader: it resolves a media_conn from

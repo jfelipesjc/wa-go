@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/felipeleal/wa-go/internal/waproto"
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/waproto"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 	"google.golang.org/protobuf/proto"
 )
 

@@ -32,8 +32,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/felipeleal/wa-go/internal/store"
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 const (

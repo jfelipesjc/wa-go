@@ -17,8 +17,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/felipeleal/wa-go/internal/client"
-	"github.com/felipeleal/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/client"
+	"github.com/jfelipesjc/wa-go/internal/store"
 	"github.com/mdp/qrterminal/v3"
 	"rsc.io/qr"
 )

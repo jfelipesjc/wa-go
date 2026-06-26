@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/felipeleal/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/keys"
 )
 
 // GroupCipher encrypts and decrypts Signal group messages using a SenderKeyRecord

@@ -7,7 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 
-	waproto "github.com/felipeleal/wa-go/internal/waproto"
+	waproto "github.com/jfelipesjc/wa-go/internal/waproto"
 )
 
 // HashState is the per-collection LTHash state: a monotonically increasing

@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // MediaConn is the parsed <media_conn> descriptor: the auth token appended to

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // FetchAllGroups returns metadata for every group the account participates in,

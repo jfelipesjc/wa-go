@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/felipeleal/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/keys"
 )
 
 // goldenVectors mirrors testdata/signal/session_ab.json.

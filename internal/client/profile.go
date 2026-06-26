@@ -48,7 +48,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // updateProfileStatusNode builds the set-status iq:

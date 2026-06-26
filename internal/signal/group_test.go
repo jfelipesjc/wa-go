@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/felipeleal/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/keys"
 )
 
 // groupVectors mirrors testdata/signal/group_ab.json (only the fields the Go

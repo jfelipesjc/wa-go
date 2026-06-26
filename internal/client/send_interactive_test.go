@@ -3,7 +3,7 @@ package client
 import (
 	"testing"
 
-	"github.com/felipeleal/wa-go/internal/waproto"
+	"github.com/jfelipesjc/wa-go/internal/waproto"
 	"google.golang.org/protobuf/proto"
 )
 

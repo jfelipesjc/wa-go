@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/felipeleal/wa-go/internal/keys"
-	"github.com/felipeleal/wa-go/internal/store"
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // paircodeVectors mirrors testdata/paircode/vectors.json (generated OFFLINE by

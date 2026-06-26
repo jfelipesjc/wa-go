@@ -9,7 +9,7 @@ import (
 	"errors"
 	"fmt"
 
-	waproto "github.com/felipeleal/wa-go/internal/waproto"
+	waproto "github.com/jfelipesjc/wa-go/internal/waproto"
 	"google.golang.org/protobuf/proto"
 )
 

@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipeleal/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/store"
 )
 
 func TestLive_EmitsQR(t *testing.T) {

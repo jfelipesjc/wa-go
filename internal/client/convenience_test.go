@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipeleal/wa-go/internal/media"
-	"github.com/felipeleal/wa-go/internal/waproto"
+	"github.com/jfelipesjc/wa-go/internal/media"
+	"github.com/jfelipesjc/wa-go/internal/waproto"
 )
 
 // React must build a MessageKey carrying the supplied remote JID, message id and

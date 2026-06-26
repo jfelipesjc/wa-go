@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/felipeleal/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/keys"
 )
 
 // Test 4: ALICE (initiator) reproduces the golden ciphertexts byte-for-byte by

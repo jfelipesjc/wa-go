@@ -43,7 +43,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // xmlnsMex is the namespace for the GraphQL-style newsletter transport.

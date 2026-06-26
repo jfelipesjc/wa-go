@@ -54,7 +54,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // GroupParticipantRequest is one pending join request, parsed from a

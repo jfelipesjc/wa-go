@@ -50,7 +50,7 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // catalogWidth/catalogHeight are the thumbnail dimensions Baileys requests for

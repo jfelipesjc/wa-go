@@ -10,7 +10,7 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // SubscribePresence asks the server to start forwarding presence updates for the

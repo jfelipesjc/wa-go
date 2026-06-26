@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/felipeleal/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/keys"
 )
 
 // This file implements the wire formats for Signal group (Sender Key) messages,

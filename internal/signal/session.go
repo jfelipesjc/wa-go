@@ -8,7 +8,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/felipeleal/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/keys"
 )
 
 // maxSkip bounds how many message keys we will derive ahead to handle

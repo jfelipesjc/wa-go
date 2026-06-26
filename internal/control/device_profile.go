@@ -13,7 +13,7 @@ package control
 import (
 	"math/rand"
 
-	"github.com/felipeleal/wa-go/internal/waproto"
+	"github.com/jfelipesjc/wa-go/internal/waproto"
 )
 
 // DeviceProfile is the per-instance device fingerprint. Its fields populate the

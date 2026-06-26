@@ -33,8 +33,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/felipeleal/wa-go/internal/client"
-	"github.com/felipeleal/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/client"
+	"github.com/jfelipesjc/wa-go/internal/store"
 )
 
 // Session is the minimal slice of *client.Client the Manager drives. *client.Client

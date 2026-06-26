@@ -70,7 +70,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // CommunityMembershipRequest is one pending join request for a community, as

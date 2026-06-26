@@ -10,7 +10,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/felipeleal/wa-go/internal/waproto"
+	"github.com/jfelipesjc/wa-go/internal/waproto"
 )
 
 // React sends an emoji reaction to a target message identified by its remote

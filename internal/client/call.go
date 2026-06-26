@@ -43,7 +43,7 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // CallStage enumerates the lifecycle stage of an inbound <call> stanza, taken

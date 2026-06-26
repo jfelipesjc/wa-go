@@ -5,9 +5,9 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/felipeleal/wa-go/internal/control"
-	"github.com/felipeleal/wa-go/internal/keys"
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/control"
+	"github.com/jfelipesjc/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // TestOnIncomingHookCalled drives pairingLoop over a scripted conn carrying one

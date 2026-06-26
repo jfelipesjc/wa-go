@@ -3,7 +3,7 @@ package client
 import (
 	"testing"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // assertEnvelope checks the shared w:g2 iq envelope attrs.

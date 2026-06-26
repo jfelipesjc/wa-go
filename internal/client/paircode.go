@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/felipeleal/wa-go/internal/store"
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 	"golang.org/x/crypto/curve25519"
 	"golang.org/x/crypto/hkdf"
 	"golang.org/x/crypto/pbkdf2"

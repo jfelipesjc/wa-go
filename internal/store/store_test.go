@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/felipeleal/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/keys"
 )
 
 // credsFromIdentity builds a serializable Creds from a freshly generated identity.

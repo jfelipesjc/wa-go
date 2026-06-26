@@ -22,8 +22,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/felipeleal/wa-go/internal/client"
-	"github.com/felipeleal/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/client"
+	"github.com/jfelipesjc/wa-go/internal/store"
 )
 
 func main() {

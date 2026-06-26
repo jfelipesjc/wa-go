@@ -3,15 +3,15 @@
 // The heavy implementation lives in internal/ packages (so it can't be imported
 // directly by other modules); this package re-exports the consumer-facing surface
 // via type aliases so a separate project (e.g. an Evolution-style service) can
-// depend on github.com/felipeleal/wa-go/wa.
+// depend on github.com/jfelipesjc/wa-go/wa.
 //
 // This is the equivalent of Baileys' index.ts entry point.
 package wa
 
 import (
-	"github.com/felipeleal/wa-go/internal/client"
-	"github.com/felipeleal/wa-go/internal/manager"
-	"github.com/felipeleal/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/client"
+	"github.com/jfelipesjc/wa-go/internal/manager"
+	"github.com/jfelipesjc/wa-go/internal/store"
 )
 
 // --- Store ---

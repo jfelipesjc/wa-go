@@ -3,7 +3,7 @@ package signal
 import (
 	"testing"
 
-	"github.com/felipeleal/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/keys"
 )
 
 // Test 1 + 2: BOB (responder) decrypts the pkmsg and the later ratchet msgs.

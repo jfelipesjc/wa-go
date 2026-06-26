@@ -24,8 +24,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/felipeleal/wa-go/internal/manager"
-	"github.com/felipeleal/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/manager"
+	"github.com/jfelipesjc/wa-go/internal/store"
 )
 
 func main() {

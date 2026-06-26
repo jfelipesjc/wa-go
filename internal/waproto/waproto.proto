@@ -16,7 +16,7 @@ syntax = "proto3";
 
 package waproto;
 
-option go_package = "github.com/felipeleal/wa-go/internal/waproto;waproto";
+option go_package = "github.com/jfelipesjc/wa-go/internal/waproto;waproto";
 
 enum ADVEncryptionType {
     E2EE = 0;

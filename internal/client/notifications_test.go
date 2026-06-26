@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // emitCollect runs fn (which calls c.emit indirectly) and returns the first event

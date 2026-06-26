@@ -24,12 +24,12 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/felipeleal/wa-go/internal/control"
-	"github.com/felipeleal/wa-go/internal/keys"
-	"github.com/felipeleal/wa-go/internal/store"
-	"github.com/felipeleal/wa-go/internal/waproto"
-	"github.com/felipeleal/wa-go/internal/wire"
-	"github.com/felipeleal/wa-go/internal/ws"
+	"github.com/jfelipesjc/wa-go/internal/control"
+	"github.com/jfelipesjc/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/waproto"
+	"github.com/jfelipesjc/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/ws"
 )
 
 // The device fingerprint (client version, browser tuple, locale) the

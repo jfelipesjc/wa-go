@@ -36,7 +36,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // linkTypeSubGroup is the link_type used to attach a group to a community.

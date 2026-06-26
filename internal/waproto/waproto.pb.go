@@ -11233,7 +11233,7 @@ const file_waproto_proto_rawDesc = "" +
 	"\x16HISTORY_SYNC_PUSH_NAME\x10\x04\x12\"\n" +
 	"\x1eHISTORY_SYNC_NON_BLOCKING_DATA\x10\x05\x12\x1a\n" +
 	"\x16HISTORY_SYNC_ON_DEMAND\x10\x06\x12\x1b\n" +
-	"\x17HISTORY_SYNC_NO_HISTORY\x10\aB6Z4github.com/felipeleal/wa-go/internal/waproto;waprotob\x06proto3"
+	"\x17HISTORY_SYNC_NO_HISTORY\x10\aB6Z4github.com/jfelipesjc/wa-go/internal/waproto;waprotob\x06proto3"
 
 var (
 	file_waproto_proto_rawDescOnce sync.Once

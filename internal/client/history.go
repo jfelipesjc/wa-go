@@ -9,8 +9,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/felipeleal/wa-go/internal/media"
-	"github.com/felipeleal/wa-go/internal/waproto"
+	"github.com/jfelipesjc/wa-go/internal/media"
+	"github.com/jfelipesjc/wa-go/internal/waproto"
 	"google.golang.org/protobuf/proto"
 )
 

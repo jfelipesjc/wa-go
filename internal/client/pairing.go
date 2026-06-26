@@ -14,11 +14,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/felipeleal/wa-go/internal/control"
-	"github.com/felipeleal/wa-go/internal/keys"
-	"github.com/felipeleal/wa-go/internal/store"
-	"github.com/felipeleal/wa-go/internal/waproto"
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/control"
+	"github.com/jfelipesjc/wa-go/internal/keys"
+	"github.com/jfelipesjc/wa-go/internal/store"
+	"github.com/jfelipesjc/wa-go/internal/waproto"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 	"google.golang.org/protobuf/proto"
 )
 

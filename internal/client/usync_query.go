@@ -36,7 +36,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // OnWhatsAppResult is the per-phone result of an OnWhatsApp query.

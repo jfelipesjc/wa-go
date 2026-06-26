@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/felipeleal/wa-go/internal/waproto"
+	"github.com/jfelipesjc/wa-go/internal/waproto"
 )
 
 // DownloadStoredMedia downloads and decrypts the media carried by a stored

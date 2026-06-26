@@ -3,7 +3,7 @@ package appstate
 import (
 	"testing"
 
-	waproto "github.com/felipeleal/wa-go/internal/waproto"
+	waproto "github.com/jfelipesjc/wa-go/internal/waproto"
 	"google.golang.org/protobuf/proto"
 )
 

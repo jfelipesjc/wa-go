@@ -35,7 +35,7 @@ import (
 	"context"
 	"errors"
 
-	"github.com/felipeleal/wa-go/internal/wire"
+	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
 // PrivacySetting names the privacy categories UpdatePrivacy understands. They

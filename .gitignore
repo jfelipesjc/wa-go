@@ -11,3 +11,18 @@ creds.json
 *.creds.db-journal
 *.creds.db-wal
 *.creds.db-shm
+
+# any sqlite db (pairing/creds are sensitive) — never commit
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# compiled cmd/* binaries (dropped at repo root) — note: NOT the wa/ facade pkg
+/wa-features
+/wiredump
+/wa-pair
+/wa-paircode
+/wa-manager

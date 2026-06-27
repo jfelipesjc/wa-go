@@ -27,6 +27,9 @@ func OpenStore(path string) (Store, error) { return store.OpenSQLite(path) }
 // Client is a single WhatsApp connection (one device/number).
 type Client = client.Client
 
+// MsgKey identifies a single message for star/delete-for-me style actions.
+type MsgKey = client.MsgKey
+
 // NewClient builds a Client backed by the given Store.
 func NewClient(s Store) *Client { return client.New(s) }
 

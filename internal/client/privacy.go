@@ -233,6 +233,15 @@ func (c *Client) updateBlockStatus(ctx context.Context, jid, action string) erro
 	if jid == "" {
 		return errors.New("client: block status requires a jid")
 	}
+	// The block/unblock IQ is rejected by the server (code 400) for LID JIDs; it
+	// expects the phone-number JID. Resolve LID->PN when the mapping is known.
+	if isLID(jid) {
+		pn, ok := c.PNForLID(jid)
+		if !ok {
+			return errors.New("client: cannot " + action + " LID " + jid + ": no phone-number JID known for it")
+		}
+		jid = pn
+	}
 	sess, ok := c.activeSession()
 	if !ok {
 		return errors.New("client: block status requires a live session")

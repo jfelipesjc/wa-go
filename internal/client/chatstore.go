@@ -46,6 +46,10 @@ type StoredMessage struct {
 	Text      string
 	Type      string
 	Raw       *waproto.WebMessageInfo
+	// Media is the media descriptor for live messages (which carry no Raw
+	// WebMessageInfo). It holds the keys/URL needed to download+decrypt, so
+	// DownloadMedia can fetch the payload on demand even without Raw.
+	Media *MediaInfo
 }
 
 // ChatStore is a thread-safe, in-memory materialization of the chat list,
@@ -252,6 +256,7 @@ func (cs *ChatStore) applyMessageEvent(e MessageEvent) {
 		Timestamp: e.Timestamp,
 		Text:      e.Text,
 		Type:      string(e.Type),
+		Media:     e.Media,
 	})
 
 	if e.PushName != "" {

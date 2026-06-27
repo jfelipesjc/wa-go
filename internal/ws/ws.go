@@ -28,9 +28,18 @@ import (
 	"io"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/coder/websocket"
 )
+
+// readTimeout bounds a single inbound WS read. The 20s app-layer keepalive — which
+// the server answers with an iq result — keeps a healthy session producing inbound
+// traffic well inside this window. The generous 6x margin absorbs latency and
+// retransmission spikes so it won't false-trip, while still surfacing a
+// dead/partitioned link (no traffic at all, not even keepalive answers) as an
+// error instead of blocking forever as a zombie connection.
+const readTimeout = 120 * time.Second
 
 const (
 	// waWSURL is the WhatsApp WebSocket endpoint (from Baileys DEFAULT_CONNECTION_CONFIG).
@@ -106,8 +115,11 @@ func (a *adapter) Read(p []byte) (int, error) {
 		return a.buf.Read(p)
 	}
 
-	// Buffer empty — read the next WebSocket message.
-	typ, data, err := a.conn.Read(a.ctx)
+	// Buffer empty — read the next WebSocket message, bounded by readTimeout so a
+	// dead link is detected instead of blocking forever (see readTimeout doc).
+	rctx, cancel := context.WithTimeout(a.ctx, readTimeout)
+	typ, data, err := a.conn.Read(rctx)
+	cancel()
 	if err != nil {
 		return 0, err
 	}

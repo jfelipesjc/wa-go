@@ -439,6 +439,22 @@ func (c *Client) pairingCodeLoop(ctx context.Context, conn nodeConn, creds *stor
 			}
 		case isIQSet(node, "link_code_companion_reg"),
 			node.Tag == "notification" && node.Attrs["type"] == "link_code_companion_reg":
+			// Only the primary_hello stage carries primary_identity_pub. An earlier
+			// companion_hello ack also arrives as link_code_companion_reg but WITHOUT
+			// it; ack it and keep waiting for primary_hello instead of tearing the
+			// whole pairing down. (Processing that early node as the final stage was
+			// the intermittent "companion_finish: missing primary_identity_pub" that
+			// killed pairing-code logins depending on node ordering.)
+			if reg, ok := childByTag(node, "link_code_companion_reg"); ok {
+				if _, has := childByTag(reg, "primary_identity_pub"); !has {
+					if node.Tag == "notification" {
+						_ = send(stanzaAckNode(node, creds.Me))
+					} else {
+						_ = send(iqResult(node.Attrs["id"], nil))
+					}
+					break // wait for the primary_hello node
+				}
+			}
 			// companion_finish: the phone's reply (stage=primary_hello) carries
 			// primary_identity_pub + the wrapped primary ephemeral. It arrives as a
 			// <notification> (not an <iq set>), so route both. Derive the key bundle
@@ -453,8 +469,12 @@ func (c *Client) pairingCodeLoop(ctx context.Context, conn nodeConn, creds *stor
 			if err := send(reply); err != nil {
 				return false, fmt.Errorf("client: send companion_finish: %w", err)
 			}
+			// Ack symmetrically: the case accepts both notification and iq set, so
+			// ack whichever arrived (notification -> receipt, iq set -> iq result).
 			if node.Tag == "notification" {
 				_ = send(stanzaAckNode(node, creds.Me))
+			} else {
+				_ = send(iqResult(node.Attrs["id"], nil))
 			}
 		case isPairSuccess(node):
 			// creds.AdvSecret was replaced by finishCompanionPairing; rebuild the

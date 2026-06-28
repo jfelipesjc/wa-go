@@ -106,10 +106,17 @@ func (c *Client) NewsletterDelete(ctx context.Context, jid string) error {
 	return err
 }
 
-// NewsletterSubscriberCount returns the number of subscribers of a channel. The
-// dedicated subscribers w:mex query is admin-list shaped and does not carry a
-// count, so this reads the subscriber_count already present in the channel
-// metadata (Baileys surfaces the same value).
+// NewsletterSubscriberCount returns the number of subscribers of a channel, read
+// from the subscriber_count in the channel metadata.
+//
+// There is intentionally no "subscriber LIST" method: WhatsApp does not let even
+// the channel owner enumerate its subscribers — a deliberate privacy guarantee
+// ("your phone number is not shown to the channel's followers or admins").
+// Verified live against a channel with a real subscriber: the w:mex list query
+// (id 9800646650009898, variables input{newsletter_id,count:int}) returns
+// "405 Not Allowed", and the Baileys id (9783111038412085) returns admin info
+// (pending_admin_invites), not a subscriber roster. The count is the most the
+// server will expose.
 func (c *Client) NewsletterSubscriberCount(ctx context.Context, jid string) (int, error) {
 	if !isNewsletterJID(jid) {
 		return 0, fmt.Errorf("client: %q is not a newsletter JID", jid)

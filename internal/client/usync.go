@@ -5,12 +5,19 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/jfelipesjc/wa-go/internal/keys"
 	"github.com/jfelipesjc/wa-go/internal/signal"
 	"github.com/jfelipesjc/wa-go/internal/store"
 	"github.com/jfelipesjc/wa-go/internal/wire"
 )
+
+// iqTimeout bounds how long sendIQ waits for a matching <iq> reply before giving
+// up, so a server that silently drops a request (observed on some w:g2 set ops,
+// e.g. settingUpdate/leave on a sole-owner community) returns an error instead of
+// blocking until the caller's context is cancelled. Matches whatsmeow's 75s.
+const iqTimeout = 75 * time.Second
 
 // iqTagCounter backs unique stanza ids for client-originated request iqs (usync,
 // prekey-bundle fetch). Distinct from iqIDCounter only for readability.
@@ -33,7 +40,11 @@ func (c *Client) sendIQ(ctx context.Context, sess *session, req wire.Node) (wire
 		return wire.Node{}, fmt.Errorf("client: send iq %s: %w", id, err)
 	}
 
+	timer := time.NewTimer(iqTimeout)
+	defer timer.Stop()
 	select {
+	case <-timer.C:
+		return wire.Node{}, fmt.Errorf("client: iq %s timed out after %s (no reply)", id, iqTimeout)
 	case <-ctx.Done():
 		return wire.Node{}, ctx.Err()
 	case reply, ok := <-ch:

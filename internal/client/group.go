@@ -32,6 +32,7 @@ type GroupInfo struct {
 	Subject      string
 	Owner        string
 	Desc         string
+	DescID       string // id of the <description> node; passed as prev when editing
 	Creation     int64
 	Participants []GroupParticipant
 }
@@ -129,7 +130,7 @@ func buildGroupUpdateSubject(id, groupJID, subject string) wire.Node {
 //	<iq xmlns=w:g2 type=set to=group>
 //	  <description delete=true/>
 //	</iq>
-func buildGroupUpdateDescription(id, descID, groupJID, desc string) wire.Node {
+func buildGroupUpdateDescription(id, descID, prev, groupJID, desc string) wire.Node {
 	var descNode wire.Node
 	if desc == "" {
 		descNode = wire.Node{Tag: "description", Attrs: map[string]string{"delete": "true"}}
@@ -139,6 +140,9 @@ func buildGroupUpdateDescription(id, descID, groupJID, desc string) wire.Node {
 			Attrs:   map[string]string{"id": descID},
 			Content: []wire.Node{{Tag: "body", Content: []byte(desc)}},
 		}
+	}
+	if prev != "" {
+		descNode.Attrs["prev"] = prev
 	}
 	return buildGroupQuery(id, groupJID, "set", []wire.Node{descNode})
 }
@@ -187,6 +191,21 @@ func buildGroupSettingUpdate(id, groupJID, setting string) wire.Node {
 	return buildGroupQuery(id, groupJID, "set", []wire.Node{{Tag: setting}})
 }
 
+// canonicalSettingTag maps the legacy announce/not_announce aliases to the wire
+// tags the server actually expects — announcement / not_announcement (confirmed
+// against whatsmeow's SetGroupAnnounce and Baileys' groupSettingUpdate). Other
+// tags (locked/unlocked and the community-generic settings like
+// modify_only_admins) pass through unchanged.
+func canonicalSettingTag(setting string) string {
+	switch setting {
+	case "announce":
+		return "announcement"
+	case "not_announce":
+		return "not_announcement"
+	}
+	return setting
+}
+
 // --- parsers ---
 
 // parseGroupMetadata extracts a GroupInfo from a w:g2 reply node (an <iq> or a
@@ -216,6 +235,7 @@ func parseGroupMetadata(reply wire.Node) (*GroupInfo, error) {
 		}
 	}
 	if descChild, ok := childByTag(group, "description"); ok {
+		info.DescID = descChild.Attrs["id"]
 		if body, ok := childByTag(descChild, "body"); ok {
 			info.Desc = string(nodeBytes(body))
 		}
@@ -369,7 +389,15 @@ func (c *Client) GroupUpdateDescription(ctx context.Context, groupJID, desc stri
 	if !isGroupJID(groupJID) {
 		return fmt.Errorf("client: %q is not a group JID", groupJID)
 	}
-	req := buildGroupUpdateDescription(c.nextIQID("wa-go-group-"), generateMessageID(), groupJID, desc)
+	// Editing OR deleting an existing description needs prev=<current description
+	// id> or the server may 409; fetch it from metadata (as Baileys does before
+	// the update; whatsmeow instead takes prev as an explicit parameter).
+	// Best-effort: if the metadata lookup fails we send without prev.
+	var prev string
+	if info, err := c.GroupMetadata(ctx, groupJID); err == nil && info != nil {
+		prev = info.DescID
+	}
+	req := buildGroupUpdateDescription(c.nextIQID("wa-go-group-"), generateMessageID(), prev, groupJID, desc)
 	_, err := c.sendIQ(ctx, sess, req)
 	return err
 }
@@ -462,9 +490,10 @@ func (c *Client) GroupGetInviteInfo(ctx context.Context, code string) (*GroupInf
 	return parseGroupMetadata(reply)
 }
 
-// GroupSettingUpdate toggles a group setting. setting must be one of "announce"
-// (only admins can send), "not_announce" (everyone can send), "locked" (only
-// admins can edit group info) or "unlocked" (everyone can edit group info).
+// GroupSettingUpdate toggles a group setting. setting must be one of
+// "announcement" (only admins can send), "not_announcement" (everyone can send),
+// "locked" (only admins can edit group info) or "unlocked" (everyone can edit
+// group info). The legacy aliases "announce"/"not_announce" are also accepted.
 func (c *Client) GroupSettingUpdate(ctx context.Context, groupJID, setting string) error {
 	sess, ok := c.activeSession()
 	if !ok {
@@ -473,8 +502,9 @@ func (c *Client) GroupSettingUpdate(ctx context.Context, groupJID, setting strin
 	if !isGroupJID(groupJID) {
 		return fmt.Errorf("client: %q is not a group JID", groupJID)
 	}
+	setting = canonicalSettingTag(setting)
 	switch setting {
-	case "announce", "not_announce", "locked", "unlocked":
+	case "announcement", "not_announcement", "locked", "unlocked":
 	default:
 		return fmt.Errorf("client: invalid group setting %q", setting)
 	}

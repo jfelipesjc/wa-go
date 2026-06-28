@@ -81,13 +81,16 @@ func TestBuildGroupUpdateSubject(t *testing.T) {
 }
 
 func TestBuildGroupUpdateDescription_Set(t *testing.T) {
-	n := buildGroupUpdateDescription("ID5", "DESCID", testGroupJID, "Hello there")
+	n := buildGroupUpdateDescription("ID5", "DESCID", "PREVID", testGroupJID, "Hello there")
 	desc, ok := childByTag(n, "description")
 	if !ok {
 		t.Fatal("missing <description>")
 	}
 	if desc.Attrs["id"] != "DESCID" {
 		t.Fatalf("description id = %q", desc.Attrs["id"])
+	}
+	if desc.Attrs["prev"] != "PREVID" {
+		t.Fatalf("prev = %q, want PREVID", desc.Attrs["prev"])
 	}
 	if _, del := desc.Attrs["delete"]; del {
 		t.Fatal("set should not carry delete attr")
@@ -99,7 +102,7 @@ func TestBuildGroupUpdateDescription_Set(t *testing.T) {
 }
 
 func TestBuildGroupUpdateDescription_Delete(t *testing.T) {
-	n := buildGroupUpdateDescription("ID6", "DESCID", testGroupJID, "")
+	n := buildGroupUpdateDescription("ID6", "DESCID", "", testGroupJID, "")
 	desc, ok := childByTag(n, "description")
 	if !ok {
 		t.Fatal("missing <description>")
@@ -159,13 +162,29 @@ func TestBuildGroupAcceptInvite(t *testing.T) {
 }
 
 func TestBuildGroupSettingUpdate(t *testing.T) {
-	for _, setting := range []string{"announce", "not_announce", "locked", "unlocked"} {
+	for _, setting := range []string{"announcement", "not_announcement", "locked", "unlocked"} {
 		n := buildGroupSettingUpdate("ID11", testGroupJID, setting)
 		if n.Attrs["type"] != "set" || n.Attrs["to"] != testGroupJID {
 			t.Fatalf("%s iq attrs wrong: %+v", setting, n.Attrs)
 		}
 		if _, ok := childByTag(n, setting); !ok {
 			t.Fatalf("missing <%s>", setting)
+		}
+	}
+}
+
+func TestCanonicalSettingTag(t *testing.T) {
+	for in, want := range map[string]string{
+		"announce":           "announcement",
+		"not_announce":       "not_announcement",
+		"announcement":       "announcement",
+		"not_announcement":   "not_announcement",
+		"locked":             "locked",
+		"unlocked":           "unlocked",
+		"modify_only_admins": "modify_only_admins",
+	} {
+		if got := canonicalSettingTag(in); got != want {
+			t.Errorf("canonicalSettingTag(%q) = %q, want %q", in, got, want)
 		}
 	}
 }

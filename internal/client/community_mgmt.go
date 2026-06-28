@@ -464,6 +464,14 @@ func (c *Client) CommunityUpdateDescription(ctx context.Context, communityJID, d
 	if !isGroupJID(communityJID) {
 		return fmt.Errorf("client: %q is not a community JID", communityJID)
 	}
+	// The server rejects editing OR deleting an existing description (409 conflict)
+	// unless the request carries prev=<current description id>. When the caller
+	// doesn't supply it, fetch it from metadata (as Baileys does before updating).
+	if prev == "" {
+		if info, err := c.CommunityMetadata(ctx, communityJID); err == nil && info != nil {
+			prev = info.DescID
+		}
+	}
 	req := buildCommunityUpdateDescription(c.nextIQID("wa-go-community-"), generateMessageID(), prev, communityJID, desc)
 	_, err := c.sendIQ(ctx, sess, req)
 	return err
@@ -497,6 +505,10 @@ func (c *Client) CommunitySettingUpdate(ctx context.Context, communityJID, setti
 	if setting == "" {
 		return errors.New("client: community setting required")
 	}
+	// Accept the announce/not_announce aliases; the server expects
+	// announcement/not_announcement. Other tags (locked/unlocked,
+	// modify_only_admins, ...) pass through unchanged.
+	setting = canonicalSettingTag(setting)
 	req := buildCommunitySettingUpdate(c.nextIQID("wa-go-community-"), communityJID, setting)
 	_, err := c.sendIQ(ctx, sess, req)
 	return err

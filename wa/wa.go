@@ -65,6 +65,63 @@ const (
 	PrivacyGroupsAdd      = client.PrivacyGroupsAdd
 )
 
+// --- Groups, Communities & Newsletters ---
+//
+// The Community* and Newsletter* methods live on (*Client) (= client.Client via
+// the alias above) and are therefore already callable; these aliases re-export
+// their input/output types so an external module can name and construct them.
+
+// GroupInfo is the parsed metadata of a group or community: subject, owner,
+// description, creation time and participants.
+type GroupInfo = client.GroupInfo
+
+// GroupParticipant is one member of a group/community (jid + admin flags).
+type GroupParticipant = client.GroupParticipant
+
+// GroupParticipantResult reports the per-participant outcome (jid + status code)
+// of a participants update on a group or community.
+type GroupParticipantResult = client.GroupParticipantResult
+
+// GroupLinkInfo is a sub-group linked into a community (JID + subject).
+type GroupLinkInfo = client.GroupLinkInfo
+
+// CommunityMembershipRequest is one pending join request for a community.
+type CommunityMembershipRequest = client.CommunityMembershipRequest
+
+// NewsletterInfo is the parsed metadata of a channel (newsletter).
+type NewsletterInfo = client.NewsletterInfo
+
+// NewsletterMessage is a single message from a NewsletterFetchMessages reply.
+type NewsletterMessage = client.NewsletterMessage
+
+// LiveUpdatesSubscription is the result of SubscribeLiveUpdates (a duration).
+type LiveUpdatesSubscription = client.LiveUpdatesSubscription
+
+// NewsletterUpdateInput carries the optional metadata fields an admin may edit
+// on a channel (Name/Description/Picture; a nil pointer means leave unchanged).
+type NewsletterUpdateInput = client.NewsletterUpdateInput
+
+// NewsletterKeyType selects how a newsletter is addressed in a metadata fetch
+// (by JID or by invite key).
+type NewsletterKeyType = client.NewsletterKeyType
+
+// Newsletter key types, re-exported for (*Client).NewsletterMetadata.
+const (
+	NewsletterKeyJID    = client.NewsletterKeyJID
+	NewsletterKeyInvite = client.NewsletterKeyInvite
+)
+
+// NewsletterReactionMode is the channel-wide reaction policy.
+type NewsletterReactionMode = client.NewsletterReactionMode
+
+// Newsletter reaction modes, re-exported for (*Client).NewsletterReactionMode.
+const (
+	ReactionModeAll       = client.ReactionModeAll
+	ReactionModeBasic     = client.ReactionModeBasic
+	ReactionModeNone      = client.ReactionModeNone
+	ReactionModeBlocklist = client.ReactionModeBlocklist
+)
+
 // EnableDebug turns on verbose pairing/connection diagnostics to w.
 var EnableDebug = client.EnableDebug
 

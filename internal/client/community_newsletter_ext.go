@@ -18,8 +18,10 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/jfelipesjc/wa-go/internal/wire"
+	"google.golang.org/protobuf/proto"
 )
 
 // Additional newsletter w:mex query ID / data path, copied verbatim from
@@ -119,6 +121,60 @@ func (c *Client) NewsletterSubscriberCount(ctx context.Context, jid string) (int
 		return 0, nil
 	}
 	return info.SubscriberCount, nil
+}
+
+// SendNewsletterText posts a plain text message to a channel (newsletter) and
+// returns the server-assigned message id (server_id), which can be passed to
+// NewsletterReactMessage. Newsletters are unencrypted, so the message goes out as
+// a bare <message type=text><plaintext>{proto bytes}</plaintext></message>
+// (mirroring whatsmeow's sendNewsletter — no Signal, no padding). The server
+// replies with an <ack id=..> carrying the server_id, which we await and return.
+func (c *Client) SendNewsletterText(ctx context.Context, jid, text string) (string, error) {
+	sess, ok := c.activeSession()
+	if !ok {
+		return "", errors.New("client: not logged in (no active session)")
+	}
+	if !isNewsletterJID(jid) {
+		return "", fmt.Errorf("client: %q is not a newsletter JID", jid)
+	}
+	plaintext, err := proto.Marshal(buildTextMessage(text))
+	if err != nil {
+		return "", fmt.Errorf("client: marshal newsletter message: %w", err)
+	}
+	msgID := generateMessageID()
+	stanza := wire.Node{
+		Tag:   "message",
+		Attrs: map[string]string{"to": jid, "id": msgID, "type": "text"},
+		Content: []wire.Node{
+			{Tag: "plaintext", Content: plaintext},
+		},
+	}
+	// Register the ack waiter BEFORE sending so a fast ack isn't missed.
+	ch, cancel := c.registerIQ(msgID)
+	defer cancel()
+	if err := sess.send(stanza); err != nil {
+		return "", fmt.Errorf("client: send newsletter message: %w", err)
+	}
+	timer := time.NewTimer(iqTimeout)
+	defer timer.Stop()
+	select {
+	case <-timer.C:
+		return "", fmt.Errorf("client: newsletter send %s timed out (no ack)", msgID)
+	case <-ctx.Done():
+		return "", ctx.Err()
+	case ack, ok := <-ch:
+		if !ok {
+			return "", errors.New("client: connection closed before newsletter ack")
+		}
+		if ec := ack.Attrs["error"]; ec != "" && ec != "0" {
+			return "", fmt.Errorf("client: newsletter send rejected (error=%s)", ec)
+		}
+		sid := ack.Attrs["server_id"]
+		if sid == "" {
+			return "", errors.New("client: newsletter ack missing server_id")
+		}
+		return sid, nil
+	}
 }
 
 // NewsletterReactMessage reacts to a channel message identified by its

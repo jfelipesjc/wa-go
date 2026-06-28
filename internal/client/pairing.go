@@ -871,6 +871,14 @@ func (c *Client) loginLoop(ctx context.Context, conn nodeConn, creds *store.Cred
 				}
 			}
 		}
+		// An <ack> for a stanza we are awaiting (e.g. a newsletter send waiting for
+		// its server_id) is matched by id and delivered to the waiter; unmatched
+		// acks (the common case for normal sends) fall through and are dropped.
+		if node.Tag == "ack" {
+			if c.deliverIQ(node) {
+				continue
+			}
+		}
 		switch node.Tag {
 		case "success":
 			c.emit(LoggedInEvent{})

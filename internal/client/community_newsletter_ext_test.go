@@ -7,26 +7,22 @@ import (
 )
 
 func TestNewsletterExtConstants(t *testing.T) {
-	// Guard the verbatim Baileys query IDs / data paths against accidental edits.
-	for got, want := range map[string]string{
-		nlQueryDelete:      "30062808666639665",
-		nlQuerySubscribers: "9783111038412085",
-		nlPathDelete:       "xwa2_newsletter_delete_v2",
-		nlPathSubscribers:  "xwa2_newsletter_subscribers",
-	} {
-		if got != want {
-			t.Errorf("constant = %q, want %q", got, want)
-		}
+	// Guard the verbatim Baileys query ID / data path against accidental edits.
+	if nlQueryDelete != "30062808666639665" {
+		t.Errorf("nlQueryDelete = %q", nlQueryDelete)
+	}
+	if nlPathDelete != "xwa2_newsletter_delete_v2" {
+		t.Errorf("nlPathDelete = %q", nlPathDelete)
 	}
 }
 
 func TestIsNewsletterJID(t *testing.T) {
 	cases := map[string]bool{
-		"123@newsletter":      true,
-		"123@g.us":            false,
+		"123@newsletter":         true,
+		"123@g.us":               false,
 		"5512999@s.whatsapp.net": false,
-		"":                    false,
-		"newsletter":          false,
+		"":                       false,
+		"newsletter":             false,
 	}
 	for jid, want := range cases {
 		if got := isNewsletterJID(jid); got != want {
@@ -76,12 +72,17 @@ func TestBuildNewsletterReaction_Remove(t *testing.T) {
 	}
 }
 
+// TestParseAllCommunities feeds a w:g2 participating reply that mixes regular
+// groups and communities (the latter carrying a <parent> marker) under <groups>,
+// the real shape observed on the wire, and asserts only the communities surface.
 func TestParseAllCommunities(t *testing.T) {
 	reply := wire.Node{Content: []wire.Node{
-		{Tag: "communities", Content: []wire.Node{
-			{Tag: "community", Attrs: map[string]string{"id": "123", "subject": "Comm A"}},
-			{Tag: "community", Attrs: map[string]string{"jid": "456@g.us", "subject": "Comm B"}},
-			{Tag: "community", Attrs: map[string]string{"subject": "no jid — skipped"}},
+		{Tag: "groups", Content: []wire.Node{
+			{Tag: "group", Attrs: map[string]string{"id": "123", "subject": "Comm A"},
+				Content: []wire.Node{{Tag: "parent", Attrs: map[string]string{}}}},
+			{Tag: "group", Attrs: map[string]string{"id": "999", "subject": "Regular group — skipped"}},
+			{Tag: "group", Attrs: map[string]string{"jid": "456@g.us", "subject": "Comm B"},
+				Content: []wire.Node{{Tag: "parent", Attrs: map[string]string{}}}},
 		}},
 	}}
 	got := parseAllCommunities(reply)
@@ -98,6 +99,6 @@ func TestParseAllCommunities(t *testing.T) {
 
 func TestParseAllCommunities_NoContainer(t *testing.T) {
 	if got := parseAllCommunities(wire.Node{}); got != nil {
-		t.Errorf("missing <communities> should yield nil, got %+v", got)
+		t.Errorf("missing <groups> should yield nil, got %+v", got)
 	}
 }

@@ -9,13 +9,12 @@
 //
 // Transports reused from the existing code: w:g2 group iq (buildGroupQuery /
 // sendIQ) for the community listing, w:mex (runMexQuery) for the newsletter
-// mutations/queries, and a bare fire-and-forget <message> stanza (sess.send)
+// mutation/metadata, and a bare fire-and-forget <message> stanza (sess.send)
 // for the channel reaction (newsletters are unencrypted, so no Signal path).
 package client
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -23,17 +22,12 @@ import (
 	"github.com/jfelipesjc/wa-go/internal/wire"
 )
 
-// Additional newsletter w:mex query IDs and data paths, copied verbatim from
-// Baileys (lib/Types/Mex.ts). These are the web/browser IDs; a desktop/mac
+// Additional newsletter w:mex query ID / data path, copied verbatim from
+// Baileys (lib/Types/Mex.ts). This is the web/browser ID; a desktop/mac
 // fingerprint would use a different id server-side (whatsmeow's convertQueryID).
 const (
-	nlQueryDelete      = "30062808666639665"
-	nlQuerySubscribers = "9783111038412085"
-)
-
-const (
-	nlPathDelete      = "xwa2_newsletter_delete_v2"
-	nlPathSubscribers = "xwa2_newsletter_subscribers"
+	nlQueryDelete = "30062808666639665"
+	nlPathDelete  = "xwa2_newsletter_delete_v2"
 )
 
 // isNewsletterJID reports whether jid addresses a channel (ends in @newsletter).
@@ -43,9 +37,10 @@ func isNewsletterJID(jid string) bool {
 
 // CommunityFetchAllParticipating returns the JID and subject of every community
 // the account participates in. It issues the same w:g2 <participating> query as
-// FetchAllGroups, but reads the <communities> wrapper in the reply instead of
-// <groups> (Baileys' communityFetchAllParticipating; the request bytes are
-// identical to fetchAllGroups, only the reply child differs).
+// FetchAllGroups; the server returns communities and regular groups together
+// under the <groups> wrapper, with communities distinguished by a <parent>
+// child (Baileys' isCommunity / extractCommunityMetadata key). This filters to
+// just the parent communities.
 func (c *Client) CommunityFetchAllParticipating(ctx context.Context) ([]GroupLinkInfo, error) {
 	sess, ok := c.activeSession()
 	if !ok {
@@ -68,19 +63,23 @@ func (c *Client) CommunityFetchAllParticipating(ctx context.Context) ([]GroupLin
 	return parseAllCommunities(reply), nil
 }
 
-// parseAllCommunities extracts every <community> under <communities> in a w:g2
-// participating reply, using the same jid/subject extraction as parseSubGroups.
+// parseAllCommunities extracts the parent communities from a w:g2 participating
+// reply: every <group> under <groups> that carries a <parent> marker, using the
+// same jid/subject extraction as parseSubGroups.
 func parseAllCommunities(reply wire.Node) []GroupLinkInfo {
-	container, ok := childByTag(reply, "communities")
+	container, ok := childByTag(reply, "groups")
 	if !ok {
 		return nil
 	}
-	coms := childrenByTag(container, "community")
-	out := make([]GroupLinkInfo, 0, len(coms))
-	for _, com := range coms {
-		jid := com.Attrs["jid"]
+	groups := childrenByTag(container, "group")
+	out := make([]GroupLinkInfo, 0)
+	for _, g := range groups {
+		if _, isCommunity := childByTag(g, "parent"); !isCommunity {
+			continue // a regular group, not a community
+		}
+		jid := g.Attrs["jid"]
 		if jid == "" {
-			jid = com.Attrs["id"]
+			jid = g.Attrs["id"]
 		}
 		if jid == "" {
 			continue
@@ -88,7 +87,7 @@ func parseAllCommunities(reply wire.Node) []GroupLinkInfo {
 		if !containsAt(jid) {
 			jid += "@g.us"
 		}
-		out = append(out, GroupLinkInfo{JID: jid, Subject: com.Attrs["subject"]})
+		out = append(out, GroupLinkInfo{JID: jid, Subject: g.Attrs["subject"]})
 	}
 	return out
 }
@@ -104,23 +103,22 @@ func (c *Client) NewsletterDelete(ctx context.Context, jid string) error {
 	return err
 }
 
-// NewsletterSubscriberCount returns the number of subscribers of a channel.
-// Mirrors Baileys' newsletterSubscribers (w:mex; reply {subscribers:int}).
+// NewsletterSubscriberCount returns the number of subscribers of a channel. The
+// dedicated subscribers w:mex query is admin-list shaped and does not carry a
+// count, so this reads the subscriber_count already present in the channel
+// metadata (Baileys surfaces the same value).
 func (c *Client) NewsletterSubscriberCount(ctx context.Context, jid string) (int, error) {
 	if !isNewsletterJID(jid) {
 		return 0, fmt.Errorf("client: %q is not a newsletter JID", jid)
 	}
-	raw, err := c.runMexQuery(ctx, nlQuerySubscribers, nlPathSubscribers, newsletterIDVariables(jid))
+	info, err := c.NewsletterMetadata(ctx, jid, NewsletterKeyJID)
 	if err != nil {
 		return 0, err
 	}
-	var res struct {
-		Subscribers int `json:"subscribers"`
+	if info == nil {
+		return 0, nil
 	}
-	if err := json.Unmarshal(raw, &res); err != nil {
-		return 0, fmt.Errorf("client: decode newsletter subscribers: %w", err)
-	}
-	return res.Subscribers, nil
+	return info.SubscriberCount, nil
 }
 
 // NewsletterReactMessage reacts to a channel message identified by its

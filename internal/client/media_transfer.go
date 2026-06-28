@@ -69,6 +69,17 @@ func (u *liveMediaUploader) Upload(ctx context.Context, enc []byte, mediaType me
 	return dp, u2, nil
 }
 
+// UploadNewsletter satisfies mediaUploader: it fetches a media_conn and uploads
+// the RAW (unencrypted) bytes to the channel media endpoint, returning
+// directPath/url plus the media handle (media_id) for the message node.
+func (u *liveMediaUploader) UploadNewsletter(ctx context.Context, data []byte, mediaType media.MediaType) (directPath, url, handle string, err error) {
+	conn, err := u.c.mediaConn(ctx)
+	if err != nil {
+		return "", "", "", err
+	}
+	return media.UploadNewsletter(ctx, u.fetcher, data, mediaType, conn.Hosts, conn.Auth)
+}
+
 // EnableMediaTransfer installs the live media uploader on this Client so the
 // Send* media helpers can upload through the live media_conn. It sets the same
 // field WithMediaUploader sets, but on an already-constructed Client (the

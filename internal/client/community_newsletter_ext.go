@@ -163,12 +163,19 @@ func (c *Client) sendNewsletterMessage(ctx context.Context, jid string, msg *wap
 		stanzaType = "text"
 	}
 	msgID := generateMessageID()
+	attrs := map[string]string{"to": jid, "id": msgID, "type": stanzaType}
+	if opts.mediaID != "" {
+		attrs["media_id"] = opts.mediaID
+	}
+	plaintextNode := wire.Node{Tag: "plaintext", Content: plaintext}
+	if opts.mediaType != "" {
+		// channel media: the plaintext node carries the mediatype attr.
+		plaintextNode.Attrs = map[string]string{"mediatype": opts.mediaType}
+	}
 	stanza := wire.Node{
-		Tag:   "message",
-		Attrs: map[string]string{"to": jid, "id": msgID, "type": stanzaType},
-		Content: []wire.Node{
-			{Tag: "plaintext", Content: plaintext},
-		},
+		Tag:     "message",
+		Attrs:   attrs,
+		Content: []wire.Node{plaintextNode},
 	}
 	// Register the ack waiter BEFORE sending so a fast ack isn't missed.
 	ch, cancel := c.registerIQ(msgID)

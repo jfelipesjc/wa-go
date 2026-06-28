@@ -135,7 +135,7 @@ func TestNewsletterUserVariables(t *testing.T) {
 }
 
 func TestBuildNewsletterFetchMessages(t *testing.T) {
-	n := buildNewsletterFetchMessages("id-9", "j@newsletter", 50, 1700000000)
+	n := buildNewsletterFetchMessages("id-9", "j@newsletter", 50, 1700000000, 0)
 	if n.Tag != "iq" {
 		t.Fatalf("tag = %q", n.Tag)
 	}
@@ -162,7 +162,7 @@ func TestBuildNewsletterFetchMessages(t *testing.T) {
 }
 
 func TestBuildNewsletterFetchMessagesNoSince(t *testing.T) {
-	n := buildNewsletterFetchMessages("id-10", "j@newsletter", 10, 0)
+	n := buildNewsletterFetchMessages("id-10", "j@newsletter", 10, 0, 0)
 	mu, _ := childByTag(n, "message_updates")
 	if _, ok := mu.Attrs["since"]; ok {
 		t.Errorf("since should be omitted when <=0")

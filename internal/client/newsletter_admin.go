@@ -163,11 +163,15 @@ func newsletterUserVariables(jid, user string) map[string]any {
 
 // buildNewsletterFetchMessages builds the plain-iq request that fetches channel
 // messages (Baileys' newsletterFetchMessages): a <message_updates> child with
-// count and optional since. since<=0 omits the attribute.
-func buildNewsletterFetchMessages(id, jid string, count int, since int64) wire.Node {
+// count, optional since and optional after cursor. since<=0 omits the since
+// attribute; after==0 omits the after attribute.
+func buildNewsletterFetchMessages(id, jid string, count int, since int64, after int64) wire.Node {
 	attrs := map[string]string{"count": strconv.Itoa(count)}
 	if since > 0 {
 		attrs["since"] = strconv.FormatInt(since, 10)
+	}
+	if after != 0 {
+		attrs["after"] = strconv.FormatInt(after, 10)
 	}
 	return wire.Node{
 		Tag: "iq",
@@ -325,6 +329,13 @@ func (c *Client) NewsletterChangeOwner(ctx context.Context, jid, newOwnerJid str
 }
 
 // NewsletterDemote demotes an admin of a channel back to a regular subscriber.
+//
+// There is intentionally no NewsletterPromote: WhatsApp does not promote a
+// subscriber via a w:mex mutation. Per the Help Center you INVITE someone as
+// admin (a NewsletterAdminInviteMessage they must accept), and the demote
+// variables ({newsletter_id,user_id}) carry no role field to flip. No
+// open-source lib (whatsmeow, Baileys, or any fork) implements the admin-invite
+// query_id, so promote is not portable without a golden trace.
 func (c *Client) NewsletterDemote(ctx context.Context, jid, userJid string) error {
 	if jid == "" || userJid == "" {
 		return errors.New("client: NewsletterDemote requires jid and user jid")
@@ -346,9 +357,10 @@ func (c *Client) NewsletterAdminCount(ctx context.Context, jid string) (int, err
 }
 
 // NewsletterFetchMessages fetches up to count messages from a channel, optionally
-// only those at/after the since timestamp (Unix seconds; <=0 to omit). Uses the
-// plain xmlns=newsletter transport.
-func (c *Client) NewsletterFetchMessages(ctx context.Context, jid string, count int, since int64) ([]NewsletterMessage, error) {
+// only those at/after the since timestamp (Unix seconds; <=0 to omit) and after
+// the given server-id cursor (0 to omit, for paging). Uses the plain
+// xmlns=newsletter transport.
+func (c *Client) NewsletterFetchMessages(ctx context.Context, jid string, count int, since int64, after int64) ([]NewsletterMessage, error) {
 	if jid == "" {
 		return nil, errors.New("client: NewsletterFetchMessages requires a jid")
 	}
@@ -359,7 +371,7 @@ func (c *Client) NewsletterFetchMessages(ctx context.Context, jid string, count 
 	if !ok {
 		return nil, errors.New("client: newsletter op requires a live session")
 	}
-	req := buildNewsletterFetchMessages(c.nextIQID("wa-go-nl-msgs-"), jid, count, since)
+	req := buildNewsletterFetchMessages(c.nextIQID("wa-go-nl-msgs-"), jid, count, since, after)
 	reply, err := c.sendIQ(ctx, sess, req)
 	if err != nil {
 		return nil, err

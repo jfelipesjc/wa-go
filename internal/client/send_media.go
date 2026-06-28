@@ -21,6 +21,9 @@ import (
 // install one via WithMediaUploader or pass a pre-uploaded MediaRef in MediaOpts.
 type mediaUploader interface {
 	Upload(ctx context.Context, enc []byte, mediaType media.MediaType) (directPath, url string, err error)
+	// UploadNewsletter uploads RAW (unencrypted) bytes to the channel media
+	// endpoint and returns directPath/url plus the media handle (media_id).
+	UploadNewsletter(ctx context.Context, data []byte, mediaType media.MediaType) (directPath, url, handle string, err error)
 }
 
 // MediaRef is a pre-computed upload reference. When the caller has already
@@ -118,6 +121,9 @@ func (c *Client) prepareMedia(ctx context.Context, data []byte, mediaType media.
 
 // SendImage encrypts data as an image, (uploads it,) and sends an ImageMessage.
 func (c *Client) SendImage(ctx context.Context, toJID string, data []byte, opts MediaOpts) (string, error) {
+	if isNewsletterJID(toJID) {
+		return c.SendNewsletterImage(ctx, toJID, data, opts)
+	}
 	info, err := c.prepareMedia(ctx, data, media.Image, opts)
 	if err != nil {
 		return "", err
@@ -127,6 +133,9 @@ func (c *Client) SendImage(ctx context.Context, toJID string, data []byte, opts 
 
 // SendVideo encrypts data as a video, (uploads it,) and sends a VideoMessage.
 func (c *Client) SendVideo(ctx context.Context, toJID string, data []byte, opts MediaOpts) (string, error) {
+	if isNewsletterJID(toJID) {
+		return c.SendNewsletterVideo(ctx, toJID, data, opts)
+	}
 	info, err := c.prepareMedia(ctx, data, media.Video, opts)
 	if err != nil {
 		return "", err
@@ -138,6 +147,9 @@ func (c *Client) SendVideo(ctx context.Context, toJID string, data []byte, opts 
 // video note): same media pipeline as SendVideo, but the payload rides in
 // Message.ptvMessage so clients render it as a circular auto-playing note.
 func (c *Client) SendPtv(ctx context.Context, toJID string, data []byte, opts MediaOpts) (string, error) {
+	if isNewsletterJID(toJID) {
+		return "", fmt.Errorf("client: PTV (round video) send to a channel (%q) is not supported", toJID)
+	}
 	info, err := c.prepareMedia(ctx, data, media.Video, opts)
 	if err != nil {
 		return "", err
@@ -157,6 +169,9 @@ func (c *Client) SendPtvBytes(ctx context.Context, toJID string, data []byte, mi
 
 // SendAudio encrypts data as audio, (uploads it,) and sends an AudioMessage.
 func (c *Client) SendAudio(ctx context.Context, toJID string, data []byte, opts MediaOpts) (string, error) {
+	if isNewsletterJID(toJID) {
+		return c.SendNewsletterAudio(ctx, toJID, data, opts)
+	}
 	info, err := c.prepareMedia(ctx, data, media.Audio, opts)
 	if err != nil {
 		return "", err
@@ -167,6 +182,9 @@ func (c *Client) SendAudio(ctx context.Context, toJID string, data []byte, opts 
 // SendDocument encrypts data as a document, (uploads it,) and sends a
 // DocumentMessage.
 func (c *Client) SendDocument(ctx context.Context, toJID string, data []byte, opts MediaOpts) (string, error) {
+	if isNewsletterJID(toJID) {
+		return c.SendNewsletterDocument(ctx, toJID, data, opts)
+	}
 	info, err := c.prepareMedia(ctx, data, media.Document, opts)
 	if err != nil {
 		return "", err
@@ -177,6 +195,9 @@ func (c *Client) SendDocument(ctx context.Context, toJID string, data []byte, op
 // SendSticker encrypts data as a sticker (image media type, per Baileys) and
 // sends a StickerMessage.
 func (c *Client) SendSticker(ctx context.Context, toJID string, data []byte, opts MediaOpts) (string, error) {
+	if isNewsletterJID(toJID) {
+		return "", fmt.Errorf("client: sticker send to a channel (%q) is not supported", toJID)
+	}
 	// Stickers use the Image HKDF info ("WhatsApp Image Keys") in Baileys.
 	info, err := c.prepareMedia(ctx, data, media.Image, opts)
 	if err != nil {

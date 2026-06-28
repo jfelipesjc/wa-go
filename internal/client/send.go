@@ -44,6 +44,10 @@ type sendOpts struct {
 	// is stamped as the `mediatype` attribute on every <enc> node — required for
 	// media messages (Baileys getMediaType). Empty for non-media.
 	mediaType string
+
+	// mediaID, when set, is stamped as the message node's `media_id` attribute —
+	// the upload handle, required for channel (newsletter) media sends.
+	mediaID string
 }
 
 // sendMessage is the shared 1:1 send core that SendText and every other 1:1

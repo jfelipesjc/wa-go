@@ -126,10 +126,11 @@ func (c *Client) sendMessage(ctx context.Context, toJID string, msg *waproto.Mes
 }
 
 // sendRouted dispatches a built message to the right transport based on the
-// destination: a `@g.us` JID goes through sendGroupMessage (sender keys), with
-// the participant list resolved from group metadata; everything else goes 1:1
-// via sendMessage. Every public Send* helper routes through here so groups work
-// uniformly for text, media, reaction, location, edit, etc.
+// destination: a `@g.us` JID goes through sendGroupMessage (sender keys), a
+// `@newsletter` JID through the unencrypted channel sender (which returns the
+// server_id as the id), and everything else 1:1 via sendMessage. Every public
+// Send* helper routes through here so groups/channels work uniformly for text,
+// media, reaction, location, edit, etc.
 func (c *Client) sendRouted(ctx context.Context, toJID string, msg *waproto.Message, opts sendOpts) (string, error) {
 	if isGroupJID(toJID) {
 		parts, err := c.groupParticipantJIDs(ctx, toJID)
@@ -137,6 +138,9 @@ func (c *Client) sendRouted(ctx context.Context, toJID string, msg *waproto.Mess
 			return "", err
 		}
 		return c.sendGroupMessage(ctx, toJID, parts, msg, opts)
+	}
+	if isNewsletterJID(toJID) {
+		return c.sendNewsletterMessage(ctx, toJID, msg, opts)
 	}
 	return c.sendMessage(ctx, toJID, msg, opts)
 }

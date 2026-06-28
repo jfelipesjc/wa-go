@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jfelipesjc/wa-go/internal/waproto"
 	"github.com/jfelipesjc/wa-go/internal/wire"
 	"google.golang.org/protobuf/proto"
 )
@@ -130,21 +131,34 @@ func (c *Client) NewsletterSubscriberCount(ctx context.Context, jid string) (int
 // (mirroring whatsmeow's sendNewsletter — no Signal, no padding). The server
 // replies with an <ack id=..> carrying the server_id, which we await and return.
 func (c *Client) SendNewsletterText(ctx context.Context, jid, text string) (string, error) {
+	if !isNewsletterJID(jid) {
+		return "", fmt.Errorf("client: %q is not a newsletter JID", jid)
+	}
+	return c.sendNewsletterMessage(ctx, jid, buildTextMessage(text), sendOpts{})
+}
+
+// sendNewsletterMessage is the shared core for posting to a channel: it is used
+// by SendNewsletterText and by the @newsletter branch of sendRouted (so any
+// Send* helper aimed at a channel routes here). Channels are unencrypted, so the
+// serialized proto goes out in a <plaintext> child with no Signal/padding; the
+// server replies with an <ack id=..> carrying the server_id, which is returned.
+func (c *Client) sendNewsletterMessage(ctx context.Context, jid string, msg *waproto.Message, opts sendOpts) (string, error) {
 	sess, ok := c.activeSession()
 	if !ok {
 		return "", errors.New("client: not logged in (no active session)")
 	}
-	if !isNewsletterJID(jid) {
-		return "", fmt.Errorf("client: %q is not a newsletter JID", jid)
-	}
-	plaintext, err := proto.Marshal(buildTextMessage(text))
+	plaintext, err := proto.Marshal(msg)
 	if err != nil {
 		return "", fmt.Errorf("client: marshal newsletter message: %w", err)
+	}
+	stanzaType := opts.stanzaType
+	if stanzaType == "" {
+		stanzaType = "text"
 	}
 	msgID := generateMessageID()
 	stanza := wire.Node{
 		Tag:   "message",
-		Attrs: map[string]string{"to": jid, "id": msgID, "type": "text"},
+		Attrs: map[string]string{"to": jid, "id": msgID, "type": stanzaType},
 		Content: []wire.Node{
 			{Tag: "plaintext", Content: plaintext},
 		},
